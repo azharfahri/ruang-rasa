@@ -12,7 +12,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $category = Category::latest()->get();
+        return view('admin.category.index', compact('category'));
     }
 
     /**
@@ -20,7 +21,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.category.create');
     }
 
     /**
@@ -28,7 +29,13 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nama'=>'required|string|max:255|unique:categories,nama',
+        ]);
+        $category = new Category();
+        $category->nama = $request->nama;
+        $category->save();
+        return redirect()->route('admin.category.index')->with('success','Data Telah Berhasil Ditambahkan');
     }
 
     /**

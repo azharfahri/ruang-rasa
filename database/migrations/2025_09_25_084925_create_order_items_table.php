@@ -13,10 +13,16 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('product_id')->constrained()->restrictOnDelete();
+            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+            $table->foreignId('product_id')->constrained('products')->onDelete('restrict');
+
             $table->integer('quantity');
-            $table->decimal('price', 12, 2);
+            $table->decimal('price', 12, 2); // Harga produk unit saat pesanan dibuat
+
+            // Detail Varian dan Notes disimpan dalam JSON/TEXT
+            $table->json('variant_details')->nullable(); // [{"name": "Large", "impact": 5000}, ...]
+            $table->text('notes')->nullable(); // Permintaan khusus
+
             $table->timestamps();
         });
     }

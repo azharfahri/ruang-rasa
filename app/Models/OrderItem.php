@@ -15,6 +15,13 @@ class OrderItem extends Model
         'product_id',
         'quantity',
         'price',
+
+        // --- FIELD BARU DITAMBAHKAN ---
+        'temperature',
+        'sugar_level',
+        'ice_level',
+        // -----------------------------
+
         'variant_details', // JSON
         'notes', // TEXT
     ];
@@ -23,6 +30,15 @@ class OrderItem extends Model
         'price' => 'decimal:2',
         'variant_details' => 'array', // Casting JSON ke Array/Collection PHP
     ];
+
+    /**
+     * Tentukan nilai ENUM yang diizinkan (Opsional, tapi bagus untuk validasi)
+     */
+    // Konstanta untuk ENUM:
+    public const TEMPERATURES = ['Hot', 'Iced'];
+    public const SUGAR_LEVELS = ['Normal', 'Less Sugar', 'No Sugar'];
+    public const ICE_LEVELS = ['Normal', 'Less Ice', 'No Ice'];
+
 
     // Relasi: Item dimiliki oleh satu Order
     public function order(): BelongsTo

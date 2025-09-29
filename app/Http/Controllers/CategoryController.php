@@ -4,69 +4,77 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $category = Category::latest()->get();
         return view('admin.category.index', compact('category'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('admin.category.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
-            'nama'=>'required|string|max:255|unique:categories,nama',
-        ]);
-        $category = new Category();
-        $category->nama = $request->nama;
-        $category->save();
-        return redirect()->route('admin.category.index')->with('success','Data Telah Berhasil Ditambahkan');
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255|unique:categories,name',
+            ]);
+
+            Category::create([
+                'name' => $request->name,
+            ]);
+
+            return redirect()
+                ->route('admin.category.index')
+                ->with('success', 'Data Telah Berhasil Ditambahkan');
+        } catch (Exception $e) {
+            Log::error('Store Category Error: '.$e->getMessage());
+            return back()->with('error', 'Gagal menambah kategori, coba lagi.');
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Category $category)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Category $category)
     {
-        //
+        return view('admin.category.edit', compact('category'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Category $category)
     {
-        //
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            ]);
+
+            $category->update([
+                'name' => $request->name,
+            ]);
+
+            return redirect()
+                ->route('admin.category.index')
+                ->with('success', 'Data Telah Berhasil Diubah');
+        } catch (Exception $e) {
+            Log::error('Update Category Error: '.$e->getMessage());
+            return back()->with('error', 'Gagal mengubah kategori, coba lagi.');
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Category $category)
     {
-        //
+        try {
+            $category->delete();
+            return redirect()
+                ->route('admin.category.index')
+                ->with('success', 'Data Telah Berhasil Dihapus');
+        } catch (Exception $e) {
+            Log::error('Delete Category Error: '.$e->getMessage());
+            return back()->with('error', 'Gagal menghapus kategori, coba lagi.');
+        }
     }
 }

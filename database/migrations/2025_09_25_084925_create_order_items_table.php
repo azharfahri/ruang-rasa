@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -7,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Jalankan migrasi.
      */
     public function up(): void
     {
@@ -19,6 +18,11 @@ return new class extends Migration
             $table->integer('quantity');
             $table->decimal('price', 12, 2); // Harga produk unit saat pesanan dibuat
 
+            // Tambahan Field untuk Order Attributes (Menggunakan ENUM)
+            $table->enum('temperature', ['Hot', 'Iced'])->nullable()->default(null);
+            $table->enum('sugar_level', ['Normal', 'Less Sugar', 'No Sugar'])->nullable()->default('Normal');
+            $table->enum('ice_level', ['Normal', 'Less Ice', 'No Ice'])->nullable()->default('Normal');
+
             // Detail Varian dan Notes disimpan dalam JSON/TEXT
             $table->json('variant_details')->nullable(); // [{"name": "Large", "impact": 5000}, ...]
             $table->text('notes')->nullable(); // Permintaan khusus
@@ -28,7 +32,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Balikkan migrasi.
      */
     public function down(): void
     {

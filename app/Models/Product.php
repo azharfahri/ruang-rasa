@@ -12,10 +12,13 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'category_id',
         'name',
+        'slug',
+        'description',
         'price',
         'image',
+        'stock',
+        'category_id',
     ];
 
     // Relasi: Produk dimiliki oleh satu Category

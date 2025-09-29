@@ -53,14 +53,14 @@
                                         <span class="hide-menu">Kategori</span>
                                     </a>
                                 </li>
-                                {{-- <li class="sidebar-item">
+                                <li class="sidebar-item">
                                     <a href="{{ route('admin.product.index') }}" class="sidebar-link">
                                         <div class="round-16 d-flex align-items-center justify-content-center">
                                             <i class="ti ti-circle"></i>
                                         </div>
-                                        <span class="hide-menu">Product</span>
+                                        <span class="hide-menu">Produk</span>
                                     </a>
-                                </li> --}}
+                                </li>
                             </ul>
                         </li>
 

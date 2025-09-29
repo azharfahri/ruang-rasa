@@ -17,7 +17,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
-                <a href="#" type="button" class="btn btn-primary">Tambah</a>
+                <a href="{{ route ('admin.category.create') }}" type="button" class="btn btn-primary">Tambah</a>
                 <table class="table">
                     <thead>
                         <tr>
@@ -33,15 +33,15 @@
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $item->name }}</td>
                                 <td>
-                                    <form action="#" method="POST">
-                                        <a href="#" type="button"
+                                    <form action="{{ route('admin.category.destroy', $item->id) }}" method="POST">
+                                        <a href="{{ route('admin.category.edit', $item->id) }}" type="button"
                                             class="btn btn-success">Edit</a>
                                         {{-- <a href="#" type="button" class="btn btn-warning">Show</a> --}}
 
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger"
-                                            onclick="return confirm('Apa kamu yakin?')">Delete</button>
+                                            onclick="return confirm('Apa kamu yakin?')">Hapus</button>
                                     </form>
                                 </td>
                             </tr>

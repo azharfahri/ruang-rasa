@@ -214,6 +214,49 @@ class ProductController extends Controller
         }
     }
 
+    public function getVariants($id)
+    {
+        try {
+            $product = Product::findOrFail($id);
+            $variants = ProductVariant::where('product_id', $id)->get()->groupBy('type');
+
+            $html = '';
+
+            if ($variants->isEmpty()) {
+                $html = '<p class="text-muted">Tidak ada varian untuk produk ini.</p>';
+            } else {
+                foreach ($variants as $type => $group) {
+                    $html .= '<div class="mb-2">';
+                    $html .= '<label class="form-label">' . ucfirst($type) . '</label><br>';
+
+                    foreach ($group as $variant) {
+                        $priceImpact = $variant->price_impact > 0
+                            ? ' (+Rp ' . number_format($variant->price_impact, 0, ',', '.') . ')'
+                            : '';
+
+                        $html .= '
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input variant-checkbox" type="checkbox"
+                                name="selected_variants[]"
+                                value="' . $variant->id . '"
+                                data-impact="' . $variant->price_impact . '">
+                            <label class="form-check-label">'
+                            . $variant->name . $priceImpact .
+                            '</label>
+                        </div>
+                    ';
+                    }
+
+                    $html .= '</div>';
+                }
+            }
+
+            return response()->json(['html' => $html]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memuat varian.'], 500);
+        }
+    }
+
     //hapus
     public function destroy(Product $product)
     {

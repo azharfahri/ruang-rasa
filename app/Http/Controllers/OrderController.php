@@ -2,64 +2,65 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Models\Product;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function addToCart(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1',
+            'price' => 'required|numeric',
+            'temperature' => 'nullable|string',
+            'sugar_level' => 'nullable|string',
+            'ice_level' => 'nullable|string',
+            'variant_details' => 'nullable|array',
+            'notes' => 'nullable|string',
+        ]);
+
+        $cart = session()->get('cart', []);
+
+        $product = Product::findOrFail($validated['product_id']);
+        $variantKey = json_encode($validated['variant_details'] ?? []);
+        $uniqueKey = $validated['product_id'] . '-' . md5($variantKey);
+
+        $cart[$uniqueKey] = [
+            'product_id' => $product->id,
+            'name' => $product->name,
+            'price' => $validated['price'],
+            'quantity' => $validated['quantity'],
+            'temperature' => $validated['temperature'] ?? null,
+            'sugar_level' => $validated['sugar_level'] ?? null,
+            'ice_level' => $validated['ice_level'] ?? null,
+            'variant_details' => $validated['variant_details'] ?? [],
+            'notes' => $validated['notes'] ?? '',
+        ];
+
+        session()->put('cart', $cart);
+
+        return response()->json([
+            'message' => 'Produk berhasil masuk ke keranjang 💚',
+            'cart' => $cart,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function viewCart()
     {
-        //
+        $cart = session()->get('cart', []);
+        return view('cart.index', compact('cart'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function removeFromCart($key)
     {
-        //
-    }
+        $cart = session()->get('cart', []);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Order $order)
-    {
-        //
-    }
+        if (isset($cart[$key])) {
+            unset($cart[$key]);
+            session()->put('cart', $cart);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order $order)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Order $order)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order $order)
-    {
-        //
+        return redirect()->back()->with('success', 'Produk dihapus dari keranjang!');
     }
 }

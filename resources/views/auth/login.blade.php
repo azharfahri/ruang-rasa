@@ -40,7 +40,7 @@
                             class="authentication-login min-vh-100 bg-body row justify-content-center align-items-center p-4">
                             <div class="auth-max-width col-sm-8 col-md-6 col-xl-7 px-4">
                                 <h2 class="mb-1 fs-7 fw-bolder">Selamat datang di ruang rasa</h2>
-                                <p class="mb-7">Your Admin Dashboard</p>
+                                <p class="mb-7">Silahkan isi</p>
 
                                 <form method="POST" action="{{ route('login') }}">
                                     @csrf

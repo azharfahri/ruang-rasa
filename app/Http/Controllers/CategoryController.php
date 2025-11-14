@@ -25,10 +25,12 @@ class CategoryController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255|unique:categories,name',
+                'type' => 'required|string|max:255',
             ]);
 
             Category::create([
                 'name' => $request->name,
+                'type' => $request->type,
             ]);
 
             return redirect()
@@ -50,10 +52,12 @@ class CategoryController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+                'type' => 'required|string|max:255|',
             ]);
 
             $category->update([
                 'name' => $request->name,
+                'type' => $request->type,
             ]);
 
             return redirect()

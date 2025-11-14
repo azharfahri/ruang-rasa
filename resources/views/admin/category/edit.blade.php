@@ -1,90 +1,65 @@
 @extends('layouts.admin')
 @section('content')
-<div class="card">
-    <div class="card-body">
-        <h4>Edit Product</h4>
+    <div class="card">
+        <div class="card-body">
+            <h4><i class="fas fa-edit me-2"></i>Edit Kategori: {{ $category->name }}</h4>
 
-        {{-- tampilkan error --}}
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+            <hr>
 
-        <form action="{{ route('admin.product.update', $product->id) }}" method="post" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
-            <div class="row">
-                {{-- Kategori --}}
-                <div class="col-md-12 mb-3">
-                    <label class="form-label">Kategori</label>
-                    <select class="form-select" name="category_id" required>
-                        <option disabled>Pilih Kategori</option>
-                        @foreach ($categories as $data)
-                            <option value="{{ $data->id }}"
-                                {{ $product->category_id == $data->id ? 'selected' : '' }}>
-                                {{ $data->name }}
-                            </option>
+            {{-- tampilkan error --}}
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
                         @endforeach
-                    </select>
+                    </ul>
                 </div>
+            @endif
 
-                {{-- Nama Produk --}}
-                <div class="col-md-12 mb-3">
-                    <label class="form-label">Nama Produk</label>
-                    <input type="text" class="form-control" name="name" value="{{ old('name',$product->name) }}" required>
-                </div>
+            {{-- ASUMSI: Route update kategori Anda bernama 'admin.categories.update' --}}
+            <form action="{{ route('admin.category.update', $category->id) }}" method="post">
+                @csrf
+                {{-- Menggunakan method spoofing untuk PUT --}}
+                @method('PUT')
 
-                {{-- Deskripsi --}}
-                <div class="col-md-12 mb-3">
-                    <label class="form-label">Deskripsi</label>
-                    <textarea class="form-control" name="description" rows="3" required>{{ old('description',$product->description) }}</textarea>
-                </div>
+                <div class="row">
 
-                {{-- Harga --}}
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Harga</label>
-                    <input type="number" class="form-control" name="price"
-                           value="{{ old('price',$product->price) }}" required>
-                </div>
+                    {{-- Nama Kategori --}}
+                    <div class="col-md-6 mb-3">
+                        <label for="name" class="form-label">Nama Kategori</label>
+                        <input type="text" name="name" id="name" class="form-control"
+                            value="{{ old('name', $category->name) }}" required>
+                    </div>
 
-                {{-- Stok --}}
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Stok</label>
-                    <input type="number" class="form-control" name="stock"
-                           value="{{ old('stock',$product->stock) }}" required>
-                </div>
+                    {{-- Tipe Kategori (Minuman/Makanan) --}}
+                    {{-- ASUMSI: Kolom di database Anda bernama 'type' --}}
+                    <div class="col-md-6 mb-3">
+                        <label for="type" class="form-label">Tipe Produk</label>
+                        <select name="type" id="type" class="form-select" required>
+                            {{--
+                            ASUMSI: Nilai dari $category->type adalah 'minuman' atau 'makanan'.
+                            Jika Anda menggunakan boolean (is_drink), ubah value dan pengecekan di bawah.
+                        --}}
+                            <option value="minuman" {{ old('type', $category->type) == 'minuman' ? 'selected' : '' }}>
+                                Minuman
+                            </option>
+                            <option value="makanan" {{ old('type', $category->type) == 'makanan' ? 'selected' : '' }}>
+                                Makanan/Snack
+                            </option>
+                        </select>
+                    </div>
 
-                {{-- Varian Tambahan (opsional) --}}
-                <div class="col-md-12 mb-3">
-                    <label class="form-label">Varian Tambahan (opsional)</label>
-                    <textarea class="form-control" name="variants"
-                        placeholder="Contoh: Large, Extra Ice, dll">{{ old('variants', $product->variants ?? '') }}</textarea>
-                    <small class="text-muted">Pisahkan dengan koma bila lebih dari satu.</small>
+                    <div class="col-12 mt-3 text-end">
+                        <a href="{{ route('admin.category.index') }}" class="btn btn-secondary me-2">
+                            Batal
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Simpan Perubahan
+                        </button>
+                    </div>
                 </div>
-
-                {{-- Gambar --}}
-                <div class="col-md-12 mb-3">
-                    <label class="form-label">Gambar</label>
-                    <input type="file" class="form-control" name="image" accept="image/*">
-                    <small class="text-muted d-block">Kosongkan jika tidak ingin mengubah gambar.</small>
-                    @if ($product->image)
-                        <div class="mt-2">
-                            <img src="{{ asset('storage/'.$product->image) }}" alt="current image"
-                                 class="rounded" width="120">
-                        </div>
-                    @endif
-                </div>
-
-                <div class="col-12 text-end">
-                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
 @endsection

@@ -46,7 +46,8 @@
                             Tambahan:
                             @foreach ($variants as $variant)
                                 <span>{{ $variant['name'] }}
-                                    (+{{ number_format($variant['impact']) }})</span>{{ !$loop->last ? ', ' : '' }}
+                                    (+{{ number_format($variant['impact']) }})
+                                </span>{{ !$loop->last ? ', ' : '' }}
                             @endforeach
                         @endif
                     </small>
@@ -57,15 +58,14 @@
                     <p class="mb-0 fw-bold text-success">
                         Rp{{ number_format($item->product->price) }}
                     </p>
-                    {{-- Tombol Hapus (Jika Anda mengimplementasikannya) --}}
-                    <form action="{{ route('orders.removeItem') }}" method="POST" class="d-inline">
+                    <form action="{{ route('order.remove-item') }}" method="POST" class="cart-remove-form">
                         @csrf
-                        @method('DELETE') <input type="hidden" name="order_product_id" value="{{ $item->id }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger border-0 p-0 mt-1"
-                            title="Hapus Item">
-                            <i class="bi bi-x-circle"></i> Hapus
+                        <input type="hidden" name="item_id" value="{{ $item->id }}">
+                        <button type="submit" class="btn btn-sm btn-danger w-100">
+                            Hapus
                         </button>
                     </form>
+
                 </div>
 
             </div>
@@ -79,13 +79,14 @@
             <span>Rp{{ number_format($latestOrder->total) }}</span>
         </div>
 
-        <form action="{{ route('orders.checkOut') }}" method="POST">
+        <form action="{{ route('checkout') }}" method="POST">
             @csrf
             <input type="hidden" name="order_id" value="{{ $latestOrder->id }}">
             <button type="submit" class="btn btn-success w-100 py-2">
                 <i class="bi bi-cart-check-fill"></i> Checkout
             </button>
         </form>
+
 
         <small class="d-block text-center mt-2 text-muted">
             {{-- Sesuaikan route ini jika ada halaman detail order --}}

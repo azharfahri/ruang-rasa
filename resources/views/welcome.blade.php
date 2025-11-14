@@ -378,8 +378,8 @@
 
                 // Identifikasi form berdasarkan ID atau action yang mengandung keyword spesifik.
                 const isAddToCart = form.id === 'addToCartForm';
-                const isCartAction = form.action.includes('/order/') || form.action.includes(
-                '/order-item/'); // Tambahkan /order-item/ untuk Delete
+                const isRemoveItem = form.action.includes('/order/remove-item');
+                const isCartAction = isRemoveItem || form.action.includes('/order/') || form.action.includes('/order-item/');
 
                 // Hanya proses form yang relevan dengan keranjang
                 if (isAddToCart || isCartAction) {

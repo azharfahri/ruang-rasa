@@ -14,6 +14,72 @@ use Illuminate\Support\Facades\Log;
 
 class EccommerceController extends Controller
 {
+    /**
+     * ============================
+     *  HELPER METHODS (PRIVATE)
+     * ============================
+     */
+
+    private function findOrCreatePendingOrder()
+    {
+        return Order::firstOrCreate(
+            ['user_id' => Auth::id(), 'status' => 'pending'],
+            ['total' => 0]
+        );
+    }
+
+    private function normalizeVariantDetails($variants)
+    {
+        if (empty($variants)) return json_encode([]);
+
+        $details = collect($variants)
+            ->map(fn($v) => [
+                'id' => $v->id,
+                'name' => $v->name,
+                'type' => $v->type,
+                'impact' => $v->price_impact
+            ])
+            ->sortBy('id') // agar konsisten dan bisa cek duplikat
+            ->values()
+            ->all();
+
+        return json_encode($details);
+    }
+
+    private function calculateItemPrice($product, $variants, $qty)
+    {
+        $variantImpact = $variants->sum('price_impact');
+        $unitPrice = $product->price + $variantImpact;
+        return [
+            'unit' => $unitPrice,
+            'total' => $unitPrice * $qty
+        ];
+    }
+
+    private function recalculateOrderTotal($order)
+    {
+        $order->total = $order->items()->sum('price');
+        $order->save();
+    }
+
+    private function findExistingItem($order, $product, $variantJson, $item)
+    {
+        return OrderItem::where('order_id', $order->id)
+            ->where('product_id', $product->id)
+            ->where('temperature', $item['temperature'] ?? 'Iced')
+            ->where('sugar_level', $item['sugar_level'] ?? 'Normal')
+            ->where('ice_level', $item['ice_level'] ?? 'Normal')
+            ->where('variant_details', $variantJson)
+            ->first();
+    }
+
+
+    /**
+     * ============================
+     *         MAIN METHODS
+     * ============================
+     */
+
     public function index()
     {
         $category = Category::all();
@@ -37,19 +103,16 @@ class EccommerceController extends Controller
 
     public function createOrder(Request $request)
     {
-        // Validasi disederhanakan untuk payload single item dari JS modal
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
             'temperature' => 'nullable|in:Hot,Iced',
             'sugar_level' => 'nullable|in:Normal,Less Sugar,No Sugar',
             'ice_level' => 'nullable|in:Normal,Less Ice,No Ice',
-            // Name input varian di JS adalah 'variants'
             'variants' => 'nullable|array',
             'variants.*' => 'exists:product_variants,id',
         ]);
 
-        // Menggunakan variabel tunggal untuk item
         $item = $request->only([
             'product_id',
             'quantity',
@@ -57,112 +120,69 @@ class EccommerceController extends Controller
             'sugar_level',
             'ice_level'
         ]);
-        $selectedVariants = $request->input('variants', []);
 
         try {
             DB::beginTransaction();
 
-            // 1. Dapatkan atau buat Order (Keranjang)
-            $order = Order::firstOrCreate(
-                ['user_id' => Auth::id(), 'status' => 'pending'],
-                ['total' => 0]
-            );
-
-            // 2. Ambil data produk
+            $order = $this->findOrCreatePendingOrder();
             $product = Product::findOrFail($item['product_id']);
-            $quantity = $item['quantity'];
-            $basePrice = $product->price;
-            $variantTotalImpact = 0;
-            $variantDetails = [];
+            $qty = $item['quantity'];
 
-            // 3. Hitung impact varian
-            if (!empty($selectedVariants)) {
-                $variants = ProductVariant::whereIn('id', $selectedVariants)->get();
-                foreach ($variants as $variant) {
-                    $variantTotalImpact += $variant->price_impact;
-                    $variantDetails[] = [
-                        'id' => $variant->id,
-                        'name' => $variant->name,
-                        'type' => $variant->type,
-                        'impact' => $variant->price_impact,
-                    ];
-                }
-            }
+            // Get variants
+            $variantModels = ProductVariant::whereIn('id', $request->variants ?? [])->get();
 
-            $finalItemPrice = $basePrice + $variantTotalImpact;
-            $itemTotalPrice = $finalItemPrice * $quantity;
+            // Normalize JSON variant detail for duplicate check
+            $variantJson = $this->normalizeVariantDetails($variantModels);
 
-            // KONSISTENSI: Pastikan urutan variant_details selalu sama untuk pengecekan duplikat
-            $jsonVariantDetails = json_encode($variantDetails);
+            // Calculate price
+            $prices = $this->calculateItemPrice($product, $variantModels, $qty);
 
-            // 4. Cek apakah item sama udah ada di keranjang
-            $existingItem = OrderItem::where('order_id', $order->id)
-                ->where('product_id', $product->id)
-                ->where('temperature', $item['temperature'] ?? 'Iced')
-                ->where('sugar_level', $item['sugar_level'] ?? 'Normal')
-                ->where('ice_level', $item['ice_level'] ?? 'Normal')
-                ->where('variant_details', $jsonVariantDetails)
-                ->first();
+            // Cek duplikasi item
+            $existingItem = $this->findExistingItem($order, $product, $variantJson, $item);
 
             if ($existingItem) {
-                // Item sama ditemukan, tambahkan kuantitas dan harga total
-                $existingItem->quantity += $quantity;
-                $existingItem->price += $itemTotalPrice;
+                $existingItem->quantity += $qty;
+                $existingItem->price += $prices['total'];
                 $existingItem->save();
             } else {
-                // Item baru, buat OrderItem baru
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
-                    'quantity' => $quantity,
-                    'price' => $itemTotalPrice,
-                    'variant_details' => $jsonVariantDetails,
+                    'quantity' => $qty,
+                    'price' => $prices['total'],
+                    'variant_details' => $variantJson,
                     'temperature' => $item['temperature'] ?? 'Iced',
                     'sugar_level' => $item['sugar_level'] ?? 'Normal',
                     'ice_level' => $item['ice_level'] ?? 'Normal',
                 ]);
             }
 
-            // 5. Update Total Harga Order
-            $order->total = OrderItem::where('order_id', $order->id)->sum('price');
-            $order->save();
+            // Update total
+            $this->recalculateOrderTotal($order);
 
             DB::commit();
 
-            // 6. Respon sukses dan kembalikan HTML keranjang yang diperbarui
-            $productName = $product->name;
-
-            // --- Perubahan dimulai di sini ---
-
-            // Dapatkan order terbaru (yang baru diupdate) dengan relasi yang dibutuhkan
-            $latestOrder = Order::where('user_id', Auth::id())
-                ->where('status', 'pending')
-                // Penting: Pastikan relasi items dan product dimuat
-                ->with('items.product')
-                ->latest()
-                ->first();
-            // Render view partial offcanvas dengan data terbaru
+            // Update offcanvas cart HTML
+            $latestOrder = $this->getCart();
             $cartHtml = view('partials.offcanvas-cart-content', [
-                // Gunakan name variabel yang sama dengan yang ada di View Composer Anda ($latestOrder)
                 'latestOrder' => $latestOrder
             ])->render();
 
-            // Kembalikan respons JSON yang berisi HTML keranjang yang baru
             return response()->json([
                 'status' => 'success',
-                'message' => "$quantity x $productName berhasil ditambahkan ke keranjang",
-                'cartHtml' => $cartHtml, // Kunci baru yang berisi HTML
+                'message' => "$qty x {$product->name} berhasil ditambahkan ke keranjang",
+                'cartHtml' => $cartHtml,
             ]);
-            // --- Perubahan berakhir di sini ---
-
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Order creation failed: ' . $e->getMessage());
-            // Mengembalikan status 500 dan pesan error
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan ke keranjang, coba lagi. Detail: ' . $e->getMessage()], 500);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menambahkan ke keranjang. ' . $e->getMessage()
+            ], 500);
         }
     }
+
 
     public function myOrders()
     {
@@ -192,98 +212,76 @@ class EccommerceController extends Controller
             ]);
 
             DB::transaction(function () use ($request) {
-                $items = OrderItem::findOrFail($request->order_product_id);
-                $product = Product::findOrFail($items->product_id);
-                $order = Order::findOrFail($items->order_id);
+                $item = OrderItem::findOrFail($request->order_product_id);
+                $product = Product::findOrFail($item->product_id);
+                $order = Order::findOrFail($item->order_id);
 
-                if ($order->user_id != Auth::user()->id) {
-                    throw new \Exception('Akses Tidak Sah untuk pesanan ini.');
+                if ($order->user_id != Auth::id()) {
+                    throw new \Exception('Akses Tidak Sah.');
                 }
+
                 if ($order->status !== 'pending') {
-                    throw new \Exception('Tidak dapat mengubah jumlah produk pada pesanan yang sudah selesai atau dibatalkan.');
+                    throw new \Exception('Tidak dapat mengubah pesanan yang sudah selesai.');
                 }
 
                 if ($request->quantity > $product->stok) {
-                    throw new \Exception("Maaf, hanya tersedia {$product->stok} barang untuk {$product->name}.");
+                    throw new \Exception("Stok tersisa {$product->stok}.");
                 }
 
-                // Ambil unit price dari item sebelum dikalikan quantity (ini asumsi, tapi diperlukan untuk kalkulasi ulang)
-                // Kita bagi 'price' OrderItem (Total Item Price) dengan quantity lama untuk mendapatkan Unit Price
-                $itemPrice = $items->price / $items->quantity;
+                $unitPrice = $item->price / $item->quantity;
+                $item->quantity = $request->quantity;
+                $item->price = $unitPrice * $request->quantity;
+                $item->save();
 
-                $newTotalPrice = $itemPrice * $request->quantity;
-
-                $items->quantity = $request->quantity;
-                $items->price = $newTotalPrice; // FIX: Menggunakan kolom 'price' untuk total harga item
-                $items->save();
-
-                // Hitung ulang total order dari semua item
-                $order->total = OrderItem::where('order_id', $order->id)->sum('price'); // FIX: Menggunakan kolom 'total' dan sum('price')
-                $order->save();
+                $this->recalculateOrderTotal($order);
             });
-            return redirect()->back()->with("success", 'Jumlah Produk berhasil diperbarui');
+
+            return back()->with("success", 'Jumlah Produk berhasil diperbarui');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            return back()->with('error', $e->getMessage());
         }
     }
+
 
     public function removeItem(Request $request)
     {
+        $request->validate([
+            'item_id' => 'required|exists:order_items,id',
+        ]);
+
         try {
-            $request->validate([
-                'order_product_id' => 'required|exists:order_items,id',
+            $item = OrderItem::findOrFail($request->item_id);
+            $order = $item->order;
+
+            if ($order->user_id != Auth::id() || $order->status !== 'pending') {
+                return response()->json(['status' => 'error', 'message' => 'Akses ditolak.']);
+            }
+
+            $item->delete();
+
+            // Update total
+            $this->recalculateOrderTotal($order);
+
+            // Ambil cart terbaru untuk render ulang Offcanvas
+            $latestOrder = $this->getCart();
+            $cartHtml = view('partials.offcanvas-cart-content', [
+                'latestOrder' => $latestOrder
+            ])->render();
+
+            return response()->json([
+                'status' => 'success',
+                'cartHtml' => $cartHtml,
             ]);
-
-            $orderDeleted = false;
-            $message = null;
-
-            DB::transaction(function () use ($request, &$orderDeleted, &$message) {
-                $items = OrderItem::findOrFail($request->order_product_id);
-                $order = Order::findOrFail($items->order_id);
-                $productName = Product::findOrFail($items->product_id)->name;
-
-                if ($order->user_id !== Auth::id()) {
-                    throw new \Exception('Akses tidak sah untuk pesanan ini.');
-                }
-
-                if ($order->status !== 'pending') {
-                    throw new \Exception('Tidak dapat merubah pesanan yang telah selesai.');
-                }
-
-                $orderId = $order->id;
-
-                // Hapus item
-                $items->delete();
-
-                // Hitung ulang total order dari semua item
-                $order->total = OrderItem::where('order_id', $order->id)->sum('price'); // FIX: Menggunakan kolom 'total' dan sum('price')
-                $order->save();
-
-
-                $remainingCount = OrderItem::where('order_id', $orderId)->count();
-
-                if ($remainingCount === 0) {
-                    $order->delete();
-                    $orderDeleted = true;
-                    $message = 'Pesanan dihapus karena tidak ada produk di dalamnya.';
-                } else {
-                    $message = "Produk {$productName} berhasil di hapus dari pesanan.";
-                }
-            });
-
-            if ($orderDeleted) {
-                return redirect()->route('order.my')->with('info', 'Keranjang Anda kosong. ' . $message);
-            }
-
-            return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
-            $errorMessage = $e->getMessage();
-            if ($e instanceof \Illuminate\Validation\ValidationException) {
-                $errorMessage = $e->validator->errors()->first() ?? $e->getMessage();
-            }
-            return redirect()->back()->with('error', $errorMessage);
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
         }
     }
+
+
+
 
     public function checkOut(Request $request)
     {
@@ -292,46 +290,45 @@ class EccommerceController extends Controller
                 $order = Order::with('items.product')->findOrFail($request->order_id);
 
                 if ($order->user_id != Auth::id()) {
-                    return redirect()->route('orders.my')->with('error', 'Akses Tidak Sah untuk pesanan ini.');
+                    return redirect()->route('orders.my')->with('error', 'Akses Tidak Sah.');
                 }
 
                 if ($order->status !== 'pending') {
-                    return redirect()->route('orders.detail', $order->id)->with('error', 'Pesanan ini sudah selesai');
+                    return redirect()->route('orders.detail', $order->id)->with('error', 'Pesanan sudah selesai.');
                 }
 
                 if ($order->items->isEmpty()) {
-                    return redirect()->route('orders.my')->with('error', 'Tidak dapat melakukan checkout pada pesanan yang kosong.');
+                    return redirect()->route('orders.my')->with('error', 'Pesanan kosong.');
                 }
 
-                $insufficientStock = [];
+                $noStock = [];
                 foreach ($order->items as $item) {
-                    $product = $item->product;
-
-                    if ($item->quantity > $product->stok) {
-                        $insufficientStock[] = "{$product->name} (diminta: {$item->quantity}, tersedia: {$product->stok})";
+                    if ($item->quantity > $item->product->stok) {
+                        $noStock[] = "{$item->product->name} (butuh {$item->quantity}, stok {$item->product->stok})";
                     }
                 }
 
-                if (!empty($insufficientStock)) {
-                    $productList = implode(', ', $insufficientStock);
-                    return redirect()->route('orders.detail', $order->id)->with('error', "Stok tidak mencukupi untuk produk berikut: {$productList}");
+                if (!empty($noStock)) {
+                    return redirect()
+                        ->route('orders.detail', $order->id)
+                        ->with('error', "Stok tidak cukup untuk: " . implode(', ', $noStock));
                 }
 
-                // Kurangi stok
                 foreach ($order->items as $item) {
                     $product = $item->product;
                     $product->stok -= $item->quantity;
                     $product->save();
                 }
 
-                // Update status order
                 $order->status = 'completed';
                 $order->save();
 
-                return redirect()->route('orders.detail', $order->id)->with('success', 'Pembayaran Berhasil, terima kasih telah checkout!');
+                return redirect()->route('orders.detail', $order->id)
+                    ->with('success', 'Checkout Berhasil!');
             });
         } catch (\Exception $e) {
-            return redirect()->route('orders.my')->with('error', 'Terjadi Kesalahan saat checkout : ' . $e->getMessage());
+            return redirect()->route('orders.my')
+                ->with('error', 'Kesalahan checkout: ' . $e->getMessage());
         }
     }
 }

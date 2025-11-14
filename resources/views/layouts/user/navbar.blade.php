@@ -134,7 +134,7 @@
                             data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart">
                             <span class="fs-6 text-muted">Keranjang</span>
                             <span class="cart-total fs-5 fw-bold">
-                                {{ isset($latestOrder) ? 'Rp '.number_format($latestOrder->total_harga, 0, ',', '.') : 'Rp 0' }}
+                                {{ isset($latestOrder) ? 'Rp '.number_format($latestOrder->total, 0, ',', '.') : 'Rp 0' }}
                             </span>
                         </button>
                     </div>

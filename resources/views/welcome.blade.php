@@ -297,10 +297,10 @@
             // Fungsi untuk menampilkan pesan (Anda bisa mengganti ini dengan SweetAlert/Toastr)
             function showMessage(status, message) {
                 if (status === 'success') {
-                    console.log('✅ Sukses: ' + message);
+                    console.log('Sukses: ' + message);
                     // TODO: Ganti dengan toast/notifikasi visual
                 } else {
-                    console.error('❌ Gagal: ' + message);
+                    console.error('Gagal: ' + message);
                     // TODO: Ganti dengan modal/alert error
                 }
             }
@@ -375,16 +375,26 @@
 
             document.body.addEventListener('submit', function(e) {
                 const form = e.target;
-                const isCartForm = form.id === 'addToCartForm' || form.action.includes('/order/');
 
-                if (isCartForm) {
-                    e.preventDefault(); // Hentikan submit form standar! (INI PENTING)
+                // Identifikasi form berdasarkan ID atau action yang mengandung keyword spesifik.
+                const isAddToCart = form.id === 'addToCartForm';
+                const isCartAction = form.action.includes('/order/') || form.action.includes(
+                '/order-item/'); // Tambahkan /order-item/ untuk Delete
 
+                // Hanya proses form yang relevan dengan keranjang
+                if (isAddToCart || isCartAction) {
+                    e.preventDefault(); // Hentikan submit form standar!
+
+                    // Cek apakah ini adalah form Checkout (action harus menuju ke /checkout)
                     const isCheckout = form.action.includes('/checkout');
+
+                    // Tentukan apakah ini form Hapus (DELETE)
+                    // Kita bisa menggunakan FormData untuk melihat apakah ada field _method=DELETE
                     const formData = new FormData(form);
+                    const method = formData.get('_method') || form.method.toUpperCase();
+
                     const url = form.action;
 
-                    // Tampilkan loading state atau disable tombol
                     const submitButton = form.querySelector('button[type="submit"]');
                     const originalButtonHtml = submitButton ? submitButton.innerHTML : 'Submit';
 
@@ -396,68 +406,69 @@
 
 
                     fetch(url, {
-                            method: 'POST',
+                            method: 'POST', // Kirim sebagai POST, Laravel akan mengurus _method
                             body: formData,
                             headers: {
                                 'Accept': 'application/json',
                             }
                         })
                         .then(response => {
-                            // Untuk Checkout, jika Laravel merespons dengan Redirect, kita biarkan browser mengikutinya.
-                            // Jika itu form addToCart atau removeItem, kita harapkan JSON.
+                            // Jika ini Checkout dan server merespons redirect, kita ikuti redirect-nya
                             if (isCheckout && response.redirected) {
                                 window.location.href = response.url;
-                                return; // Hentikan pemrosesan JSON
+                                return; // Hentikan pemrosesan
                             }
 
-                            // Cek apakah respons adalah JSON (biasanya untuk addToCart/removeItem)
+                            // Tangani respons JSON untuk ADD dan DELETE
                             const contentType = response.headers.get('content-type');
                             if (contentType && contentType.includes('application/json')) {
                                 return response.json();
                             } else {
-                                // Jika bukan JSON (misalnya, ada error HTML dari Laravel), kita log
+                                // Jika server mengirim respons non-JSON (misal: HTML error)
                                 return response.text().then(text => {
-                                    throw new Error(text);
+                                    throw new Error("Server Error: " + text.substring(0, 100) +
+                                        '...');
                                 });
                             }
                         })
                         .then(data => {
-                            // Hanya jalankan jika respons adalah JSON
-                            if (data && data.status) {
-                                // Sembunyikan loading state
-                                if (submitButton) {
-                                    submitButton.disabled = false;
-                                    submitButton.innerHTML = originalButtonHtml;
-                                }
-
-                                if (data.status === 'success') {
-                                    // Jika berhasil, update keranjang
-                                    updateCartUI(data);
-                                    showMessage('success', data.message);
-
-                                    // Tutup modal setelah penambahan keranjang (jika ini form di modal)
-                                    if (form.id === 'addToCartForm' && modal) {
-                                        const bsModal = bootstrap.Modal.getInstance(modal);
-                                        if (bsModal) bsModal.hide();
-                                    }
-                                } else {
-                                    showMessage('error', data.message || 'Gagal memproses permintaan.');
-                                }
-                            }
-                        })
-                        .catch(error => {
-                            // Tangani kesalahan jaringan atau error server yang tidak terduga
+                            // Kembalikan tombol ke keadaan semula
                             if (submitButton) {
                                 submitButton.disabled = false;
                                 submitButton.innerHTML = originalButtonHtml;
                             }
-                            showMessage('error', 'Terjadi kesalahan server/jaringan: ' + (error
-                                .message || 'Tidak diketahui'));
+
+                            if (data && data.status === 'success') {
+                                updateCartUI(data);
+                                showMessage('success', data.message);
+
+                                // Tutup modal setelah penambahan keranjang
+                                if (isAddToCart) {
+                                    // Logika penutupan modal tetap sama
+                                    const modal = document.getElementById('productModal');
+                                    if (modal && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                                        const bsModal = bootstrap.Modal.getInstance(modal);
+                                        if (bsModal) bsModal.hide();
+                                    }
+                                }
+                            } else if (data && data.message) {
+                                showMessage('error', data.message);
+                            } else {
+                                showMessage('error', 'Gagal memproses permintaan.');
+                            }
+                        })
+                        .catch(error => {
+                            // Tangani kesalahan
+                            if (submitButton) {
+                                submitButton.disabled = false;
+                                submitButton.innerHTML = originalButtonHtml;
+                            }
+                            showMessage('error',
+                                'Terjadi kesalahan server/jaringan. Lihat console untuk detail.');
                             console.error('Error AJAX:', error);
                         });
                 }
             });
-
         });
     </script>
 @endsection

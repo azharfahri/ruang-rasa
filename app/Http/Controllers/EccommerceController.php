@@ -18,7 +18,21 @@ class EccommerceController extends Controller
     {
         $category = Category::all();
         $product = Product::all();
-        return view('welcome', compact('category', 'product'));
+        $latestOrder = $this->getCart();
+        return view('welcome', compact('category', 'product', 'latestOrder'));
+    }
+
+    public function getCart()
+    {
+        if (!Auth::check()) {
+            return null;
+        }
+
+        return Order::where('user_id', Auth::id())
+            ->where('status', 'pending')
+            ->with('items.product')
+            ->latest()
+            ->first();
     }
 
     public function createOrder(Request $request)
@@ -30,7 +44,7 @@ class EccommerceController extends Controller
             'temperature' => 'nullable|in:Hot,Iced',
             'sugar_level' => 'nullable|in:Normal,Less Sugar,No Sugar',
             'ice_level' => 'nullable|in:Normal,Less Ice,No Ice',
-            // Nama input varian di JS adalah 'variants'
+            // Name input varian di JS adalah 'variants'
             'variants' => 'nullable|array',
             'variants.*' => 'exists:product_variants,id',
         ]);
@@ -57,7 +71,7 @@ class EccommerceController extends Controller
             // 2. Ambil data produk
             $product = Product::findOrFail($item['product_id']);
             $quantity = $item['quantity'];
-            $basePrice = $product->harga;
+            $basePrice = $product->price;
             $variantTotalImpact = 0;
             $variantDetails = [];
 
@@ -116,7 +130,7 @@ class EccommerceController extends Controller
             DB::commit();
 
             // 6. Respon sukses dan kembalikan HTML keranjang yang diperbarui
-            $productName = $product->nama;
+            $productName = $product->name;
 
             // --- Perubahan dimulai di sini ---
 
@@ -127,10 +141,9 @@ class EccommerceController extends Controller
                 ->with('items.product')
                 ->latest()
                 ->first();
-
             // Render view partial offcanvas dengan data terbaru
             $cartHtml = view('partials.offcanvas-cart-content', [
-                // Gunakan nama variabel yang sama dengan yang ada di View Composer Anda ($latestOrder)
+                // Gunakan name variabel yang sama dengan yang ada di View Composer Anda ($latestOrder)
                 'latestOrder' => $latestOrder
             ])->render();
 
@@ -147,7 +160,7 @@ class EccommerceController extends Controller
             DB::rollBack();
             Log::error('Order creation failed: ' . $e->getMessage());
             // Mengembalikan status 500 dan pesan error
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan ke keranjang, coba lagi 😔. Detail: ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan ke keranjang, coba lagi. Detail: ' . $e->getMessage()], 500);
         }
     }
 
@@ -191,7 +204,7 @@ class EccommerceController extends Controller
                 }
 
                 if ($request->quantity > $product->stok) {
-                    throw new \Exception("Maaf, hanya tersedia {$product->stok} barang untuk {$product->nama}.");
+                    throw new \Exception("Maaf, hanya tersedia {$product->stok} barang untuk {$product->name}.");
                 }
 
                 // Ambil unit price dari item sebelum dikalikan quantity (ini asumsi, tapi diperlukan untuk kalkulasi ulang)
@@ -227,7 +240,7 @@ class EccommerceController extends Controller
             DB::transaction(function () use ($request, &$orderDeleted, &$message) {
                 $items = OrderItem::findOrFail($request->order_product_id);
                 $order = Order::findOrFail($items->order_id);
-                $productName = Product::findOrFail($items->product_id)->nama;
+                $productName = Product::findOrFail($items->product_id)->name;
 
                 if ($order->user_id !== Auth::id()) {
                     throw new \Exception('Akses tidak sah untuk pesanan ini.');
@@ -295,7 +308,7 @@ class EccommerceController extends Controller
                     $product = $item->product;
 
                     if ($item->quantity > $product->stok) {
-                        $insufficientStock[] = "{$product->nama} (diminta: {$item->quantity}, tersedia: {$product->stok})";
+                        $insufficientStock[] = "{$product->name} (diminta: {$item->quantity}, tersedia: {$product->stok})";
                     }
                 }
 

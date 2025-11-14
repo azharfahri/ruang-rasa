@@ -10,7 +10,9 @@
         @foreach ($latestOrder->items as $item)
             {{-- Pastikan variant_details adalah array sebelum digunakan --}}
             @php
-                $variants = is_string($item->variant_details) ? json_decode($item->variant_details, true) : $item->variant_details;
+                $variants = is_string($item->variant_details)
+                    ? json_decode($item->variant_details, true)
+                    : $item->variant_details;
                 // Pastikan $variants adalah array/Countable, atau array kosong jika decode gagal
                 if (!is_array($variants)) {
                     $variants = [];
@@ -22,7 +24,8 @@
                 {{-- Kuantitas & Nama Produk --}}
                 <div class="flex-grow-1 me-3">
                     <p class="mb-0 fw-bold">
-                        {{ $item->quantity }}x {{ $item->product->nama ?? $item->product->name ?? 'Produk Tidak Dikenal' }}
+                        {{ $item->quantity }}x
+                        {{ $item->product->nama ?? ($item->product->name ?? 'Produk Tidak Dikenal') }}
                     </p>
 
                     {{-- Detail Varian/Customisasi --}}
@@ -42,7 +45,8 @@
                             <br>
                             Tambahan:
                             @foreach ($variants as $variant)
-                                <span>{{ $variant['name'] }} (+{{ number_format($variant['impact']) }})</span>{{ !$loop->last ? ', ' : '' }}
+                                <span>{{ $variant['name'] }}
+                                    (+{{ number_format($variant['impact']) }})</span>{{ !$loop->last ? ', ' : '' }}
                             @endforeach
                         @endif
                     </small>
@@ -51,13 +55,14 @@
                 {{-- Harga Item Total --}}
                 <div class="text-end">
                     <p class="mb-0 fw-bold text-success">
-                        Rp{{ number_format($item->price) }}
+                        Rp{{ number_format($item->product->price) }}
                     </p>
                     {{-- Tombol Hapus (Jika Anda mengimplementasikannya) --}}
                     <form action="{{ route('orders.removeItem') }}" method="POST" class="d-inline">
                         @csrf
-                        <input type="hidden" name="order_product_id" value="{{ $item->id }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger border-0 p-0 mt-1" title="Hapus Item">
+                        @method('DELETE') <input type="hidden" name="order_product_id" value="{{ $item->id }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger border-0 p-0 mt-1"
+                            title="Hapus Item">
                             <i class="bi bi-x-circle"></i> Hapus
                         </button>
                     </form>
@@ -84,10 +89,10 @@
 
         <small class="d-block text-center mt-2 text-muted">
             {{-- Sesuaikan route ini jika ada halaman detail order --}}
-            <a href="{{ route('orders.detail', $latestOrder->id) }}" class="text-decoration-none">Lihat Detail Keranjang</a>
+            <a href="{{ route('orders.detail', $latestOrder->id) }}" class="text-decoration-none">Lihat Detail
+                Keranjang</a>
         </small>
     </div>
-
 @else
     {{-- JIKA KERANJANG KOSONG --}}
     <div class="p-4 text-center">

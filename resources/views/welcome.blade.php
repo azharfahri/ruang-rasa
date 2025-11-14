@@ -280,31 +280,62 @@
             const modal = document.getElementById('productModal');
             let basePrice = 0;
 
-            modal.addEventListener('show.bs.modal', async (event) => {
-                const button = event.relatedTarget;
-                const productId = button.getAttribute('data-id');
-                const name = button.getAttribute('data-name');
-                basePrice = parseFloat(button.getAttribute('data-price'));
+            // Pastikan elemen offcanvas cart ada, kita akan menggunakannya untuk update UI
+            const offcanvasContent = document.getElementById('dynamic-cart-content');
+            const cartCountBadge = document.getElementById('cartCountBadge');
 
-                document.getElementById('modalProductId').value = productId;
-                document.getElementById('modalProductName').textContent = name;
-                document.getElementById('modalBasePrice').textContent = basePrice.toLocaleString();
-                document.getElementById('modalTotalPrice').textContent = basePrice.toLocaleString();
-
-                const variantContainer = document.getElementById('variantContainer');
-                variantContainer.innerHTML = '<p class="text-muted">Memuat varian...</p>';
-
-                try {
-                    const response = await fetch(`/product/${productId}/variants`);
-                    const data = await response.json();
-
-                    variantContainer.innerHTML = data.html ||
-                        '<p class="text-muted">Tidak ada varian untuk produk ini.</p>';
-                    updateTotal();
-                } catch (err) {
-                    variantContainer.innerHTML = '<p class="text-danger">Gagal memuat varian.</p>';
+            // Fungsi untuk memperbarui UI keranjang (Offcanvas dan Badge)
+            function updateCartUI(data) {
+                if (data.cartHtml && offcanvasContent) {
+                    offcanvasContent.innerHTML = data.cartHtml;
                 }
-            });
+                if (data.cartCount !== undefined && cartCountBadge) {
+                    cartCountBadge.textContent = data.cartCount;
+                }
+            }
+
+            // Fungsi untuk menampilkan pesan (Anda bisa mengganti ini dengan SweetAlert/Toastr)
+            function showMessage(status, message) {
+                if (status === 'success') {
+                    console.log('✅ Sukses: ' + message);
+                    // TODO: Ganti dengan toast/notifikasi visual
+                } else {
+                    console.error('❌ Gagal: ' + message);
+                    // TODO: Ganti dengan modal/alert error
+                }
+            }
+
+
+            // =================================================================
+            // 1. HANDLER MODAL (Kode Anda yang sudah ada)
+            // =================================================================
+            if (modal) {
+                modal.addEventListener('show.bs.modal', async (event) => {
+                    const button = event.relatedTarget;
+                    const productId = button.getAttribute('data-id');
+                    const name = button.getAttribute('data-name');
+                    basePrice = parseFloat(button.getAttribute('data-price'));
+
+                    document.getElementById('modalProductId').value = productId;
+                    document.getElementById('modalProductName').textContent = name;
+                    document.getElementById('modalBasePrice').textContent = basePrice.toLocaleString();
+                    document.getElementById('modalTotalPrice').textContent = basePrice.toLocaleString();
+
+                    const variantContainer = document.getElementById('variantContainer');
+                    variantContainer.innerHTML = '<p class="text-muted">Memuat varian...</p>';
+
+                    try {
+                        const response = await fetch(`/product/${productId}/variants`);
+                        const data = await response.json();
+
+                        variantContainer.innerHTML = data.html ||
+                            '<p class="text-muted">Tidak ada varian untuk produk ini.</p>';
+                        updateTotal();
+                    } catch (err) {
+                        variantContainer.innerHTML = '<p class="text-danger">Gagal memuat varian.</p>';
+                    }
+                });
+            }
 
             document.addEventListener('change', (e) => {
                 if (e.target.classList.contains('variant-checkbox') || e.target.id === 'modalQuantity') {
@@ -314,7 +345,7 @@
 
             function updateTotal() {
                 let total = basePrice;
-                const quantity = parseInt(document.getElementById('modalQuantity').value) || 1;
+                const quantity = parseInt(document.getElementById('modalQuantity')?.value) || 1;
 
                 document.querySelectorAll('.variant-checkbox:checked').forEach(opt => {
                     total += parseFloat(opt.getAttribute('data-impact'));
@@ -332,6 +363,101 @@
                     item.classList.add('active');
                 });
             });
+
+
+            // =================================================================
+            // 2. HANDLER AJAX UNTUK SEMUA FORM (Penambahan, Penghapusan, Checkout)
+            // =================================================================
+
+            // Kita menggunakan event delegation pada document.body karena form remove & checkout
+            // dimuat ulang di dalam offcanvas melalui AJAX, sehingga event listener harus diletakkan
+            // pada elemen yang statis (tidak berubah).
+
+            document.body.addEventListener('submit', function(e) {
+                const form = e.target;
+                const isCartForm = form.id === 'addToCartForm' || form.action.includes('/order/');
+
+                if (isCartForm) {
+                    e.preventDefault(); // Hentikan submit form standar! (INI PENTING)
+
+                    const isCheckout = form.action.includes('/checkout');
+                    const formData = new FormData(form);
+                    const url = form.action;
+
+                    // Tampilkan loading state atau disable tombol
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    const originalButtonHtml = submitButton ? submitButton.innerHTML : 'Submit';
+
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.innerHTML =
+                            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Proses...';
+                    }
+
+
+                    fetch(url, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'Accept': 'application/json',
+                            }
+                        })
+                        .then(response => {
+                            // Untuk Checkout, jika Laravel merespons dengan Redirect, kita biarkan browser mengikutinya.
+                            // Jika itu form addToCart atau removeItem, kita harapkan JSON.
+                            if (isCheckout && response.redirected) {
+                                window.location.href = response.url;
+                                return; // Hentikan pemrosesan JSON
+                            }
+
+                            // Cek apakah respons adalah JSON (biasanya untuk addToCart/removeItem)
+                            const contentType = response.headers.get('content-type');
+                            if (contentType && contentType.includes('application/json')) {
+                                return response.json();
+                            } else {
+                                // Jika bukan JSON (misalnya, ada error HTML dari Laravel), kita log
+                                return response.text().then(text => {
+                                    throw new Error(text);
+                                });
+                            }
+                        })
+                        .then(data => {
+                            // Hanya jalankan jika respons adalah JSON
+                            if (data && data.status) {
+                                // Sembunyikan loading state
+                                if (submitButton) {
+                                    submitButton.disabled = false;
+                                    submitButton.innerHTML = originalButtonHtml;
+                                }
+
+                                if (data.status === 'success') {
+                                    // Jika berhasil, update keranjang
+                                    updateCartUI(data);
+                                    showMessage('success', data.message);
+
+                                    // Tutup modal setelah penambahan keranjang (jika ini form di modal)
+                                    if (form.id === 'addToCartForm' && modal) {
+                                        const bsModal = bootstrap.Modal.getInstance(modal);
+                                        if (bsModal) bsModal.hide();
+                                    }
+                                } else {
+                                    showMessage('error', data.message || 'Gagal memproses permintaan.');
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            // Tangani kesalahan jaringan atau error server yang tidak terduga
+                            if (submitButton) {
+                                submitButton.disabled = false;
+                                submitButton.innerHTML = originalButtonHtml;
+                            }
+                            showMessage('error', 'Terjadi kesalahan server/jaringan: ' + (error
+                                .message || 'Tidak diketahui'));
+                            console.error('Error AJAX:', error);
+                        });
+                }
+            });
+
         });
     </script>
 @endsection

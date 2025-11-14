@@ -21,9 +21,11 @@ Route::group([
     Route::resource('product', ProductController::class);
 });
 
+Route::get('/product/{id}/variants', [ProductController::class, 'getVariants'])->name('product.variants');
+
 Route::group(['middleware' => ['auth']], function () {
     // Varian produk
-    Route::get('/product/{id}/variants', [ProductController::class, 'getVariants'])->name('product.variants');
+
     Route::get('/api/product-variants/{productId}', [EccommerceController::class, 'getProductVariants']);
 
     // Order
@@ -38,4 +40,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/cart/add', [OrderController::class, 'addToCart'])->name('cart.add');
     Route::get('/cart', [OrderController::class, 'viewCart'])->name('cart.view');
     Route::delete('/cart/remove/{key}', [OrderController::class, 'removeFromCart'])->name('cart.remove');
+    Route::post('/order/remove-item', [OrderController::class, 'removeItem'])->name('orders.removeItem');
+    Route::post('/order/checkout', [OrderController::class, 'checkOut'])->name('orders.checkOut');
 });

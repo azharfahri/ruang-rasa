@@ -21,10 +21,6 @@ class EccommerceController extends Controller
         return view('welcome', compact('category', 'product'));
     }
 
-    /**
-     * Menambahkan produk ke keranjang (Order status pending).
-     * Disesuaikan dengan struktur database (Kolom 'price' di order_items dan 'total' di orders)
-     */
     public function createOrder(Request $request)
     {
         // Validasi disederhanakan untuk payload single item dari JS modal
@@ -41,7 +37,11 @@ class EccommerceController extends Controller
 
         // Menggunakan variabel tunggal untuk item
         $item = $request->only([
-            'product_id', 'quantity', 'temperature', 'sugar_level', 'ice_level'
+            'product_id',
+            'quantity',
+            'temperature',
+            'sugar_level',
+            'ice_level'
         ]);
         $selectedVariants = $request->input('variants', []);
 
@@ -49,7 +49,6 @@ class EccommerceController extends Controller
             DB::beginTransaction();
 
             // 1. Dapatkan atau buat Order (Keranjang)
-            // Kolom total di tabel orders adalah 'total' (sesuai ERD)
             $order = Order::firstOrCreate(
                 ['user_id' => Auth::id(), 'status' => 'pending'],
                 ['total' => 0]
@@ -77,10 +76,10 @@ class EccommerceController extends Controller
             }
 
             $finalItemPrice = $basePrice + $variantTotalImpact;
-
-            // Di tabel order_items, kolom 'price' menyimpan harga per unit.
-            // Kita akan menggunakan kolom 'price' di sini untuk menyimpan TOTAL HARGA (Unit Price * Quantity).
             $itemTotalPrice = $finalItemPrice * $quantity;
+
+            // KONSISTENSI: Pastikan urutan variant_details selalu sama untuk pengecekan duplikat
+            $jsonVariantDetails = json_encode($variantDetails);
 
             // 4. Cek apakah item sama udah ada di keranjang
             $existingItem = OrderItem::where('order_id', $order->id)
@@ -88,13 +87,13 @@ class EccommerceController extends Controller
                 ->where('temperature', $item['temperature'] ?? 'Iced')
                 ->where('sugar_level', $item['sugar_level'] ?? 'Normal')
                 ->where('ice_level', $item['ice_level'] ?? 'Normal')
-                ->where('variant_details', json_encode($variantDetails))
+                ->where('variant_details', $jsonVariantDetails)
                 ->first();
 
             if ($existingItem) {
                 // Item sama ditemukan, tambahkan kuantitas dan harga total
                 $existingItem->quantity += $quantity;
-                $existingItem->price += $itemTotalPrice; // FIX: Menggunakan kolom 'price' untuk akumulasi total item
+                $existingItem->price += $itemTotalPrice;
                 $existingItem->save();
             } else {
                 // Item baru, buat OrderItem baru
@@ -102,26 +101,47 @@ class EccommerceController extends Controller
                     'order_id' => $order->id,
                     'product_id' => $product->id,
                     'quantity' => $quantity,
-                    'price' => $itemTotalPrice, // FIX: Menggunakan kolom 'price' untuk total harga item
-                    'variant_details' => json_encode($variantDetails),
+                    'price' => $itemTotalPrice,
+                    'variant_details' => $jsonVariantDetails,
                     'temperature' => $item['temperature'] ?? 'Iced',
                     'sugar_level' => $item['sugar_level'] ?? 'Normal',
                     'ice_level' => $item['ice_level'] ?? 'Normal',
-                    // Catatan: Kolom 'price' di tabel order_items tampaknya menyimpan total harga per item (unit_price * quantity)
                 ]);
             }
 
             // 5. Update Total Harga Order
-            // Menghitung total order dari semua item menggunakan kolom 'price' di order_items
-            // Menyimpan hasilnya ke kolom 'total' di tabel orders (sesuai ERD)
-            $order->total = OrderItem::where('order_id', $order->id)->sum('price'); // FIX: Mengganti sum('subtotal') menjadi sum('price') dan kolom update 'total'
+            $order->total = OrderItem::where('order_id', $order->id)->sum('price');
             $order->save();
 
             DB::commit();
 
-            // 6. Respon sukses
+            // 6. Respon sukses dan kembalikan HTML keranjang yang diperbarui
             $productName = $product->nama;
-            return response()->json(['status' => 'success', 'message' => "$quantity x $productName berhasil ditambahkan ke keranjang"]);
+
+            // --- Perubahan dimulai di sini ---
+
+            // Dapatkan order terbaru (yang baru diupdate) dengan relasi yang dibutuhkan
+            $latestOrder = Order::where('user_id', Auth::id())
+                ->where('status', 'pending')
+                // Penting: Pastikan relasi items dan product dimuat
+                ->with('items.product')
+                ->latest()
+                ->first();
+
+            // Render view partial offcanvas dengan data terbaru
+            $cartHtml = view('partials.offcanvas-cart-content', [
+                // Gunakan nama variabel yang sama dengan yang ada di View Composer Anda ($latestOrder)
+                'latestOrder' => $latestOrder
+            ])->render();
+
+            // Kembalikan respons JSON yang berisi HTML keranjang yang baru
+            return response()->json([
+                'status' => 'success',
+                'message' => "$quantity x $productName berhasil ditambahkan ke keranjang",
+                'cartHtml' => $cartHtml, // Kunci baru yang berisi HTML
+            ]);
+            // --- Perubahan berakhir di sini ---
+
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -131,10 +151,9 @@ class EccommerceController extends Controller
         }
     }
 
-
     public function myOrders()
     {
-        $orders = Order::with(['orderProduct.product'])
+        $orders = Order::with(['items.product'])
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
@@ -144,7 +163,7 @@ class EccommerceController extends Controller
 
     public function orderDetail($id)
     {
-        $order = Order::with(['orderProduct.product'])
+        $order = Order::with(['items.product'])
             ->where('user_id', Auth::id())
             ->findOrFail($id);
 
@@ -160,9 +179,9 @@ class EccommerceController extends Controller
             ]);
 
             DB::transaction(function () use ($request) {
-                $orderProduct = OrderItem::findOrFail($request->order_product_id);
-                $product = Product::findOrFail($orderProduct->product_id);
-                $order = Order::findOrFail($orderProduct->order_id);
+                $items = OrderItem::findOrFail($request->order_product_id);
+                $product = Product::findOrFail($items->product_id);
+                $order = Order::findOrFail($items->order_id);
 
                 if ($order->user_id != Auth::user()->id) {
                     throw new \Exception('Akses Tidak Sah untuk pesanan ini.');
@@ -177,13 +196,13 @@ class EccommerceController extends Controller
 
                 // Ambil unit price dari item sebelum dikalikan quantity (ini asumsi, tapi diperlukan untuk kalkulasi ulang)
                 // Kita bagi 'price' OrderItem (Total Item Price) dengan quantity lama untuk mendapatkan Unit Price
-                $itemPrice = $orderProduct->price / $orderProduct->quantity;
+                $itemPrice = $items->price / $items->quantity;
 
                 $newTotalPrice = $itemPrice * $request->quantity;
 
-                $orderProduct->quantity = $request->quantity;
-                $orderProduct->price = $newTotalPrice; // FIX: Menggunakan kolom 'price' untuk total harga item
-                $orderProduct->save();
+                $items->quantity = $request->quantity;
+                $items->price = $newTotalPrice; // FIX: Menggunakan kolom 'price' untuk total harga item
+                $items->save();
 
                 // Hitung ulang total order dari semua item
                 $order->total = OrderItem::where('order_id', $order->id)->sum('price'); // FIX: Menggunakan kolom 'total' dan sum('price')
@@ -206,9 +225,9 @@ class EccommerceController extends Controller
             $message = null;
 
             DB::transaction(function () use ($request, &$orderDeleted, &$message) {
-                $orderProduct = OrderItem::findOrFail($request->order_product_id);
-                $order = Order::findOrFail($orderProduct->order_id);
-                $productName = Product::findOrFail($orderProduct->product_id)->nama;
+                $items = OrderItem::findOrFail($request->order_product_id);
+                $order = Order::findOrFail($items->order_id);
+                $productName = Product::findOrFail($items->product_id)->nama;
 
                 if ($order->user_id !== Auth::id()) {
                     throw new \Exception('Akses tidak sah untuk pesanan ini.');
@@ -221,7 +240,7 @@ class EccommerceController extends Controller
                 $orderId = $order->id;
 
                 // Hapus item
-                $orderProduct->delete();
+                $items->delete();
 
                 // Hitung ulang total order dari semua item
                 $order->total = OrderItem::where('order_id', $order->id)->sum('price'); // FIX: Menggunakan kolom 'total' dan sum('price')
@@ -245,9 +264,9 @@ class EccommerceController extends Controller
 
             return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
-             $errorMessage = $e->getMessage();
+            $errorMessage = $e->getMessage();
             if ($e instanceof \Illuminate\Validation\ValidationException) {
-                 $errorMessage = $e->validator->errors()->first() ?? $e->getMessage();
+                $errorMessage = $e->validator->errors()->first() ?? $e->getMessage();
             }
             return redirect()->back()->with('error', $errorMessage);
         }
@@ -257,7 +276,7 @@ class EccommerceController extends Controller
     {
         try {
             return DB::transaction(function () use ($request) {
-                $order = Order::with('orderProduct.product')->findOrFail($request->order_id);
+                $order = Order::with('items.product')->findOrFail($request->order_id);
 
                 if ($order->user_id != Auth::id()) {
                     return redirect()->route('orders.my')->with('error', 'Akses Tidak Sah untuk pesanan ini.');
@@ -267,12 +286,12 @@ class EccommerceController extends Controller
                     return redirect()->route('orders.detail', $order->id)->with('error', 'Pesanan ini sudah selesai');
                 }
 
-                if ($order->orderProduct->isEmpty()) {
+                if ($order->items->isEmpty()) {
                     return redirect()->route('orders.my')->with('error', 'Tidak dapat melakukan checkout pada pesanan yang kosong.');
                 }
 
                 $insufficientStock = [];
-                foreach ($order->orderProduct as $item) {
+                foreach ($order->items as $item) {
                     $product = $item->product;
 
                     if ($item->quantity > $product->stok) {
@@ -286,7 +305,7 @@ class EccommerceController extends Controller
                 }
 
                 // Kurangi stok
-                foreach ($order->orderProduct as $item) {
+                foreach ($order->items as $item) {
                     $product = $item->product;
                     $product->stok -= $item->quantity;
                     $product->save();

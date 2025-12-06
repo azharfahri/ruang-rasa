@@ -2,39 +2,26 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = ['name','email','password','role'];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'branch_id', // tambahin kalau user bisa punya cabang
+    ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -43,15 +30,43 @@ class User extends Authenticatable
         ];
     }
 
-    // Relasi: Customer memiliki banyak orders
-    public function customerOrders(): HasMany
+    // =====================
+    //   RELASI USER
+    // =====================
+
+    // User bisa punya banyak role via pivot user_roles
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_roles');
+    }
+
+    // relasi pivotnya langsung
+    public function userRoles()
+    {
+        return $this->hasMany(UserRole::class);
+    }
+
+    // user bisa terhubung ke cabang (opsional)
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    // Customer orders
+    public function customerOrders()
     {
         return $this->hasMany(Order::class, 'user_id');
     }
 
-    // Relasi: Kasir membuat banyak orders
-    public function casierOrders(): HasMany
+    // Cashier orders
+    public function cashierOrders()
     {
-        return $this->hasMany(Order::class, 'casier_id');
+        return $this->hasMany(Order::class, 'cashier_id');
+    }
+
+    // cek role dengan mudah
+    public function hasRole($roleName)
+    {
+        return $this->roles()->where('name', $roleName)->exists();
     }
 }

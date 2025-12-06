@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\VariantOption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -129,7 +130,7 @@ class EccommerceController extends Controller
             $qty = $item['quantity'];
 
             // Get variants
-            $variantModels = ProductVariant::whereIn('id', $request->variants ?? [])->get();
+            $variantModels = VariantOption::whereIn('id', $request->variants ?? [])->get();
 
             // Normalize JSON variant detail for duplicate check
             $variantJson = $this->normalizeVariantDetails($variantModels);

@@ -4,12 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\ProductVariant; // <<< PASTIKAN MODEL INI ADA
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB; // <<< IMPORT DB UNTUK TRANSAKSI
-use Illuminate\Support\Facades\Storage; // <<< IMPORT STORAGE
+use Illuminate\Support\Facades\Storage; // Untuk Pengelolaan File Gambar
+use Exception;
 
 class ProductController extends Controller
 {
@@ -19,9 +18,10 @@ class ProductController extends Controller
     public function index()
     {
         try {
+            // Eager loading relasi 'category' agar efisien
             $product = Product::with('category')->orderBy('id', 'desc')->get();
             return view('admin.product.index', compact('product'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Index Product Error: ' . $e->getMessage());
             return back()->with('error', 'Gagal menampilkan data produk.');
         }
@@ -35,42 +35,35 @@ class ProductController extends Controller
         try {
             $categories = Category::all();
             return view('admin.product.create', compact('categories'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Create Product Error: ' . $e->getMessage());
             return back()->with('error', 'Gagal membuka form tambah produk.');
         }
     }
+
     /**
      * Simpan produk baru.
      */
     public function store(Request $request)
     {
         $request->validate([
-            // Validasi Produk Utama
-            'name' => 'required|string|max:255|unique:products,name',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-
-            // Validasi Varian Baru (jika ada)
-            'variants' => 'nullable|array',
-            'variants.*.type' => 'required_with:variants|string|in:size,addon,milk,other',
-            'variants.*.name' => 'required_with:variants|string|max:255',
-            'variants.*.price_impact' => 'required_with:variants|numeric',
+            'name'          => 'required|string|max:255|unique:products,name',
+            'description'   => 'required|string',
+            'price'         => 'required|numeric|min:0',
+            'stock'         => 'required|integer|min:0',
+            'category_id'   => 'required|exists:categories,id',
+            'image'         => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         try {
-            DB::beginTransaction(); // Mulai Transaksi
-
             $gambarPath = null;
             if ($request->hasFile('image')) {
+                // Simpan gambar di storage/app/public/products
                 $gambarPath = $request->file('image')->store('products', 'public');
             }
 
-            // 1. CREATE PRODUK UTAMA
-            $product = Product::create([
+            // CREATE PRODUK UTAMA
+            Product::create([
                 'name'          => $request->name,
                 'slug'          => Str::slug($request->name),
                 'description'   => $request->description,
@@ -80,34 +73,21 @@ class ProductController extends Controller
                 'image'         => $gambarPath,
             ]);
 
-            // 2. CREATE VARIAN (Jika ada)
-            if ($request->has('variants')) {
-                $variantsData = [];
-                foreach ($request->input('variants') as $variant) {
-                    if (!empty($variant['name'])) {
-                        $variantsData[] = new ProductVariant([
-                            'type'         => $variant['type'],
-                            'name'         => $variant['name'],
-                            'price_impact' => (float) $variant['price_impact'],
-                        ]);
-                    }
-                }
-                // Simpan semua varian ke database sekaligus
-                $product->variants()->saveMany($variantsData);
-            }
-
-            DB::commit(); // Selesaikan Transaksi
-
             return redirect()->route('admin.product.index')
-                ->with('success', 'Data produk dan variannya berhasil ditambahkan.');
-        } catch (\Exception $e) {
-            DB::rollBack(); // Batalkan jika ada yang gagal
+                ->with('success', 'Data produk berhasil ditambahkan.');
+        } catch (Exception $e) {
             Log::error('Store Product Error: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Gagal menyimpan produk: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Gagal menyimpan produk.');
         }
     }
 
-    // ... (Fungsi show tetap sama) ...
+    /**
+     * Tampilkan detail produk (Dibiarkan kosong).
+     */
+    public function show(Product $product)
+    {
+        // ...
+    }
 
     /**
      * Form edit produk.
@@ -115,158 +95,134 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         try {
-            // Eager load varian agar bisa diakses di view
-            $product->load('variants');
             $categories = Category::all();
             return view('admin.product.edit', compact('product', 'categories'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Edit Product Error: ' . $e->getMessage());
             return back()->with('error', 'Gagal membuka form edit produk.');
         }
     }
 
     /**
-     * Update produk dan variannya.
+     * Update produk.
      */
     public function update(Request $request, Product $product)
     {
-        // 1. Validasi Input
+        // Validasi Produk
         $request->validate([
-            // Validasi Produk Utama
-            'name'        => 'required|string|max:255|unique:products,name,' . $product->id,
+            'name'        => 'required|string|max:255',
             'description' => 'required|string',
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,id',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
 
-            // Validasi Varian
-            'variants' => 'nullable|array',
-            'variants.*.id' => 'nullable|integer', // ID varian lama (bisa 0 untuk baru)
-            'variants.*.type' => 'required_with:variants|string|in:size,addon,milk,other',
-            'variants.*.name' => 'required_with:variants|string|max:255',
-            'variants.*.price_impact' => 'required_with:variants|numeric',
+            // VALIDASI VARIANT TYPES
+            'variant_types' => 'nullable|array',
+            'variant_types.*.id' => 'nullable|integer',
+            'variant_types.*.name' => 'required|string',
+            'variant_types.*.input_type' => 'required|string|in:radio,checkbox',
+
+            // VALIDASI VARIANT OPTIONS
+            'variant_types.*.options' => 'nullable|array',
+            'variant_types.*.options.*.id' => 'nullable|integer',
+            'variant_types.*.options.*.option_name' => 'required|string',
+            'variant_types.*.options.*.price_impact' => 'required|numeric',
         ]);
 
-        try {
-            DB::beginTransaction(); // Mulai Transaksi
+        // ===========================
+        // 1. UPDATE PRODUK
+        // ===========================
 
-            // --- A. UPDATE DATA PRODUK UTAMA ---
+        $data = $request->only(['name', 'description', 'price', 'stock', 'category_id']);
 
-            $data = $request->only(['name', 'description', 'price', 'stock', 'category_id']);
-            $data['slug'] = Str::slug($request->name);
-
-            // Penanganan Gambar
-            if ($request->hasFile('image')) {
-                // Hapus gambar lama jika ada
-                if ($product->image) {
-                    Storage::disk('public')->delete($product->image);
-                }
-                $data['image'] = $request->file('image')->store('products', 'public');
+        if ($request->hasFile('image')) {
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
             }
 
-            $product->update($data);
+            $data['image'] = $request->file('image')->store('products', 'public');
+        }
 
+        $product->update($data);
 
-            // --- B. KELOLA VARIAN PRODUK (CRUD) ---
+        // ===========================
+        // 2. UPDATE VARIANT TYPES
+        // ===========================
 
-            $currentVariantIds = $product->variants->pluck('id')->toArray(); // ID Varian yang ada di DB
-            $submittedVariantIds = []; // ID Varian yang diterima dari form
+        $typeIdsToKeep = [];
 
-            if ($request->has('variants')) {
-                foreach ($request->input('variants') as $variantData) {
-                    $variantId = $variantData['id'] ?? 0;
+        if ($request->variant_types) {
+            foreach ($request->variant_types as $vt) {
+                $variantType = $product->variantTypes()->updateOrCreate(
+                    ['id' => $vt['id'] ?? null],
+                    [
+                        'name' => $vt['name'],
+                        'input_type' => $vt['input_type'],
+                    ]
+                );
 
-                    $variantAttributes = [
-                        'product_id'   => $product->id,
-                        'type'         => $variantData['type'],
-                        'name'         => $variantData['name'],
-                        'price_impact' => (float) $variantData['price_impact'],
-                    ];
+                $typeIdsToKeep[] = $variantType->id;
 
-                    if ($variantId > 0) {
-                        // UPDATE Varian Lama (ID > 0)
-                        $product->variants()->where('id', $variantId)->update($variantAttributes);
-                        $submittedVariantIds[] = $variantId;
-                    } else {
-                        // CREATE Varian Baru (ID = 0 atau tidak ada)
-                        $newVariant = ProductVariant::create($variantAttributes);
-                        $submittedVariantIds[] = $newVariant->id;
+                // ===========================
+                // 3. UPDATE VARIANT OPTIONS
+                // ===========================
+
+                $optionIdsToKeep = [];
+
+                if (!empty($vt['options'])) {
+                    foreach ($vt['options'] as $opt) {
+                        $option = $variantType->variantOptions()->updateOrCreate(
+                            ['id' => $opt['id'] ?? null],
+                            [
+                                'option_name' => $opt['option_name'],
+                                'price_impact' => $opt['price_impact'],
+                            ]
+                        );
+                        $optionIdsToKeep[] = $option->id;
                     }
                 }
+
+                // Hapus opsi yang tidak ada lagi
+                $variantType->variantOptions()
+                    ->whereNotIn('id', $optionIdsToKeep)
+                    ->delete();
             }
-
-            // 3. DELETE Varian yang Dihilangkan
-            $variantsToDelete = array_diff($currentVariantIds, $submittedVariantIds);
-
-            if (!empty($variantsToDelete)) {
-                ProductVariant::whereIn('id', $variantsToDelete)->delete();
-            }
-
-            DB::commit(); // Selesaikan Transaksi
-
-            return redirect()->route('admin.product.index')
-                ->with('success', 'Data produk dan variannya berhasil diperbarui.');
-        } catch (\Exception $e) {
-            DB::rollBack(); // Batalkan semua operasi jika ada yang gagal
-            Log::error('Update Product Error: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Gagal memperbarui produk: ' . $e->getMessage());
         }
+
+        // Hapus varian type yang tidak ada lagi
+        $product->variantTypes()->whereNotIn('id', $typeIdsToKeep)->delete();
+
+        return redirect()->route('admin.product.index')
+            ->with('success', 'Produk dan varian berhasil diperbarui!');
     }
 
-    public function getVariants($id)
-    {
-        try {
-            $product = Product::findOrFail($id);
-            $variants = ProductVariant::where('product_id', $id)->get()->groupBy('type');
 
-            $html = '';
 
-            if ($variants->isEmpty()) {
-                $html = '<p class="text-muted">Tidak ada varian untuk produk ini.</p>';
-            } else {
-                foreach ($variants as $type => $group) {
-                    $html .= '<div class="mb-2">';
-                    $html .= '<label class="form-label">' . ucfirst($type) . '</label><br>';
-
-                    foreach ($group as $variant) {
-                        $priceImpact = $variant->price_impact > 0
-                            ? ' (+Rp ' . number_format($variant->price_impact, 0, ',', '.') . ')'
-                            : '';
-
-                        $html .= '
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input variant-checkbox" type="checkbox"
-                                name="selected_variants[]"
-                                value="' . $variant->id . '"
-                                data-impact="' . $variant->price_impact . '">
-                            <label class="form-check-label">'
-                            . $variant->name . $priceImpact .
-                            '</label>
-                        </div>
-                    ';
-                    }
-
-                    $html .= '</div>';
-                }
-            }
-
-            return response()->json(['html' => $html]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Gagal memuat varian.'], 500);
-        }
-    }
-
-    //hapus
+    /**
+     * Hapus produk.
+     * Metode getVariants telah dihapus karena tidak ada varian.
+     */
     public function destroy(Product $product)
     {
         try {
+            // Hapus gambar jika ada
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+
             $product->delete();
+
             return redirect()->route('admin.product.index')
                 ->with('success', 'Produk berhasil dihapus.');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Destroy Product Error: ' . $e->getMessage());
-            return back()->with('error', 'Gagal menghapus produk.');
+            // Tangani jika produk tidak bisa dihapus karena relasi lain
+            $errorMessage = Str::contains($e->getMessage(), 'Foreign key')
+                ? 'Gagal menghapus produk. Pastikan produk ini tidak terkait dengan data transaksi (Order/Cart).'
+                : 'Gagal menghapus produk.';
+
+            return back()->with('error', $errorMessage);
         }
     }
 }

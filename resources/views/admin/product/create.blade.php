@@ -1,316 +1,336 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="card">
-    <div class="card-body">
-        <h4>Tambah Produk</h4>
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-box-open me-2"></i> Tambah Produk Baru</h4>
+        </div>
 
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        <div class="card-body">
+            {{-- Error Validasi --}}
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                    <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i> Ada Kesalahan Input!</h6>
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
-        <form id="product-form" action="{{ route('admin.product.store') }}" method="post" enctype="multipart/form-data">
-            @csrf
+            <form id="product-form" action="{{ route('admin.product.store') }}" method="post" enctype="multipart/form-data">
+                @csrf
 
-            {{-- BAGIAN 1: DETAIL PRODUK UTAMA --}}
-            <div class="row">
-                <h5 class="mt-4 mb-3">Informasi Dasar Produk</h5>
+                {{-- BAGIAN 1: DETAIL PRODUK UTAMA --}}
+                <div class="row g-3">
+                    <h5 class="mt-4 mb-3 text-primary border-bottom pb-2">Informasi Dasar</h5>
 
-                {{-- Kategori --}}
-                <div class="col-md-12">
-                    <div class="form-floating mb-3">
-                        <select class="form-select" name="category_id" required>
-                            <option disabled selected>Pilih Kategori</option>
-                            @foreach ($categories as $data)
-                            <option value="{{ $data->id }}" {{ old('category_id') == $data->id ? 'selected' : '' }}>
-                                {{ $data->name }}
-                            </option>
-                            @endforeach
-                        </select>
-                        <label for="tb-name">Nama Kategori</label>
+                    {{-- Kategori --}}
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-select @error('category_id') is-invalid @enderror" id="category_id" name="category_id" required>
+                                <option value="" disabled {{ old('category_id') ? '' : 'selected' }}>Pilih Kategori</option>
+                                @foreach ($categories as $data)
+                                    <option value="{{ $data->id }}" {{ old('category_id') == $data->id ? 'selected' : '' }}>
+                                        {{ $data->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <label for="category_id"><i class="fas fa-tags me-1"></i> Kategori Produk</label>
+                            @error('category_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                    </div>
+
+                    {{-- Nama Produk --}}
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" placeholder="Nama Produk" required>
+                            <label for="name"><i class="fas fa-bookmark me-1"></i> Nama Produk</label>
+                            @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                    </div>
+
+                    {{-- Deskripsi --}}
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" placeholder="Deskripsi Singkat" style="height: 80px" required>{{ old('description') }}</textarea>
+                            <label for="description"><i class="fas fa-info-circle me-1"></i> Deskripsi Singkat</label>
+                            @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                    </div>
+
+                    {{-- Harga --}}
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="number" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price') }}" step="0.01" placeholder="Harga Dasar (Rp)" required>
+                            <label for="price"><i class="fas fa-money-bill-wave me-1"></i> Harga Dasar (Rp)</label>
+                            @error('price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                    </div>
+
+                    {{-- Stok --}}
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="number" class="form-control @error('stock') is-invalid @enderror" id="stock" name="stock" value="{{ old('stock') }}" placeholder="Stok Awal" required>
+                            <label for="stock"><i class="fas fa-cubes me-1"></i> Stok Awal</label>
+                            @error('stock')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                    </div>
+
+                    {{-- Gambar --}}
+                    <div class="col-md-4">
+                        <label for="image" class="form-label mb-2"><i class="fas fa-image me-1"></i> Gambar Produk</label>
+                        <input type="file" class="form-control @error('image') is-invalid @enderror" id="image" name="image" accept="image/*" required>
+                        @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>
 
-                {{-- Nama Produk --}}
-                <div class="col-md-12">
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" name="name" value="{{ old('name') }}" required>
-                        <label for="tb-name">Nama Produk</label>
-                        @error('name')<small class="text-danger">{{ $message }}</small>@enderror
-                    </div>
-                </div>
+                {{-- -------------------------------------------------------------------------------- --}}
+                {{-- BAGIAN 2: PENGELOLAAN VARIAN PRODUK (NESTED: TYPE -> OPTIONS) --}}
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <h5 class="mt-5 mb-3 text-primary border-bottom pb-2">Varian Produk (Tipe & Opsi)</h5>
 
-                {{-- Deskripsi --}}
-                <div class="col-md-12">
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" name="description" value="{{ old('description') }}" required>
-                        <label for="tb-name">Deskripsi</label>
-                        @error('description')<small class="text-danger">{{ $message }}</small>@enderror
-                    </div>
-                </div>
+                        <div id="variant-types-container">
+                            {{-- Render old variant_types (jika ada) --}}
+                            @php
+                                $oldVariantTypes = old('variant_types', []);
+                            @endphp
 
-                {{-- Harga --}}
-                <div class="col-md-12">
-                    <div class="form-floating mb-3">
-                        <input type="number" class="form-control" name="price" value="{{ old('price') }}" step="0.01" required>
-                        <label for="tb-name">Harga Dasar</label>
-                        @error('price')<small class="text-danger">{{ $message }}</small>@enderror
-                    </div>
-                </div>
+                            @foreach ($oldVariantTypes as $vtIndex => $vt)
+                                <div class="variant-type card mb-3 p-3" data-index="{{ $vtIndex }}">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0">Jenis Varian</h6>
+                                        <button type="button" class="btn btn-sm btn-danger remove-variant-type">Hapus Jenis</button>
+                                    </div>
 
-                {{-- Stok --}}
-                <div class="col-md-12">
-                    <div class="form-floating mb-3">
-                        <input type="number" class="form-control" name="stock" value="{{ old('stock') }}" required>
-                        <label for="tb-name">Stok</label>
-                        @error('stock')<small class="text-danger">{{ $message }}</small>@enderror
-                    </div>
-                </div>
+                                    <div class="row gy-2">
+                                        <div class="col-md-5">
+                                            <label class="form-label">Nama Jenis Varian</label>
+                                            <input type="hidden" name="variant_types[{{ $vtIndex }}][id]" value="{{ $vt['id'] ?? '' }}">
+                                            <input type="text" class="form-control" name="variant_types[{{ $vtIndex }}][name]" value="{{ $vt['name'] ?? '' }}" required>
+                                        </div>
 
-                {{-- Gambar --}}
-                <div class="col-md-12">
-                    <div class="form-floating mb-3">
-                        <input type="file" class="form-control" name="image" accept="image/*" required>
-                        <label for="tb-name">Gambar</label>
-                        @error('image')<small class="text-danger">{{ $message }}</small>@enderror
-                    </div>
-                </div>
-            </div>
-
-            {{-- -------------------------------------------------------------------------------- --}}
-
-            {{-- BAGIAN 2: PENGELOLAAN VARIAN PRODUK BARU --}}
-            <div class="row">
-                <div class="col-md-12 mt-4">
-                    <h5 class="mb-3">Tambah Opsi Varian (Opsional)</h5>
-
-                    {{-- Container tempat baris varian akan dimasukkan --}}
-                    <div id="variants-container">
-                        @if(old('variants'))
-                            {{-- Jika ada error, ulangi input lama --}}
-                            @foreach(old('variants') as $index => $variant)
-                                <div class="variant-row p-3 mb-2 border rounded bg-light">
-                                    <input type="hidden" name="variants[{{ $index }}][id]" value="0">
-                                    <div class="row">
-                                        <div class="col-4">
-                                            <label class="form-label">Tipe Varian</label>
-                                            <select class="form-select" name="variants[{{ $index }}][type]" required onchange="switchNameInput(this)">
-                                                <option value="size" {{ $variant['type'] == 'size' ? 'selected' : '' }}>Ukuran (Size)</option>
-                                                <option value="addon" {{ $variant['type'] == 'addon' ? 'selected' : '' }}>Tambahan (Addon)</option>
-                                                <option value="milk" {{ $variant['type'] == 'milk' ? 'selected' : '' }}>Susu (Milk)</option>
-                                                <option value="other" {{ $variant['type'] == 'other' ? 'selected' : '' }}>Lain-lain</option>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Input Type</label>
+                                            <select class="form-select" name="variant_types[{{ $vtIndex }}][input_type]" required>
+                                                <option value="radio" {{ ( ($vt['input_type'] ?? '') === 'radio') ? 'selected' : '' }}>radio (pilih 1)</option>
+                                                <option value="checkbox" {{ ( ($vt['input_type'] ?? '') === 'checkbox') ? 'selected' : '' }}>checkbox (banyak)</option>
                                             </select>
                                         </div>
-                                        <div class="col-5 name-variant-container">
-                                            <label class="form-label">Nama Varian</label>
-                                            @if ($variant['type'] == 'size')
-                                                {{-- Jika tipe size, tampilkan select untuk old data --}}
-                                                <select class="form-select" name="variants[{{ $index }}][name]" required>
-                                                    <option value="Small" {{ $variant['name'] == 'Small' ? 'selected' : '' }}>Small</option>
-                                                    <option value="Medium" {{ $variant['name'] == 'Medium' ? 'selected' : '' }}>Medium</option>
-                                                    <option value="Large" {{ $variant['name'] == 'Large' ? 'selected' : '' }}>Large</option>
-                                                    <option value="Extra Large" {{ $variant['name'] == 'Extra Large' ? 'selected' : '' }}>Extra Large</option>
-                                                    @if (!in_array($variant['name'], ['Small', 'Medium', 'Large', 'Extra Large']))
-                                                        <option value="{{ $variant['name'] }}" selected>{{ $variant['name'] }}</option>
-                                                    @endif
-                                                </select>
-                                            @else
-                                                {{-- Jika tipe lain, tampilkan input text untuk old data --}}
-                                                <input type="text" class="form-control" name="variants[{{ $index }}][name]" value="{{ $variant['name'] }}" required>
-                                            @endif
+
+                                        <div class="col-md-3 d-flex align-items-end">
+                                            <button type="button" class="btn btn-outline-success btn-sm add-option-btn w-100">Tambah Opsi</button>
                                         </div>
-                                        <div class="col-2">
-                                            <label class="form-label">Dampak Harga</label>
-                                            <input type="number" class="form-control" name="variants[{{ $index }}][price_impact]" step="0.01" value="{{ $variant['price_impact'] }}" required>
-                                        </div>
-                                        <div class="col-1 d-flex align-items-end">
-                                            <button type="button" class="btn btn-danger remove-variant-btn w-100">Hapus</button>
-                                        </div>
+                                    </div>
+
+                                    {{-- Opsi untuk jenis varian ini --}}
+                                    <div class="options-list mt-3">
+                                        @php $oldOptions = $vt['options'] ?? []; @endphp
+                                        @foreach ($oldOptions as $optIndex => $opt)
+                                            <div class="option-item row g-2 align-items-end mb-2" data-opt-index="{{ $optIndex }}">
+                                                <div class="col-md-5">
+                                                    <input type="hidden" name="variant_types[{{ $vtIndex }}][options][{{ $optIndex }}][id]" value="{{ $opt['id'] ?? '' }}">
+                                                    <label class="form-label">Nama Opsi</label>
+                                                    <input type="text" class="form-control" name="variant_types[{{ $vtIndex }}][options][{{ $optIndex }}][option_name]" value="{{ $opt['option_name'] ?? '' }}" required>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <label class="form-label">Dampak Harga (Rp)</label>
+                                                    <input type="number" class="form-control" name="variant_types[{{ $vtIndex }}][options][{{ $optIndex }}][price_impact]" step="0.01" value="{{ $opt['price_impact'] ?? 0 }}" required>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="button" class="btn btn-outline-danger remove-option-btn w-100">Hapus</button>
+                                                </div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
                             @endforeach
-                        @endif
-                    </div>
+                        </div>
 
-                    <button type="button" id="add-variant-btn" class="btn btn-success mt-3">
-                        + Tambah Opsi Varian Baru
-                    </button>
-                </div>
-            </div>
-
-            {{-- Tombol Submit --}}
-            <div class="col-12 mt-4">
-                <div class="d-md-flex align-items-center">
-                    <div class="ms-auto mt-3 mt-md-0">
-                        <button type="submit" class="btn btn-primary">
-                            Submit
+                        {{-- tombol tambah jenis varian --}}
+                        <button type="button" id="add-variant-type-btn" class="btn btn-outline-success mt-3 w-100">
+                            <i class="fas fa-plus-circle me-1"></i> Tambah Jenis Varian Baru
                         </button>
                     </div>
                 </div>
-            </div>
-        </form>
+
+                {{-- Tombol Submit --}}
+                <div class="d-grid mt-5">
+                    <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                        <i class="fas fa-save me-2"></i> Simpan Produk
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-{{-- TEMPLATE HTML LENGKAP UNTUK BARIS VARIAN BARU --}}
-<template id="variant-row-template">
-    <div class="variant-row p-3 mb-2 border rounded bg-light" data-new="true">
-        <input type="hidden" name="variants[TEMP_INDEX][id]" value="0">
-        <div class="row">
-            <div class="col-4">
-                <label class="form-label">Tipe Varian</label>
-                {{-- Tambahkan onchange di sini --}}
-                <select class="form-select variant-type-select" name="variants[TEMP_INDEX][type]" required>
-                    <option value="size">Ukuran (Size)</option>
-                    <option value="addon" selected>Tambahan (Addon)</option> {{-- Default ke Addon --}}
-                    <option value="milk">Susu (Milk)</option>
-                    <option value="other">Lain-lain</option>
+{{-- TEMPLATES (untuk JS cloning) --}}
+<template id="variant-type-template">
+    <div class="variant-type card mb-3 p-3" data-index="__INDEX__">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">Jenis Varian</h6>
+            <button type="button" class="btn btn-sm btn-danger remove-variant-type">Hapus Jenis</button>
+        </div>
+
+        <div class="row gy-2">
+            <div class="col-md-5">
+                <label class="form-label">Nama Jenis Varian</label>
+                <input type="hidden" name="variant_types[__INDEX__][id]" value="">
+                <input type="text" class="form-control" name="variant_types[__INDEX__][name]" value="" required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Input Type</label>
+                <select class="form-select" name="variant_types[__INDEX__][input_type]" required>
+                    <option value="radio">radio (pilih 1)</option>
+                    <option value="checkbox">checkbox (banyak)</option>
                 </select>
             </div>
-            <div class="col-5 name-variant-container">
-                <label class="form-label">Nama Varian</label>
-                {{-- Input default adalah text (karena default tipe Addon) --}}
-                <input type="text" class="form-control" name="variants[TEMP_INDEX][name]" required>
+
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-success btn-sm add-option-btn w-100">Tambah Opsi</button>
             </div>
-            <div class="col-2">
-                <label class="form-label">Dampak Harga</label>
-                <input type="number" class="form-control" name="variants[TEMP_INDEX][price_impact]" step="0.01" value="0.00" required>
-            </div>
-            <div class="col-1 d-flex align-items-end">
-                <button type="button" class="btn btn-danger remove-variant-btn w-100">Hapus</button>
-            </div>
+        </div>
+
+        <div class="options-list mt-3">
+            {{-- option items akan dimasukkan di sini --}}
         </div>
     </div>
 </template>
 
-{{-- TEMPLATE UNTUK INPUT NAMA VARIAN (TEXT INPUT) --}}
-<template id="name-input-template">
-    <input type="text" class="form-control" name="variants[TEMP_INDEX][name]" value="" required>
-</template>
-
-{{-- TEMPLATE UNTUK SELECT NAMA VARIAN (DROPDOWN KHUSUS SIZE) --}}
-<template id="name-select-template">
-    <select class="form-select" name="variants[TEMP_INDEX][name]" required>
-        <option value="Small">Small</option>
-        <option value="Medium" selected>Medium</option>
-        <option value="Large">Large</option>
-        <option value="Extra Large">Extra Large</option>
-    </select>
+<template id="option-template">
+    <div class="option-item row g-2 align-items-end mb-2" data-opt-index="__OPT_INDEX__">
+        <div class="col-md-5">
+            <input type="hidden" name="variant_types[__VT_INDEX__][options][__OPT_INDEX__][id]" value="">
+            <label class="form-label">Nama Opsi</label>
+            <input type="text" class="form-control" name="variant_types[__VT_INDEX__][options][__OPT_INDEX__][option_name]" value="" required>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">Dampak Harga (Rp)</label>
+            <input type="number" class="form-control" name="variant_types[__VT_INDEX__][options][__OPT_INDEX__][price_impact]" step="0.01" value="0" required>
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-outline-danger remove-option-btn w-100">Hapus</button>
+        </div>
+    </div>
 </template>
 
 @endsection
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const variantsContainer = document.getElementById('variants-container');
-        const addVariantBtn = document.getElementById('add-variant-btn');
-        const variantTemplate = document.getElementById('variant-row-template').content;
-        const nameInputTemplate = document.getElementById('name-input-template').content;
-        const nameSelectTemplate = document.getElementById('name-select-template').content;
+    (function () {
+        const vtContainer = document.getElementById('variant-types-container');
+        const addVtBtn = document.getElementById('add-variant-type-btn');
 
-        // Tentukan index awal yang benar, termasuk jika ada old('variants')
-        let variantIndex = {{ old('variants') ? count(old('variants')) : 0 }};
+        // Mulai index dari jumlah variant_types lama (jika ada)
+        let vtIndex = {{ count(old('variant_types', [])) }};
 
-        // 1. Fungsi untuk mengganti Input Nama Varian berdasarkan Tipe
-        function switchNameInput(selectElement) {
-            const row = selectElement.closest('.variant-row');
-            const nameContainer = row.querySelector('.name-variant-container');
+        // Helper: buat element variant type baru (mengganti placeholder)
+        function makeVariantTypeElement(index) {
+            const tpl = document.getElementById('variant-type-template').content.cloneNode(true);
+            const el = tpl.querySelector('.variant-type');
 
-            // Ambil index baris
-            const currentIndex = selectElement.name.match(/\[(\d+)\]/)[1];
+            // ganti placeholders
+            el.setAttribute('data-index', index);
+            el.innerHTML = el.innerHTML.replace(/__INDEX__/g, index);
 
-            // Simpan nilai input saat ini jika ada
-            const currentNameElement = nameContainer.querySelector('[name*="[name]"]');
-            const currentValue = currentNameElement ? (currentNameElement.tagName === 'INPUT' ? currentNameElement.value : currentNameElement.value) : '';
-
-            // Kosongkan container dan buat label
-            nameContainer.innerHTML = '';
-            const label = document.createElement('label');
-            label.className = 'form-label';
-            label.textContent = 'Nama Varian';
-            nameContainer.appendChild(label);
-
-            if (selectElement.value === 'size') {
-                // Tampilkan SELECT (Dropdown)
-                const selectClone = nameSelectTemplate.cloneNode(true);
-                const selectElementNew = selectClone.querySelector('select');
-                selectElementNew.name = `variants[${currentIndex}][name]`;
-
-                // Coba pertahankan nilai lama jika ada di preset, atau set default ke Medium
-                if (['Small', 'Medium', 'Large', 'Extra Large'].includes(currentValue)) {
-                    selectElementNew.value = currentValue;
-                } else {
-                    selectElementNew.value = 'Medium';
-                }
-
-                nameContainer.appendChild(selectElementNew);
-            } else {
-                // Tampilkan INPUT (Text)
-                const inputClone = nameInputTemplate.cloneNode(true);
-                const inputElementNew = inputClone.querySelector('input');
-
-                inputElementNew.name = `variants[${currentIndex}][name]`;
-                inputElementNew.value = currentValue; // Pertahankan nilai lama
-
-                nameContainer.appendChild(inputElementNew);
-            }
+            return el;
         }
 
-        // 2. Event Listener untuk perubahan Tipe Varian
-        variantsContainer.addEventListener('change', function(e) {
-            if (e.target.name && e.target.name.includes('[type]')) {
-                switchNameInput(e.target);
+        // Helper: buat option untuk variant type tertentu
+        function makeOptionElement(vtIdx, optIdx) {
+            const tpl = document.getElementById('option-template').content.cloneNode(true);
+            let html = tpl.firstElementChild.outerHTML;
+            html = html.replace(/__VT_INDEX__/g, vtIdx).replace(/__OPT_INDEX__/g, optIdx);
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = html;
+            return wrapper.firstElementChild;
+        }
+
+        // Tambah variant type
+        addVtBtn.addEventListener('click', function () {
+            const newTypeEl = makeVariantTypeElement(vtIndex);
+            vtContainer.appendChild(newTypeEl);
+            vtIndex++;
+        });
+
+        // Event delegation untuk tombol remove type, add option, remove option
+        vtContainer.addEventListener('click', function (e) {
+            // Hapus variant type
+            if (e.target.closest('.remove-variant-type')) {
+                const vtEl = e.target.closest('.variant-type');
+                vtEl.remove();
+                return;
+            }
+
+            // Tambah option di dalam variant type
+            if (e.target.closest('.add-option-btn')) {
+                const vtEl = e.target.closest('.variant-type');
+                const vtIdx = vtEl.getAttribute('data-index');
+
+                // hitung opsi sekarang di vt ini
+                const currentOpts = vtEl.querySelectorAll('.option-item').length;
+                const newOpt = makeOptionElement(vtIdx, currentOpts);
+                vtEl.querySelector('.options-list').appendChild(newOpt);
+                return;
+            }
+
+            // Hapus option
+            if (e.target.closest('.remove-option-btn')) {
+                const optEl = e.target.closest('.option-item');
+                if (optEl) optEl.remove();
+                return;
             }
         });
 
-        // 3. Fungsi untuk menambahkan baris varian baru
-        function addVariantRow() {
-            const newRowTemplate = variantTemplate.cloneNode(true);
-            const newRow = newRowTemplate.firstElementChild;
+        // Inisialisasi: jika ada variant_types lama (server-side old rendering), tambahkan tombol event listeners untuk add-option
+        // (Note: old ones already rendered by Blade with correct names)
+        // Untuk semua variant-type yang di-render dari old(), pastikan tombol "Tambah Opsi" menambahkan option dengan index yang benar
+        document.querySelectorAll('#variant-types-container .variant-type').forEach(vtEl => {
+            // vtEl sudah memiliki data-index dan beberapa option mungkin sudah ada
+            // nothing to do here because add-option handler menggunakan vtEl.getAttribute('data-index')
+        });
 
-            // Ganti placeholder TEMP_INDEX dengan index unik
-            const elements = newRow.querySelectorAll('[name*="TEMP_INDEX"]');
-            elements.forEach(element => {
-                element.name = element.name.replace('TEMP_INDEX', variantIndex);
+        // Optional: sebelum submit, tidak perlu menyesuaikan nama karena saat membuat element kita sudah menyisipkan nama yang benar.
+        // Namun jika kamu ingin memastikan indeks rapi (0..n-1) saat submit, bisa lakukan reindexing di sini.
+        document.getElementById('product-form').addEventListener('submit', function (ev) {
+            // Reindex variant_types dan options agar server menerima indeks berurutan (0..n-1)
+            const allVt = Array.from(document.querySelectorAll('#variant-types-container .variant-type'));
+            allVt.forEach((vtEl, i) => {
+                vtEl.setAttribute('data-index', i);
+
+                // reindex hidden id and name & input_type name attributes
+                const idInput = vtEl.querySelector('input[type="hidden"][name*="[id]"]');
+                if (idInput) idInput.name = `variant_types[${i}][id]`;
+
+                const nameInput = vtEl.querySelector('input[name*="[name]"]');
+                if (nameInput) nameInput.name = `variant_types[${i}][name]`;
+
+                const inputType = vtEl.querySelector('select[name*="[input_type]"]');
+                if (inputType) inputType.name = `variant_types[${i}][input_type]`;
+
+                // options
+                const opts = Array.from(vtEl.querySelectorAll('.option-item'));
+                opts.forEach((optEl, j) => {
+                    const optHidden = optEl.querySelector('input[type="hidden"][name*="[id]"]');
+                    if (optHidden) optHidden.name = `variant_types[${i}][options][${j}][id]`;
+
+                    const optName = optEl.querySelector('input[name*="[option_name]"]');
+                    if (optName) optName.name = `variant_types[${i}][options][${j}][option_name]`;
+
+                    const optPrice = optEl.querySelector('input[name*="[price_impact]"]');
+                    if (optPrice) optPrice.name = `variant_types[${i}][options][${j}][price_impact]`;
+                });
             });
 
-            variantsContainer.appendChild(newRow);
-
-            // Inisialisasi input nama varian baru berdasarkan default (Addon/Text)
-            // Karena template default sudah saya set ke addon (input text),
-            // kita hanya perlu memastikan kontainer memiliki class yang benar.
-            const typeSelect = newRow.querySelector('.variant-type-select');
-            const nameContainer = newRow.querySelector('.name-variant-container');
-
-            // Tambahkan class agar penanganan event change lebih mudah
-            nameContainer.classList.add('name-variant-container');
-
-            variantIndex++; // Tingkatkan index
-        }
-
-        // 4. Event Listener untuk tombol tambah
-        addVariantBtn.addEventListener('click', addVariantRow);
-
-        // 5. Event Delegation untuk tombol hapus
-        variantsContainer.addEventListener('click', function(e) {
-            if (e.target.classList.contains('remove-variant-btn')) {
-                const row = e.target.closest('.variant-row');
-                row.remove();
-            }
+            // After reindexing, form will submit normally
         });
-
-        // 6. Inisialisasi awal (Khusus untuk old data saat error validasi)
-        variantsContainer.querySelectorAll('[name*="[type]"]').forEach(select => {
-            // Kita tidak perlu memanggil switchNameInput di sini, karena sudah di-render oleh Blade.
-            // Kita hanya memastikan event listener siap.
-        });
-    });
+    })();
 </script>
 @endpush

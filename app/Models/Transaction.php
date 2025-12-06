@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Transaction extends Model
 {
@@ -14,19 +15,26 @@ class Transaction extends Model
 
     protected $fillable = [
         'order_id',
+        'payment_gateway',          // BARU: Gateway yang digunakan (e.g., 'midtrans', 'cash')
         'payment_method',
         'amount',
-        'midtrans_id',
+        'gateway_transaction_id',   // BARU: ID unik dari gateway mana pun
         'status',
-        'raw_response',
+        'gateway_details',          // BARU: Gantikan raw_response
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
-        'raw_response' => 'array', // Casting JSON ke Array/Collection PHP
+        'gateway_details' => 'array', // Casting JSON fleksibel
+
+        // midtrans_id dan raw_response DIHAPUS
     ];
 
-    // Relasi: Transaksi dimiliki oleh satu Order
+    // --- Relasi ---
+
+    /**
+     * Relasi: Transaksi dimiliki oleh satu Order.
+     */
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);

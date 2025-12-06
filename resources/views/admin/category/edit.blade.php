@@ -1,65 +1,81 @@
 @extends('layouts.admin')
+
 @section('content')
-    <div class="card">
-        <div class="card-body">
-            <h4><i class="fas fa-edit me-2"></i>Edit Kategori: {{ $category->name }}</h4>
+    <div class="container">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h4 class="mb-4"><i class="fas fa-edit me-2"></i>Edit Kategori: {{ $category->name }}</h4>
 
-            <hr>
+                <hr>
 
-            {{-- tampilkan error --}}
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+                {{-- Tampilkan error (Menggunakan format alert yang lebih rapi) --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                        <strong>Gagal Menyimpan!</strong> Silakan periksa kembali input Anda.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <ul class="mb-0 mt-2">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-            {{-- ASUMSI: Route update kategori Anda bernama 'admin.categories.update' --}}
-            <form action="{{ route('admin.category.update', $category->id) }}" method="post">
-                @csrf
-                {{-- Menggunakan method spoofing untuk PUT --}}
-                @method('PUT')
+                {{-- Route update kategori Anda: 'admin.category.update' --}}
+                <form action="{{ route('admin.category.update', $category->id) }}" method="post">
+                    @csrf
+                    {{-- Menggunakan method spoofing untuk PUT --}}
+                    @method('PUT')
 
-                <div class="row">
+                    <div class="row">
+                        <div class="col-md-6">
 
-                    {{-- Nama Kategori --}}
-                    <div class="col-md-6 mb-3">
-                        <label for="name" class="form-label">Nama Kategori</label>
-                        <input type="text" name="name" id="name" class="form-control"
-                            value="{{ old('name', $category->name) }}" required>
+                            {{-- Input Nama Kategori --}}
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Nama Kategori</label>
+                                <input type="text" name="name" id="name"
+                                    class="form-control @error('name') is-invalid @enderror"
+                                    value="{{ old('name', $category->name) }}" required>
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- Dropdown Tipe Kategori (ENUM) --}}
+                            <div class="mb-3">
+                                <label for="type" class="form-label">Tipe Produk</label>
+                                <select name="type" id="type"
+                                    class="form-select @error('type') is-invalid @enderror" required>
+
+                                    {{-- Looping melalui $categoryTypes dari Controller --}}
+                                    @foreach ($categoryTypes as $type)
+                                        @php
+                                            // Tentukan apakah opsi ini harus dipilih
+                                            $isSelected = old('type', $category->type) == $type;
+                                        @endphp
+                                        <option value="{{ $type }}" {{ $isSelected ? 'selected' : '' }}>
+                                            {{ ucfirst($type) }}
+                                        </option>
+                                    @endforeach
+
+                                </select>
+                                @error('type')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
 
-                    {{-- Tipe Kategori (Minuman/Makanan) --}}
-                    {{-- ASUMSI: Kolom di database Anda bernama 'type' --}}
-                    <div class="col-md-6 mb-3">
-                        <label for="type" class="form-label">Tipe Produk</label>
-                        <select name="type" id="type" class="form-select" required>
-                            {{--
-                            ASUMSI: Nilai dari $category->type adalah 'minuman' atau 'makanan'.
-                            Jika Anda menggunakan boolean (is_drink), ubah value dan pengecekan di bawah.
-                        --}}
-                            <option value="minuman" {{ old('type', $category->type) == 'minuman' ? 'selected' : '' }}>
-                                Minuman
-                            </option>
-                            <option value="makanan" {{ old('type', $category->type) == 'makanan' ? 'selected' : '' }}>
-                                Makanan/Snack
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="col-12 mt-3 text-end">
+                    <div class="mt-4 text-end">
                         <a href="{{ route('admin.category.index') }}" class="btn btn-secondary me-2">
-                            Batal
+                            <i class="fas fa-undo me-1"></i> Batal
                         </a>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save me-1"></i> Simpan Perubahan
                         </button>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 @endsection

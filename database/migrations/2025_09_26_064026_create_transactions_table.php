@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+            $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
 
+            $table->string('payment_gateway', 50);
             $table->string('payment_method');
             $table->decimal('amount', 12, 2);
-            $table->string('midtrans_id')->unique(); // ID Transaksi Midtrans
 
-            // Status dari webhook Midtrans (bisa berbeda dari order.payment_status)
-            $table->string('status');
-            $table->json('raw_response')->nullable(); // Data webhook lengkap
+            $table->string('gateway_transaction_id')->nullable()->unique();
 
+            $table->enum('status', ['pending', 'paid', 'failed', 'expired']);
+
+            $table->json('gateway_details')->nullable();
             $table->timestamps();
         });
     }

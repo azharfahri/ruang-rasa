@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('type');
+            $table->string('slug')->unique();
+            $table->enum('type', ['food', 'drink', 'dessert', 'addon', 'other'])->default('drink');
             $table->timestamps();
         });
     }

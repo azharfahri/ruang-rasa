@@ -14,42 +14,54 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'casier_id',
+        'cashier_id',
         'order_type',
         'status',
         'payment_status',
-        'midtrans_booking_code',
-        'midtrans_expiry_time',
         'pickup_code',
         'total',
     ];
 
     protected $casts = [
-        'midtrans_expiry_time' => 'datetime',
         'total' => 'decimal:2',
+        // Kolom enum lainnya bisa di-cast jika diperlukan:
+        // 'order_type' => 'string',
+        // 'status' => 'string',
+        // 'payment_status' => 'string',
     ];
 
-    // Relasi: Order dimiliki oleh Customer (user)
+    /**
+     * Relasi: Order dimiliki oleh Customer (user).
+     */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Relasi: Order diurus oleh Casier (user)
-    public function casier(): BelongsTo
+    /**
+     * Relasi: Order diurus oleh Cashier (user).
+     * PERBAIKAN: Ganti 'casier' menjadi 'cashier' dan pastikan FK-nya benar.
+     */
+    public function cashier(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'casier_id');
+        return $this->belongsTo(User::class, 'cashier_id'); // FK: cashier_id
     }
 
-    // Relasi: Satu Order memiliki banyak OrderItem
+    /**
+     * Relasi: Satu Order memiliki banyak OrderItem.
+     */
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    // Relasi: Satu Order memiliki banyak Transaction (upaya pembayaran)
-    public function transactions(): HasMany
+    /**
+     * Relasi: Satu Order memiliki SATU Transaction UTAMA (sesuai migrasi yang kita sepakati).
+     * Jika Anda mengizinkan banyak upaya pembayaran untuk satu order, ganti ke HasMany.
+     * Berdasarkan migrasi Langkah 4 yang menggunakan order_id->unique(), kita gunakan HasOne.
+     */
+    public function transaction(): HasOne
     {
-        return $this->hasMany(Transaction::class);
+        return $this->hasOne(Transaction::class);
     }
 }

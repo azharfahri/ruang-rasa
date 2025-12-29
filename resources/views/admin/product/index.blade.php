@@ -1,150 +1,96 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="container">
-        <h3 class="mb-4">Data Produk</h3>
-        <div class="card shadow-sm">
-            <div class="card-body">
-                {{-- ALERT SUCCESS & ERROR --}}
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
+<div class="card">
+    <div class="card-body">
 
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-                {{-- END ALERT --}}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h4 class="mb-0">Product</h4>
+                <small class="text-muted">Total data: {{ count($products) }}</small>
+            </div>
+            <a href="{{ route('products.create') }}" class="btn btn-primary">+ Tambah Produk</a>
+        </div>
 
-                <a href="{{ route ('admin.product.create') }}" type="button" class="btn btn-primary mb-3">
-                    <i class="fas fa-plus me-1"></i> Tambah Produk
-                </a>
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
 
-                <div class="table-responsive">
-                    {{-- Tambahkan kelas styling ke tabel --}}
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Gambar</th>
-                                <th scope="col">Nama Produk</th>
-                                <th scope="col">Kategori</th>
-                                <th scope="col">Harga</th>
-                                <th scope="col">Stok</th>
-                                <th scope="col">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($product as $item)
-                                <tr>
-                                    <th scope="row">{{ $loop->iteration }}</th>
-                                    <td>
-                                        @if ($item->image)
-                                            {{-- Gambar diset ukuran kecil dan kotak untuk kerapian --}}
-                                            <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
-                                        @else
-                                            <i class="fas fa-box text-muted fa-2x" title="Tanpa Gambar"></i>
-                                        @endif
-                                    </td>
-                                    <td>{{ $item->name }}</td>
-                                    <td>
-                                        <span class="badge bg-secondary">{{ $item->category->name ?? 'N/A' }}</span>
-                                    </td>
-                                    <td>Rp {{ number_format($item->price, 0, ',', '.') }}</td>
-                                    <td>
-                                        <span class="badge {{ $item->stock > 0 ? 'bg-success' : 'bg-danger' }}">
-                                            {{ $item->stock }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {{-- Aksi Edit dan Hapus (Menggunakan Flexbox dan Ikon) --}}
-                                        <div class="d-flex gap-2">
-                                            <a href="{{ route('admin.product.edit', $item->id) }}" type="button"
-                                                class="btn btn-sm btn-success" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-
-                                            {{-- Tombol Hapus: Pemicu Modal --}}
-                                            <button type="button" class="btn btn-sm btn-danger"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#deleteModal"
-                                                data-id="{{ $item->id }}"
-                                                data-name="{{ $item->name }}"
-                                                title="Hapus">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    {{-- colspan diatur menjadi 7 (sesuai jumlah kolom) --}}
-                                    <td align="center" colspan="7">
-                                        <h6 class="mt-3">Belum ada data Produk.</h6>
-                                        <p class="text-muted">Klik "Tambah Produk" untuk mulai.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <input type="text" id="searchInput" class="form-control" placeholder="Cari produk...">
+            </div>
+            <div class="col-md-3">
+                <select id="limitSelect" class="form-select">
+                    <option value="10">10 data</option>
+                    <option value="25">25 data</option>
+                    <option value="50">50 data</option>
+                </select>
             </div>
         </div>
-    </div>
 
-    {{-- MODAL KONFIRMASI HAPUS (Wajib menggunakan Modal, bukan alert confirm()) --}}
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Penghapusan</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Apakah Anda yakin ingin menghapus produk: <strong id="productNamePlaceholder"></strong>?
-                </div>
-                <div class="modal-footer">
-                    {{-- Form ini akan diisi action URL-nya melalui JavaScript --}}
-                    <form id="deleteForm" method="POST" action="">
-                        @csrf
-                        @method('DELETE')
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger">Ya, Hapus</button>
-                    </form>
-                </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th width="60">No</th>
+                        <th>Nama</th>
+                        <th>Kategori</th>
+                        <th>Harga</th>
+                        <th>Foto</th>
+                        <th width="220">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach($products as $product)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $product->name }}</td>
+                        <td>{{ $product->category->name ?? '-' }}</td>
+                        <td>Rp {{ number_format($product->price,0,',','.') }}</td>
+                        <td>
+                            @if($product->image)
+                                <img src="{{ asset('storage/'.$product->image) }}" width="60" class="rounded">
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td>
+                            <a href="{{ route('product.variant-types.index', $product) }}"
+                               class="btn btn-sm btn-info">Variant</a>
+
+                            <a href="{{ route('products.edit', $product) }}"
+                               class="btn btn-sm btn-warning">Edit</a>
+
+                            <form action="{{ route('products.destroy', $product) }}"
+                                  method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Hapus produk?')">
+                                    Hapus
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3">
+            <small class="text-muted" id="tableInfo"></small>
+            <div>
+                <button class="btn btn-sm btn-outline-secondary" id="prevBtn">‹</button>
+                <span id="pageInfo" class="mx-2"></span>
+                <button class="btn btn-sm btn-outline-secondary" id="nextBtn">›</button>
             </div>
         </div>
+
     </div>
+</div>
 @endsection
 
-@section('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-
-            // Logika untuk mengisi data ke Modal Hapus
-            var deleteModal = document.getElementById('deleteModal');
-            deleteModal.addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget; // Tombol yang memicu modal
-                var productId = button.getAttribute('data-id');
-                var productName = button.getAttribute('data-name');
-
-                var modalBodyInput = deleteModal.querySelector('#productNamePlaceholder');
-                var deleteForm = deleteModal.querySelector('#deleteForm');
-
-                // Menampilkan nama produk di body modal
-                modalBodyInput.textContent = productName;
-
-                // Mengganti action URL form DELETE
-                // Gunakan placeholder :id dan replace dengan productId
-                var actionUrl = "{{ route('admin.product.destroy', ':id') }}";
-                actionUrl = actionUrl.replace(':id', productId);
-                deleteForm.setAttribute('action', actionUrl);
-            });
-        });
-    </script>
-@endsection
+@push('scripts')
+<script src="{{ asset('assets/js/pages/product.js') }}"></script>
+@endpush

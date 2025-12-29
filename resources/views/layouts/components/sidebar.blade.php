@@ -1,82 +1,113 @@
-        <aside class="left-sidebar with-vertical">
-            <div><!-- ---------------------------------- -->
-                <!-- Start Vertical Layout Sidebar -->
-                <!-- ---------------------------------- -->
-                <div class="brand-logo d-flex align-items-center justify-content-between">
-                    <a href="../main/index.html" class="text-nowrap logo-img">
-                        <img src="{{ asset('assets/images/logos/dark-logo.svg') }}" class="dark-logo" alt="Logo-Dark" />
-                        <img src="{{ asset('assets/images/logos/light-logo.svg') }}" class="light-logo" alt="Logo-light" />
-                    </a>
-                    <a href="javascript:void(0)"
-                        class="sidebartoggler ms-auto text-decoration-none fs-5 d-block d-xl-none">
-                        <i class="ti ti-x"></i>
-                    </a>
-                </div>
+<aside class="left-sidebar with-vertical">
+    <div>
+        {{-- Logo --}}
+        <div class="brand-logo d-flex align-items-center justify-content-between px-3 py-3">
+            @if(auth()->user()->hasRole('admin'))
+                <a href="{{ route('admin.dashboard') }}" class="text-nowrap logo-img">
+            @elseif(auth()->user()->hasRole('cashier'))
+                <a href="{{ route('cashier.dashboard') }}" class="text-nowrap logo-img">
+            @endif
+                <img src="{{ asset('assets/images/logos/dark-logo.svg') }}" class="dark-logo">
+                <img src="{{ asset('assets/images/logos/light-logo.svg') }}" class="light-logo">
+            </a>
 
-                <nav class="sidebar-nav scroll-sidebar" data-simplebar>
-                    <ul id="sidebarnav">
-                        <!-- ---------------------------------- -->
-                        <!-- Home -->
-                        <!-- ---------------------------------- -->
-                        <li class="nav-small-cap">
-                            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                            <span class="hide-menu">Halaman</span>
-                        </li>
-                        <!-- ---------------------------------- -->
-                        <!-- Dashboard -->
-                        <!-- ---------------------------------- -->
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="#" id="get-url" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-aperture"></i>
-                                </span>
-                                <span class="hide-menu">Beranda</span>
-                            </a>
-                        </li>
+            <a href="javascript:void(0)" class="sidebartoggler d-xl-none">
+                <i class="ti ti-x"></i>
+            </a>
+        </div>
 
-                        <!-- ---------------------------------- -->
-                        <!-- Frontend page -->
-                        <!-- ---------------------------------- -->
-                        <li class="sidebar-item">
-                            <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-                                <span class="d-flex">
-                                    <i class="ti ti-layout-grid"></i>
-                                </span>
-                                <span class="hide-menu">Tabel</span>
-                            </a>
-                            <ul aria-expanded="false" class="collapse first-level">
-                                <li class="sidebar-item">
-                                    <a href="{{ route ('admin.category.index') }}" class="sidebar-link">
-                                        <div class="round-16 d-flex align-items-center justify-content-center">
-                                            <i class="ti ti-circle"></i>
-                                        </div>
-                                        <span class="hide-menu">Kategori</span>
-                                    </a>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="{{ route('admin.product.index') }}" class="sidebar-link">
-                                        <div class="round-16 d-flex align-items-center justify-content-center">
-                                            <i class="ti ti-circle"></i>
-                                        </div>
-                                        <span class="hide-menu">Produk</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+        {{-- Sidebar --}}
+        <nav class="sidebar-nav scroll-sidebar">
+            <ul id="sidebarnav">
 
+                {{-- DASHBOARD --}}
+                <li class="sidebar-item">
+                    @if(auth()->user()->hasRole('admin'))
+                        <a class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+                           href="{{ route('admin.dashboard') }}">
+                            <i class="ti ti-layout-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    @elseif(auth()->user()->hasRole('cashier'))
+                        <a class="sidebar-link {{ request()->routeIs('cashier.dashboard') ? 'active' : '' }}"
+                           href="{{ route('cashier.dashboard') }}">
+                            <i class="ti ti-layout-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    @endif
+                </li>
 
+                {{-- TRANSAKSI (CASHIER ONLY) --}}
+                @if(auth()->user()->hasRole('cashier'))
+                    <li class="nav-small-cap">TRANSAKSI</li>
 
+                    <li class="sidebar-item">
+                        <a class="sidebar-link {{ request()->routeIs('cashier.orders.*') ? 'active' : '' }}"
+                           href="{{ route('cashier.orders.index') }}">
+                            <i class="ti ti-receipt"></i>
+                            <span>Order</span>
+                        </a>
+                    </li>
 
+                    <li class="sidebar-item">
+                        <a class="sidebar-link {{ request()->routeIs('cashier.orders.history') ? 'active' : '' }}"
+                           href="{{ route('cashier.orders.history') }}">
+                            <i class="ti ti-history"></i>
+                            <span>Riwayat Order</span>
+                        </a>
+                    </li>
+                @endif
 
+                {{-- ADMIN ONLY --}}
+                @if(auth()->user()->hasRole('admin'))
+                    <li class="nav-small-cap">MANAJEMEN</li>
 
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ route('roles.index') }}">
+                            <i class="ti ti-shield"></i>
+                            <span>Role</span>
+                        </a>
+                    </li>
 
-                    </ul>
-                </nav>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ route('users.index') }}">
+                            <i class="ti ti-user"></i>
+                            <span>User</span>
+                        </a>
+                    </li>
 
+                    <li class="nav-small-cap">MASTER DATA</li>
 
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ route('branches.index') }}">
+                            <i class="ti ti-building-store"></i>
+                            <span>Branches</span>
+                        </a>
+                    </li>
 
-                <!-- ---------------------------------- -->
-                <!-- Start Vertical Layout Sidebar -->
-                <!-- ---------------------------------- -->
-            </div>
-        </aside>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ route('category.index') }}">
+                            <i class="ti ti-category"></i>
+                            <span>Category</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ route('products.index') }}">
+                            <i class="ti ti-package"></i>
+                            <span>Product</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ route('branch-products.index') }}">
+                            <i class="ti ti-box"></i>
+                            <span>Inventory</span>
+                        </a>
+                    </li>
+                @endif
+
+            </ul>
+        </nav>
+    </div>
+</aside>

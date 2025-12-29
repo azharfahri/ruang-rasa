@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class UserRole extends Model
 {
@@ -16,15 +16,5 @@ class UserRole extends Model
         'role_id',
     ];
 
-    // relasi user
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    // relasi role
-    public function role()
-    {
-        return $this->belongsTo(Role::class);
-    }
+    public $timestamps = false;
 }

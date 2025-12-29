@@ -4,9 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Order extends Model
 {
@@ -15,6 +14,7 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'cashier_id',
+        'branch_id',
         'order_type',
         'status',
         'payment_status',
@@ -22,45 +22,32 @@ class Order extends Model
         'total',
     ];
 
-    protected $casts = [
-        'total' => 'decimal:2',
-        // Kolom enum lainnya bisa di-cast jika diperlukan:
-        // 'order_type' => 'string',
-        // 'status' => 'string',
-        // 'payment_status' => 'string',
-    ];
-
-    /**
-     * Relasi: Order dimiliki oleh Customer (user).
-     */
-    public function customer(): BelongsTo
+    // customer
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relasi: Order diurus oleh Cashier (user).
-     * PERBAIKAN: Ganti 'casier' menjadi 'cashier' dan pastikan FK-nya benar.
-     */
+    // kasir
     public function cashier(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'cashier_id'); // FK: cashier_id
+        return $this->belongsTo(User::class, 'cashier_id');
     }
 
-    /**
-     * Relasi: Satu Order memiliki banyak OrderItem.
-     */
+    // cabang
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    // item order
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    /**
-     * Relasi: Satu Order memiliki SATU Transaction UTAMA (sesuai migrasi yang kita sepakati).
-     * Jika Anda mengizinkan banyak upaya pembayaran untuk satu order, ganti ke HasMany.
-     * Berdasarkan migrasi Langkah 4 yang menggunakan order_id->unique(), kita gunakan HasOne.
-     */
-    public function transaction(): HasOne
+    // transaksi
+    public function transaction()
     {
         return $this->hasOne(Transaction::class);
     }

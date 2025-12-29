@@ -5,16 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
         'email',
         'password',
-        'branch_id', // tambahin kalau user bisa punya cabang
+        'branch_id',
     ];
 
     protected $hidden = [
@@ -25,48 +28,28 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
 
-    // =====================
-    //   RELASI USER
-    // =====================
-
-    // User bisa punya banyak role via pivot user_roles
-    public function roles()
+    public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class, 'user_roles');
+        return $this->belongsToMany(
+            Role::class,
+            'user_roles',
+            'user_id',
+            'role_id'
+        );
     }
 
-    // relasi pivotnya langsung
-    public function userRoles()
+    // helper biar cakep
+    public function hasRole(string $role): bool
     {
-        return $this->hasMany(UserRole::class);
+        return $this->roles()->where('name', $role)->exists();
     }
 
-    // user bisa terhubung ke cabang (opsional)
-    public function branch()
+    public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
-    }
-
-    // Customer orders
-    public function customerOrders()
-    {
-        return $this->hasMany(Order::class, 'user_id');
-    }
-
-    // Cashier orders
-    public function cashierOrders()
-    {
-        return $this->hasMany(Order::class, 'cashier_id');
-    }
-
-    // cek role dengan mudah
-    public function hasRole($roleName)
-    {
-        return $this->roles()->where('name', $roleName)->exists();
     }
 }

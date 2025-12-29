@@ -16,6 +16,7 @@
     <title>Ruang Rasa</title>
     <!-- Owl Carousel  -->
     <link rel="stylesheet" href="{{ asset('assets/libs/owl.carousel/dist/assets/owl.carousel.min.css') }}" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 
 <body>
@@ -58,6 +59,7 @@
     <script src="{{ asset('assets/libs/owl.carousel/dist/owl.carousel.min.js')}}"></script>
     <script src="{{ asset('assets/libs/apexcharts/dist/apexcharts.min.js')}}"></script>
     <script src="{{ asset('assets/js/dashboards/dashboard.js')}}"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 
 @stack('scripts')

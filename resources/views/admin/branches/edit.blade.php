@@ -19,9 +19,11 @@
                 @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
 
+            <div id="map" style="height: 350px;" class="mb-4"></div>
+
             <div class="mb-3">
                 <label>Alamat</label>
-                <textarea name="address"
+                <textarea name="address" id="address"
                           class="form-control @error('address') is-invalid @enderror"
                           rows="3">{{ old('address',$branch->address) }}</textarea>
                 @error('address')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -30,14 +32,14 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label>Latitude</label>
-                    <input type="text" name="latitude"
+                    <input type="text" name="latitude" id="lat"
                            class="form-control @error('latitude') is-invalid @enderror"
                            value="{{ old('latitude',$branch->latitude) }}">
                     @error('latitude')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-6 mb-3">
                     <label>Longitude</label>
-                    <input type="text" name="longitude"
+                    <input type="text" name="longitude" id="lng"
                            class="form-control @error('longitude') is-invalid @enderror"
                            value="{{ old('longitude',$branch->longitude) }}">
                     @error('longitude')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -68,3 +70,41 @@
     </div>
 </div>
 @endsection
+@push('scripts')
+    <script>
+        const map = L.map('map').setView([-6.914744, 107.60981], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        let marker;
+
+        map.on('click', function(e) {
+            const {
+                lat,
+                lng
+            } = e.latlng;
+
+            document.getElementById('lat').value = lat;
+            document.getElementById('lng').value = lng;
+
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng).addTo(map);
+            }
+
+            // reverse geocoding
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.display_name) {
+                        document.getElementById('address').value = data.display_name;
+                    }
+                })
+                .catch(err => console.log(err));
+        });
+    </script>
+@endpush
+

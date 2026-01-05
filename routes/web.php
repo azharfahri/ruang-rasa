@@ -32,7 +32,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::resource('users', UserController::class);
     Route::resource('roles', RoleController::class);
-    Route::resource('user-roles', UserRoleController::class)->only(['index','edit','update']);
+    Route::resource('user-roles', UserRoleController::class)->only(['index', 'edit', 'update']);
 
     Route::resource('products', ProductController::class);
     Route::resource('branches', BranchController::class);
@@ -80,7 +80,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::delete('options/{option}', [VariantOptionController::class, 'destroy'])
             ->name('variant-types.options.destroy');
     });
-
 });
 
 /*
@@ -88,23 +87,34 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 | KASIR ROUTES (KASIR ONLY)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth','role:cashier'])->group(function () {
+Route::middleware(['auth', 'role:cashier'])->group(function () {
 
-    Route::get('/cashier', [KasirDashboardController::class,'index'])
+    Route::get('/cashier', [KasirDashboardController::class, 'index'])
         ->name('cashier.dashboard');
 
-    Route::get('/cashier/orders', [KasirOrderController::class,'index'])
+    Route::get('/cashier/orders', [KasirOrderController::class, 'index'])
         ->name('cashier.orders.index');
 
-    Route::get('/cashier/orders/create', [KasirOrderController::class,'create'])
+    Route::get('/cashier/orders/create', [KasirOrderController::class, 'create'])
         ->name('cashier.orders.create');
 
-    Route::post('/cashier/orders/{order}/add-item', [KasirOrderController::class,'addItem'])
+    Route::post('orders/{order}/item/{item}/minus', [KasirOrderController::class, 'minusItem'])
+        ->name('cashier.orders.item.minus');
+
+    Route::delete('orders/{order}/item/{item}', [KasirOrderController::class, 'removeItem'])
+        ->name('cashier.orders.item.remove');
+
+    Route::patch(
+        'orders/{order}/items/{item}/variants',
+        [KasirOrderController::class, 'updateItemVariant']
+    )->name('cashier.orders.items.update-variant');
+
+    Route::post('/cashier/orders/{order}/add-item', [KasirOrderController::class, 'addItem'])
         ->name('cashier.orders.addItem');
 
-    Route::post('/cashier/orders/{order}/pay-cash', [KasirOrderController::class,'payCash'])
+    Route::post('/cashier/orders/{order}/pay-cash', [KasirOrderController::class, 'payCash'])
         ->name('cashier.orders.pay.cash');
 
-    Route::get('/cashier/orders/history', [KasirOrderController::class,'history'])
+    Route::get('/cashier/orders/history', [KasirOrderController::class, 'history'])
         ->name('cashier.orders.history');
 });

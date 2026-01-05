@@ -30,6 +30,11 @@ class Product extends Model
         return $this->hasMany(VariantType::class);
     }
 
+    public function variantOptions(): HasMany
+    {
+        return $this->hasMany(VariantOption::class);
+    }
+
     public function branchProducts(): HasMany
     {
         return $this->hasMany(BranchProduct::class);

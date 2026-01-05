@@ -22,8 +22,9 @@ class VariantType extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function options(): HasMany
-    {
-        return $this->hasMany(VariantOption::class);
-    }
+    public function options()
+{
+    return $this->hasMany(VariantOption::class);
+}
+
 }

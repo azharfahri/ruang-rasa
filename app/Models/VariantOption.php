@@ -20,4 +20,14 @@ class VariantOption extends Model
     {
         return $this->belongsTo(VariantType::class);
     }
+
+    public function details()
+    {
+        return $this->hasMany(OrderItemDetail::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

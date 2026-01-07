@@ -16,7 +16,7 @@
             <div class="card border-0 zoom-in bg-primary-subtle shadow-none">
                 <div class="card-body text-center">
                     <i class="ti ti-users fs-7 text-primary mb-2"></i>
-                    <p class="fw-semibold fs-3 text-primary mb-1">Users</p>
+                    <p class="fw-semibold fs-3 text-primary mb-1">Pengguna</p>
                     <h5 class="fw-semibold text-primary mb-0">{{ $totalUsers }}</h5>
                 </div>
             </div>
@@ -26,7 +26,7 @@
             <div class="card border-0 zoom-in bg-success-subtle shadow-none">
                 <div class="card-body text-center">
                     <i class="ti ti-package fs-7 text-success mb-2"></i>
-                    <p class="fw-semibold fs-3 text-success mb-1">Products</p>
+                    <p class="fw-semibold fs-3 text-success mb-1">Produk</p>
                     <h5 class="fw-semibold text-success mb-0">{{ $totalProducts }}</h5>
                 </div>
             </div>
@@ -36,7 +36,7 @@
             <div class="card border-0 zoom-in bg-warning-subtle shadow-none">
                 <div class="card-body text-center">
                     <i class="ti ti-category fs-7 text-warning mb-2"></i>
-                    <p class="fw-semibold fs-3 text-warning mb-1">Categories</p>
+                    <p class="fw-semibold fs-3 text-warning mb-1">Kategori</p>
                     <h5 class="fw-semibold text-warning mb-0">{{ $totalCategories }}</h5>
                 </div>
             </div>
@@ -46,7 +46,7 @@
             <div class="card border-0 zoom-in bg-info-subtle shadow-none">
                 <div class="card-body text-center">
                     <i class="ti ti-shopping-cart fs-7 text-info mb-2"></i>
-                    <p class="fw-semibold fs-3 text-info mb-1">Orders</p>
+                    <p class="fw-semibold fs-3 text-info mb-1">Pesanan</p>
                     <h5 class="fw-semibold text-info mb-0">{{ $totalOrders }}</h5>
                 </div>
             </div>
@@ -56,7 +56,7 @@
             <div class="card border-0 zoom-in bg-danger-subtle shadow-none">
                 <div class="card-body text-center">
                     <i class="ti ti-check fs-7 text-danger mb-2"></i>
-                    <p class="fw-semibold fs-3 text-danger mb-1">Completed</p>
+                    <p class="fw-semibold fs-3 text-danger mb-1">Selesai</p>
                     <h5 class="fw-semibold text-danger mb-0">{{ $completedOrder }}</h5>
                 </div>
             </div>
@@ -66,7 +66,7 @@
             <div class="card border-0 zoom-in bg-secondary-subtle shadow-none">
                 <div class="card-body text-center">
                     <i class="ti ti-building-store fs-7 text-secondary mb-2"></i>
-                    <p class="fw-semibold fs-3 text-secondary mb-1">Branches</p>
+                    <p class="fw-semibold fs-3 text-secondary mb-1">Cabang</p>
                     <h5 class="fw-semibold text-secondary mb-0">{{ $totalBranches }}</h5>
                 </div>
             </div>

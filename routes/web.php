@@ -37,7 +37,25 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('products', ProductController::class);
     Route::resource('branches', BranchController::class);
     Route::resource('category', CategoryController::class);
-    Route::resource('branch-products', BranchProductController::class);
+
+
+    Route::get('branch-products', [BranchProductController::class, 'index'])
+        ->name('branch-products.index');
+    Route::get('branch-products/{branch}', [BranchProductController::class, 'show'])
+        ->name('branch-products.show');
+    Route::get('branch-products/{branch}/create', [BranchProductController::class, 'create'])
+        ->name('branch-products.create');
+    Route::post('branch-products', [BranchProductController::class, 'store'])
+        ->name('branch-products.store');
+    Route::get('branch-product/{branchProduct}/edit', [BranchProductController::class, 'edit'])
+        ->name('branch-products.edit');
+
+    Route::put('branch-product/{branchProduct}', [BranchProductController::class, 'update'])
+        ->name('branch-products.update');
+
+    Route::delete('branch-product/{branchProduct}', [BranchProductController::class, 'destroy'])
+        ->name('branch-products.destroy');
+
 
     // VARIANT TYPE (PER PRODUCT)
     Route::prefix('products/{product}')->group(function () {

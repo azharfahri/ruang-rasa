@@ -12,7 +12,7 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h4 class="mb-0">Branch</h4>
+                <h4 class="mb-0">Cabang</h4>
                 <small class="text-muted">Total data: {{ count($branches) }}</small>
             </div>
             <a href="{{ route('branches.create') }}" class="btn btn-primary">+ Tambah Cabang</a>

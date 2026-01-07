@@ -38,6 +38,11 @@ class Branch extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function branchProducts(): HasMany
+    {
+        return $this->hasMany(BranchProduct::class);
+    }
+
     /**
      * Branch punya banyak produk melalui branch_products
      */

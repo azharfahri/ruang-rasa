@@ -1,25 +1,18 @@
 @extends('layouts.admin')
 
 @section('content')
-<a href="{{ route('branch-products.index') }}" class="btn btn-light mb-3">← Kembali</a>
+<a href="{{ route('branch-products.show', $branchProduct->branch_id) }}"
+   class="btn btn-light mb-3">
+    ← Kembali ke Inventory
+</a>
 
 <div class="card">
     <div class="card-body">
-        <form action="{{ route('branch-products.update',$branchProduct) }}" method="POST">
+        <form action="{{ route('branch-products.update', $branchProduct) }}" method="POST">
             @csrf
             @method('PUT')
 
-            <div class="mb-3">
-                <label>Cabang</label>
-                <select name="branch_id" class="form-select">
-                    @foreach($branches as $branch)
-                        <option value="{{ $branch->id }}"
-                            {{ $branchProduct->branch_id == $branch->id ? 'selected' : '' }}>
-                            {{ $branch->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+            <input type="hidden" name="branch_id" value="{{ $branchProduct->branch_id }}">
 
             <div class="mb-3">
                 <label>Produk</label>
@@ -48,8 +41,12 @@
             <div class="mb-3">
                 <label>Status</label>
                 <select name="status" class="form-select">
-                    <option value="available" {{ $branchProduct->status=='available'?'selected':'' }}>Available</option>
-                    <option value="unavailable" {{ $branchProduct->status=='unavailable'?'selected':'' }}>Unavailable</option>
+                    <option value="available" {{ $branchProduct->status=='available'?'selected':'' }}>
+                        Available
+                    </option>
+                    <option value="soldout" {{ $branchProduct->status=='unavailable'?'selected':'' }}>
+                        Unavailable
+                    </option>
                 </select>
             </div>
 

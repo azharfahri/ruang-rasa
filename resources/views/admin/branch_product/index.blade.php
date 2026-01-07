@@ -1,49 +1,85 @@
 @extends('layouts.admin')
 
 @section('content')
+<a href="{{ route('branch-products.index') }}"
+   class="btn btn-light mb-3">
+    ← Kembali ke Cabang
+</a>
+
 <div class="card">
     <div class="card-body">
+
         <div class="d-flex justify-content-between mb-3">
-            <h4>Inventory Cabang</h4>
-            <a href="{{ route('branch-products.create') }}" class="btn btn-primary">+ Tambah</a>
+            <div>
+                <h4 class="mb-0">Inventory Cabang</h4>
+                <small class="text-muted">{{ $branch->name }}</small>
+            </div>
+
+            <a href="{{ route('branch-products.create', $branch->id) }}"
+               class="btn btn-primary">
+                + Tambah
+            </a>
         </div>
 
         @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
         @endif
 
         <table class="table table-hover align-middle">
-            <thead>
+            <thead class="table-light">
                 <tr>
-                    <th>No</th>
-                    <th>Cabang</th>
+                    <th width="60">No</th>
                     <th>Produk</th>
-                    <th>Stok</th>
-                    <th>Harga</th>
-                    <th>Status</th>
+                    <th width="100">Stok</th>
+                    <th width="150">Harga</th>
+                    <th width="120">Status</th>
                     <th width="150">Aksi</th>
                 </tr>
             </thead>
             <tbody>
-            @foreach($items as $item)
+            @forelse($items as $item)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ $item->branch->name }}</td>
                     <td>{{ $item->product->name }}</td>
                     <td>{{ $item->stock }}</td>
-                    <td>Rp {{ number_format($item->final_price,0,',','.') }}</td>
-                    <td>{{ ucfirst($item->status) }}</td>
                     <td>
-                        <a href="{{ route('branch-products.edit',$item) }}" class="btn btn-sm btn-warning">Edit</a>
-                        <form action="{{ route('branch-products.destroy',$item) }}" method="POST" class="d-inline">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-sm btn-danger">Hapus</button>
+                        Rp {{ number_format($item->final_price, 0, ',', '.') }}
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ $item->isAvailable() ? 'success' : 'secondary' }}">
+                            {{ ucfirst($item->status) }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ route('branch-products.edit', $item) }}"
+                           class="btn btn-sm btn-warning">
+                            Edit
+                        </a>
+
+                        <form action="{{ route('branch-products.destroy', $item) }}"
+                              method="POST"
+                              class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Yakin hapus produk ini?')">
+                                Hapus
+                            </button>
                         </form>
                     </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center text-muted">
+                        Belum ada produk di cabang ini
+                    </td>
+                </tr>
+            @endforelse
             </tbody>
         </table>
+
     </div>
 </div>
 @endsection

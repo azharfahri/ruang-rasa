@@ -31,7 +31,7 @@
                             <img src="../assets/images/logos/light-logo.svg" class="light-logo" alt="Logo-light" />
                         </a>
                         <div class="d-none d-xl-flex align-items-center justify-content-center h-n80">
-                            <img src="../assets/images/backgrounds/login-security.svg" alt="modernize-img"
+                            <img src="assets/images/logos/ruangrasa.png" alt="modernize-img"
                                 class="img-fluid" width="500">
                         </div>
                     </div>

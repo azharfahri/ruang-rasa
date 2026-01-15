@@ -128,5 +128,14 @@
         </div>
     </div>
 
+    <!-- Start Basic Bar Chart -->
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Basic Bar Chart</h4>
+              <div id="chart-bar-basic"></div>
+            </div>
+          </div>
+          <!-- End Basic Bar Chart -->
+
 </div>
 @endsection

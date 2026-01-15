@@ -6,11 +6,11 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h4 class="mb-0">Category</h4>
+                <h4 class="mb-0">Kategori</h4>
                 <small class="text-muted">Total data: {{ count($categories) }}</small>
             </div>
             <a href="{{ route('category.create') }}" class="btn btn-primary">
-                + Tambah Category
+                + Tambah Kategori
             </a>
         </div>
 

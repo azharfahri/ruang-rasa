@@ -6,7 +6,7 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h4 class="mb-0">Product</h4>
+                <h4 class="mb-0">Produk</h4>
                 <small class="text-muted">Total data: {{ count($products) }}</small>
             </div>
             <a href="{{ route('products.create') }}" class="btn btn-primary">+ Tambah Produk</a>
@@ -57,7 +57,7 @@
                         </td>
                         <td>
                             <a href="{{ route('product.variant-types.index', $product) }}"
-                               class="btn btn-sm btn-info">Variant</a>
+                               class="btn btn-sm btn-info">Varian</a>
 
                             <a href="{{ route('products.edit', $product) }}"
                                class="btn btn-sm btn-warning">Edit</a>

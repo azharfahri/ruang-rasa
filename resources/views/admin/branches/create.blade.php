@@ -33,13 +33,13 @@
                     <div class="col-md-6 mb-3">
                         <label>Latitude</label>
                         <input type="text" name="latitude" id="lat"
-                            class="form-control @error('latitude') is-invalid @enderror" value="{{ old('latitude') }}">
+                            class="form-control @error('latitude') is-invalid @enderror" value="{{ old('latitude') }}" disabled>
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label>Longitude</label>
                         <input type="text" name="longitude" id="lng"
-                            class="form-control @error('longitude') is-invalid @enderror" value="{{ old('longitude') }}">
+                            class="form-control @error('longitude') is-invalid @enderror" value="{{ old('longitude') }}" disabled>
                     </div>
                 </div>
 

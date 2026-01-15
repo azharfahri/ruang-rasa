@@ -72,8 +72,8 @@
                                         <button class="btn btn-sm btn-danger" onclick="return confirm('Hapus Variant?')">
                                             Hapus
                                         </button>
+                                    </form>
                                 </td>
-                                </form>
                             </tr>
                         @empty
                             <tr>

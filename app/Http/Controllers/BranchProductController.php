@@ -23,34 +23,52 @@ class BranchProductController extends Controller
             ->where('branch_id', $branch->id)
             ->get();
 
-        return view('admin.branch_product.index', compact('branch', 'items'));
+        $products = Product::whereNotIn(
+            'id',
+            $items->pluck('product_id')
+        )->orderBy('name')->get();
+
+        return view('admin.branch_product.index', compact('branch', 'items', 'products'));
     }
 
-    public function create(Branch $branch)
-    {
-        $products = Product::orderBy('name')->get();
-        return view('admin.branch_product.create', compact('branch', 'products'));
-    }
+    // public function create(Branch $branch)
+    // {
+    //     $products = Product::orderBy('name')->get();
+    //     return view('admin.branch_product.create', compact('branch', 'products'));
+    // }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'branch_id' => 'required|exists:branches,id',
-            'product_id' => 'required|exists:products,id',
-            'stock' => 'required|integer|min:0',
-            'price_override' => 'nullable|integer|min:0',
-        ]);
+        // 1. Validasi awal untuk memastikan input ada
+        if (!$request->has('products')) {
+            return back()->with('error', 'Tidak ada produk yang dipilih.');
+        }
 
-        $data['status'] = $data['stock'] == 0
-            ? 'soldout'
-            : 'available';
+        // 2. Ambil branch_id dari input hidden yang ada di modal
+        $branchId = $request->branch_id;
 
-        BranchProduct::create($data);
+        // 3. Looping data products yang dikirim dari modal
+        foreach ($request->products as $productId => $item) {
 
+            // Hanya proses jika checkbox 'selected' dicentang
+            if (isset($item['selected'])) {
+
+                $stock = $item['stock'] ?? 0;
+
+                // Simpan menggunakan Model BranchProduct (Cara yang kamu inginkan)
+                BranchProduct::create([
+                    'branch_id'      => $branchId,
+                    'product_id'     => $productId,
+                    'stock'          => $stock,
+                    'price_override' => $item['price_override'] ?: null, // Simpan null jika kosong
+                    'status'         => $stock == 0 ? 'soldout' : 'available',
+                ]);
+            }
+        }
 
         return redirect()
-            ->route('branch-products.show', $data['branch_id'])
-            ->with('success', 'Produk berhasil ditambahkan');
+            ->route('branch-products.show', $branchId)
+            ->with('success', 'Produk berhasil ditambahkan ke cabang');
     }
 
     public function edit(BranchProduct $branchProduct)

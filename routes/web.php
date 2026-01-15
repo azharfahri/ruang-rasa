@@ -48,8 +48,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         ->name('branch-products.index');
     Route::get('branch-products/{branch}', [BranchProductController::class, 'show'])
         ->name('branch-products.show');
-    Route::get('branch-products/{branch}/create', [BranchProductController::class, 'create'])
-        ->name('branch-products.create');
+    // Route::get('branch-products/{branch}/create', [BranchProductController::class, 'create'])
+    //     ->name('branch-products.create');
     Route::post('branch-products', [BranchProductController::class, 'store'])
         ->name('branch-products.store');
     Route::get('branch-product/{branchProduct}/edit', [BranchProductController::class, 'edit'])

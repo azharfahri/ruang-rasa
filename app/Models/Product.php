@@ -39,4 +39,19 @@ class Product extends Model
     {
         return $this->hasMany(BranchProduct::class);
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($product) {
+            if (
+                $product->variantTypes()->exists() ||
+                $product->variantOptions()->exists() ||
+                $product->branchProducts()->exists()
+            ) {
+                throw new \Exception(
+                    "Produk masih digunakan (variant atau cabang), tidak bisa dihapus."
+                );
+            }
+        });
+    }
 }

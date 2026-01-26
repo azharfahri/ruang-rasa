@@ -47,6 +47,21 @@ class Branch extends Model
         ])->withTimestamps();
     }
 
+    protected static function booted()
+    {
+        static::deleting(function ($branch) {
+            if (
+                $branch->users()->exists() ||
+                $branch->orders()->exists() ||
+                $branch->branchProducts()->exists()
+            ) {
+                throw new \Exception(
+                    "Cabang masih digunakan (user, pesanan, atau produk), tidak bisa dihapus."
+                );
+            }
+        });
+    }
+
     //  Helper
 
     public function isOpen(): bool

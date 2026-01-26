@@ -57,10 +57,15 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
-        $role->delete();
-
-        return redirect()
-            ->route('roles.index')
-            ->with('success', 'Role berhasil dihapus');
+         try {
+            $role->delete();
+            return redirect()
+                ->route('role.index')
+                ->with('success', 'Role berhasil dihapus');
+        } catch (\Throwable $e) {
+            return redirect()
+                ->back()
+                ->with('error', $e->getMessage());
+        }
     }
 }

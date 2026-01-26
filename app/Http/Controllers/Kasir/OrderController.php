@@ -11,6 +11,7 @@ use App\Models\VariantOption;
 use App\Models\BranchProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
@@ -67,7 +68,10 @@ class OrderController extends Controller
             $branchProduct = BranchProduct::where('branch_id', $branchId)
                 ->where('product_id', $request->product_id)
                 ->where('status', 'available')
+                ->lockForUpdate()
                 ->firstOrFail();
+
+            $availableStock = $branchProduct->stock;
 
             $basePrice = $branchProduct->price_override
                 ?? $branchProduct->product->price;
@@ -106,18 +110,29 @@ class OrderController extends Controller
                         ->toArray() === $variantIds;
                 });
 
+            $requestedQty = $request->qty;
+            $currentQty   = $existingItem ? $existingItem->quantity : 0;
+            $totalQty     = $currentQty + $requestedQty;
+
+            if ($totalQty > $availableStock) {
+                throw ValidationException::withMessages([
+                    'stock' => 'Stok produk tidak mencukupi',
+                ]);
+            }
+
+
             if ($existingItem) {
-                $existingItem->increment('quantity', $request->qty);
                 $existingItem->update([
-                    'subtotal' => $existingItem->quantity * $existingItem->price,
+                    'quantity' => $totalQty,
+                    'subtotal' => $totalQty * $existingItem->price,
                 ]);
             } else {
                 $item = OrderItem::create([
                     'order_id'   => $order->id,
                     'product_id' => $request->product_id,
-                    'quantity'   => $request->qty,
+                    'quantity'   => $requestedQty,
                     'price'      => $finalPrice,
-                    'subtotal'   => $finalPrice * $request->qty,
+                    'subtotal'   => $finalPrice * $requestedQty,
                 ]);
 
                 foreach ($variantIds as $id) {
@@ -134,6 +149,7 @@ class OrderController extends Controller
                 'total' => $order->items()->sum('subtotal'),
             ]);
         });
+
 
         return back();
     }

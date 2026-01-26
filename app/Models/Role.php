@@ -16,4 +16,15 @@ class Role extends Model
     {
         return $this->belongsToMany(User::class, 'user_roles');
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($role) {
+            if ($role->users()->exists()) {
+                throw new \Exception(
+                    "Role masih digunakan oleh pengguna lain, tidak bisa dihapus."
+                );
+            }
+        });
+    }
 }

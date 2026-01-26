@@ -31,7 +31,7 @@ class BranchController extends Controller
 
         Branch::create($data);
 
-        return redirect()->route('branches.index')->with('success','Cabang berhasil ditambahkan');
+        return redirect()->route('branches.index')->with('success', 'Cabang berhasil ditambahkan');
     }
 
     public function edit(Branch $branch)
@@ -52,12 +52,20 @@ class BranchController extends Controller
 
         $branch->update($data);
 
-        return redirect()->route('branches.index')->with('success','Cabang berhasil diperbarui');
+        return redirect()->route('branches.index')->with('success', 'Cabang berhasil diperbarui');
     }
 
     public function destroy(Branch $branch)
     {
-        $branch->delete();
-        return redirect()->route('branches.index')->with('success','Cabang berhasil dihapus');
+        try {
+            $branch->delete();
+            return redirect()
+                ->route('branches.index')
+                ->with('success', 'Cabang berhasil dihapus');
+        } catch (\Throwable $e) {
+            return redirect()
+                ->back()
+                ->with('error', $e->getMessage());
+        }
     }
 }

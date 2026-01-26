@@ -17,6 +17,7 @@
     <!-- Owl Carousel  -->
     <link rel="stylesheet" href="{{ asset('assets/libs/owl.carousel/dist/assets/owl.carousel.min.css') }}" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 </head>
 
 <body>
@@ -61,6 +62,7 @@
     <script src="{{ asset('assets/js/dashboards/dashboard.js')}}"></script>
     <script src="{{ asset('assets/js/apex-chart/apex.bar.init.js') }}"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 @stack('scripts')

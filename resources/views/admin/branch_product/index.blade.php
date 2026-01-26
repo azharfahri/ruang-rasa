@@ -76,13 +76,8 @@
                                     Edit
                                 </a>
                                 <form action="{{ route('branch-products.destroy', $item) }}" method="POST"
-                                    class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Yakin hapus produk ini?')">
-                                        Hapus
-                                    </button>
+                                    class="d-inline form-delete"> @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger"> Hapus </button>
                                 </form>
                             </td>
                         </tr>
@@ -171,4 +166,5 @@
 
 @push('scripts')
     <script src="{{ asset('assets/js/pages/branch-product.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/alert.js') }}"></script>
 @endpush

@@ -2,6 +2,12 @@
 
 @section('content')
     <div class="row">
+        @if ($errors->has('stock'))
+            <div class="alert alert-danger mb-3">
+                {{ $errors->first('stock') }}
+            </div>
+        @endif
+
 
         {{-- PRODUK --}}
         <div class="col-md-8">

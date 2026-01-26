@@ -75,12 +75,18 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+        try {
+            $product->delete();
+
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus');
+        } catch (\Throwable $e) {
+            return redirect()
+                ->back()
+                ->with('error', $e->getMessage());
         }
-
-        $product->delete();
-
-        return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus');
     }
 }

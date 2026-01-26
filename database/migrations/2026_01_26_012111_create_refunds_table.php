@@ -11,14 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transactions', function (Blueprint $table) {
+        Schema::create('refunds', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
-            $table->string('payment_gateway', 50);
-            $table->string('payment_method');
-            $table->decimal('amount', 12, 2);
-            $table->string('gateway_transaction_id')->nullable()->unique();
-            $table->enum('status', ['pending', 'paid', 'failed', 'expired']);
+            $table->foreignId('cashier_id')->constrained('users')->cascadeOnDelete();
+            $table->text('reason')->nullable();
+            $table->decimal('total_refund', 12, 2)->default(0);
+            $table->enum('status', [
+                'pending',
+                'approved',
+                'rejected'
+            ])->default('pending');
             $table->timestamps();
         });
     }
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('refunds');
     }
 };

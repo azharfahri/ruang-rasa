@@ -12,7 +12,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('password');
+            $table->string('password')->nullable();
+            $table->string('google_id')->nullable();
+            $table->string('avatar')->nullable();
 
             // Hapus kolom role karena udah pindah ke tabel roles
             $table->foreignId('branch_id')

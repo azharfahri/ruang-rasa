@@ -31,8 +31,8 @@
                             <img src="../assets/images/logos/light-logo.svg" class="light-logo" alt="Logo-light" />
                         </a>
                         <div class="d-none d-xl-flex align-items-center justify-content-center h-n80">
-                            <img src="assets/images/logos/ruangrasa.png" alt="modernize-img"
-                                class="img-fluid" width="500">
+                            <img src="assets/images/logos/ruangrasa.png" alt="modernize-img" class="img-fluid"
+                                width="500">
                         </div>
                     </div>
                     <div class="col-xl-5 col-xxl-4">
@@ -74,6 +74,16 @@
                                             <label class="form-check-label text-dark fs-3" for="flexCheckChecked">
                                                 Remeber this Device
                                             </label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 mb-2 mb-sm-0">
+                                            <a class="btn text-dark border fw-normal d-flex align-items-center justify-content-center rounded-2 py-8"
+                                                href="/auth/google" role="button">
+                                                <img src="../assets/images/svgs/google-icon.svg" alt="modernize-img"
+                                                    class="img-fluid me-2" width="18" height="18">
+                                                <span class="flex-shrink-0">Masuk Dengan Google</span>
+                                            </a>
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-primary">

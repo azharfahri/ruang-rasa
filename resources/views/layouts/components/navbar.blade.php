@@ -1,4 +1,4 @@
-<header class="topbar">
+<header class="topbar" style="z-index: 9999">
     <div class="with-vertical">
         <nav class="navbar navbar-expand-lg p-0">
             <ul class="navbar-nav">

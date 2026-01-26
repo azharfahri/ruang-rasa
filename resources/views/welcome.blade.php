@@ -4,7 +4,7 @@
         <!-- ------------------------------------- -->
         <!-- banner Start -->
         <!-- ------------------------------------- -->
-        <Section class="bg-primary-subtle pt-7 py-lg-0 py-7">
+        <Section class="bg-primary-subtle pt-7 py-lg-0 py-7" style="background-image: url('{{ asset('/assets/images/frontend-pages/bgruangrasa.png') }}'); background-repeat: no-repeat;  background-size: cover;  ">
             <div class="custom-container">
                 <div class="row justify-content-center pt-lg-5 mb-4">
                     <div class="col-lg-8">

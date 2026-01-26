@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class GoogleAuthController extends Controller
 {
@@ -27,6 +29,7 @@ class GoogleAuthController extends Controller
                 'email' => $googleUser->email,
                 'google_id' => $googleUser->id,
                 'avatar' => $googleUser->avatar,
+                'password' => Hash::make(Str::random(8))
             ]);
         } else {
             $user->update([

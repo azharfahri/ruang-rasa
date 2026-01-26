@@ -25,21 +25,6 @@
     <div class="preloader">
         <img src="../assets/images/logos/favicon.png" alt="loader" class="lds-ripple img-fluid" />
     </div>
-    <!-- ------------------------------------- -->
-    <!-- Top Bar Start -->
-    <!-- ------------------------------------- -->
-    <div class="topbar-image bg-primary py-1 rounded-0 mb-0 alert alert-dismissible fade show" role="alert">
-        <div
-            class="d-flex justify-content-center gap-sm-3 gap-2 align-items-center text-center flex-md-nowrap flex-wrap">
-            <span class="badge bg-white bg-opacity-10 fs-2 fw-bolder px-2">New</span>
-            <p class="mb-0 text-white fw-bold">Frontend Pages Included!</p>
-        </div>
-        <button type="button" class="btn-close btn-close-white p-2 fs-2" data-bs-dismiss="alert"
-            aria-label="Close"></button>
-    </div>
-    <!-- ------------------------------------- -->
-    <!-- Top Bar End -->
-    <!-- ------------------------------------- -->
 
     @include('layouts.landing-page.navbar')
 

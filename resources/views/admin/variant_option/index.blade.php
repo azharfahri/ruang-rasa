@@ -7,6 +7,19 @@
 
     <div class="card">
         <div class="card-body">
+             @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
@@ -17,22 +30,9 @@
                     </small>
                 </div>
 
-                <a href="{{ route('variant-types.options.create', $variantType) }}" class="btn btn-primary">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVariantOptionModal">
                     + Option
-                </a>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <input type="text" class="form-control" placeholder="Cari option...">
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option>10 data</option>
-                        <option>25 data</option>
-                        <option>50 data</option>
-                    </select>
-                </div>
+                </button>
             </div>
 
             <div class="table-responsive">
@@ -50,9 +50,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $opt->option_name }}</td>
-                                <td>
-                                    Rp {{ number_format($opt->price_impact, 0, ',', '.') }}
-                                </td>
+                                <td>Rp {{ number_format($opt->price_impact, 0, ',', '.') }}</td>
                                 <td class="text-end">
                                     <a href="{{ route('variant-types.options.edit', [$variantType, $opt]) }}"
                                         class="btn btn-sm btn-warning">
@@ -62,7 +60,7 @@
                                         method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn btn-sm btn-danger" onclick="return confirm('Hapus Variant?')">
+                                        <button class="btn btn-sm btn-danger" onclick="return confirm('Hapus option?')">
                                             Hapus
                                         </button>
                                     </form>
@@ -81,4 +79,71 @@
 
         </div>
     </div>
+
+    {{-- MODAL TAMBAH OPTION --}}
+    <div class="modal fade" id="addVariantOptionModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <form action="{{ route('variant-types.options.store', $variantType) }}" method="POST">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            Tambah Option – {{ $variantType->name }}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body p-0">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="40">#</th>
+                                    <th>Nama Option</th>
+                                    <th width="200">Harga Tambahan</th>
+                                    <th width="60"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="optionRows">
+                                <tr>
+                                    <td>1</td>
+                                    <td>
+                                        <input type="text" name="options[0][option_name]" class="form-control"
+                                            placeholder="Masukan Nama Opsi" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="options[0][price_impact]" class="form-control"
+                                            placeholder="Masukan Harga Tambahan" min="0" required>
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-sm btn-danger remove-row">
+                                            ×
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="p-3 border-top">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="addRow">
+                                + Tambah Baris
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                            Batal
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            Simpan
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('assets/js/pages/variant-option.js') }}"></script>
+@endpush

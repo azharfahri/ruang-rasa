@@ -20,4 +20,15 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($category) {
+            if ($category->products()->exists()) {
+                throw new \Exception(
+                    "Kategori masih digunakan oleh produk, tidak bisa dihapus."
+                );
+            }
+        });
+    }
 }

@@ -22,18 +22,26 @@ class VariantOptionController extends Controller
 
     public function store(Request $request, VariantType $variantType)
     {
-        $data = $request->validate([
-            'option_name' => [
+        $request->validate([
+            'options' => 'required|array|min:1',
+            'options.*.option_name' => [
                 'required',
                 Rule::unique('variant_options')
-                    ->where(fn ($q) => $q->where('variant_type_id', $variantType->id)),
+                    ->where(fn($q) => $q->where('variant_type_id', $variantType->id)),
             ],
-            'price_impact' => 'required|numeric',
+            'options.*.price_impact' => 'required|numeric|min:0',
         ]);
 
-        $variantType->options()->create($data);
+        foreach ($request->options as $opt) {
+            $variantType->options()->create([
+                'option_name'  => $opt['option_name'],
+                'price_impact' => $opt['price_impact'],
+            ]);
+        }
 
-        return redirect()->route('variant-types.options.index', $variantType);
+        return redirect()
+            ->route('variant-types.options.index', $variantType)
+            ->with('success', 'Option berhasil ditambahkan');
     }
 
     public function edit(VariantType $variantType, VariantOption $option)
@@ -47,21 +55,25 @@ class VariantOptionController extends Controller
             'option_name' => [
                 'required',
                 Rule::unique('variant_options')
-                    ->where(fn ($q) => $q->where('variant_type_id', $variantType->id))
+                    ->where(fn($q) => $q->where('variant_type_id', $variantType->id))
                     ->ignore($option->id),
             ],
-            'price_impact' => 'required|numeric',
+            'price_impact' => 'required|numeric|min:0',
         ]);
 
         $option->update($data);
 
-        return redirect()->route('variant-types.options.index', $variantType);
+        return redirect()
+            ->route('variant-types.options.index', $variantType)
+            ->with('success', 'Option berhasil diperbarui');
     }
 
     public function destroy(VariantType $variantType, VariantOption $option)
     {
         $option->delete();
 
-        return redirect()->route('variant-types.options.index', $variantType);
+        return redirect()
+            ->route('variant-types.options.index', $variantType)
+            ->with('success', 'Option berhasil dihapus');
     }
 }

@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
+<style> .map-wrapper { height: 350px; position: relative; /* ini kuncinya */ z-index: 1; } /* paksa leaflet nurut */ .leaflet-container { z-index: 1 !important; } </style>
     <a href="{{ route('branches.index') }}" class="btn btn-light mb-3">← Kembali</a>
 
     <div class="card">
@@ -19,7 +20,7 @@
                     @enderror
                 </div>
 
-                <div id="map" style="height: 350px;" class="mb-4"></div>
+                <div id="map" class="map-wrapper mb-4"></div>
 
                 <div class="mb-3">
                     <label>Alamat</label>

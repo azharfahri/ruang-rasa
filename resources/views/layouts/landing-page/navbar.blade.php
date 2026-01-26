@@ -2,7 +2,7 @@
     <!-- Header Start -->
     <!-- ------------------------------------- -->
     <header class="header-fp p-0 w-100">
-        <nav class="navbar navbar-expand-lg bg-primary-subtle py-2 py-lg-10">
+        <nav class="navbar navbar-expand-lg bg-warning-subtle py-2 py-lg-10">
             <div class="custom-container d-flex align-items-center justify-content-between">
                 <a href="../main/frontend-landingpage.html" class="text-nowrap logo-img">
                     <img src="../assets/images/logos/dark-logo.svg" class="dark-logo" alt="Logo-Dark" />

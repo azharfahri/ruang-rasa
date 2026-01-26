@@ -60,10 +60,15 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        $category->delete();
-
-        return redirect()
-            ->route('category.index')
-            ->with('success', 'Kategori berhasil dihapus');
+        try {
+            $category->delete();
+            return redirect()
+                ->route('category.index')
+                ->with('success', 'Kategori berhasil dihapus');
+        } catch (\Throwable $e) {
+            return redirect()
+                ->back()
+                ->with('error', $e->getMessage());
+        }
     }
 }

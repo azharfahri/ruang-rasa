@@ -7,8 +7,8 @@
                 @elseif(auth()->user()->hasRole('cashier'))
                     <a href="{{ route('cashier.dashboard') }}" class="text-nowrap logo-img">
             @endif
-            <img src="{{ asset('assets/images/logos/ruangrasa.png') }}" class="dark-logo" style="width: 50%">
-            <img src="{{ asset('assets/images/logos/ruangrasa.png') }}" class="light-logo" style="width: 50%">
+            <img src="{{ asset('assets/images/logos/ruangrasa-vertical.png') }}" class="dark-logo" style="width: 50%">
+            <img src="{{ asset('assets/images/logos/ruangrasa-vertical.png') }}" class="light-logo" style="width: 50%">
             </a>
 
             <a href="javascript:void(0)" class="sidebartoggler d-xl-none">

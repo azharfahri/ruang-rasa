@@ -7,7 +7,7 @@
     <div class="card-body">
         <h4 class="mb-4">Tambah Produk</h4>
 
-        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="confirm-submit" data-type="save">
             @csrf
 
             <div class="mb-3">
@@ -57,7 +57,7 @@
             </div>
 
             <div class="text-end">
-                <button class="btn btn-primary">Simpan</button>
+                <button class="btn btn-primary" type="submit">Simpan</button>
             </div>
         </form>
     </div>

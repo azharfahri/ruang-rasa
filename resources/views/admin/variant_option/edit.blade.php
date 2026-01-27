@@ -17,7 +17,7 @@
             </div>
         @endif
 
-        <form action="{{ route('variant-types.options.update', [$variantType, $option]) }}" method="POST">
+        <form action="{{ route('variant-types.options.update', [$variantType, $option]) }}" method="POST" class="confirm-submit" data-type="update">
             @csrf
             @method('PUT')
 
@@ -42,7 +42,7 @@
             </div>
 
             <div class="text-end">
-                <button class="btn btn-primary">Update</button>
+                <button type="submit" class="btn btn-primary">Update</button>
             </div>
         </form>
     </div>

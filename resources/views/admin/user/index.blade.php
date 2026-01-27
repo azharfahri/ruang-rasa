@@ -3,20 +3,6 @@
 @section('content')
     <div class="card">
         <div class="card-body">
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
             <div class="d-flex justify-content-between mb-3">
                 <h4>User</h4>
                 <a href="{{ route('users.create') }}" class="btn btn-primary">
@@ -46,12 +32,11 @@
                             <td>
                                 <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-warning">Edit</a>
 
-                                <form method="POST" action="{{ route('users.destroy', $user) }}" class="d-inline">
+                                 <form action="{{ route('users.destroy', $user) }}" method="POST"
+                                    class="d-inline confirm-submit" data-type="delete">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="btn btn-sm btn-danger" onclick="return confirm('Hapus user?')">
-                                        Hapus
-                                    </button>
+                                    <button type="submit" class="btn btn-sm btn-danger"> Hapus </button>
                                 </form>
                             </td>
                         </tr>

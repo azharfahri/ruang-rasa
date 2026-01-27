@@ -21,20 +21,6 @@
                 </button>
             </div>
 
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
             <div class="row mb-3">
                 <div class="col-md-4">
                     <input type="text" id="searchInput" class="form-control" placeholder="Cari produk cabang...">
@@ -76,7 +62,7 @@
                                     Edit
                                 </a>
                                 <form action="{{ route('branch-products.destroy', $item) }}" method="POST"
-                                    class="d-inline form-delete"> @csrf @method('DELETE')
+                                    class="d-inline confirm-submit" data-type="delete"> @csrf @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger"> Hapus </button>
                                 </form>
                             </td>
@@ -106,7 +92,7 @@
     {{-- MODAL TAMBAH PRODUK --}}
     <div class="modal fade" id="addProductModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <form action="{{ route('branch-products.store', $branch->id) }}" method="POST">
+            <form action="{{ route('branch-products.store', $branch->id) }}" method="POST" class="confirm-submit" data-type="save">
                 @csrf
                 <input type="hidden" name="branch_id" value="{{ $branch->id }}">
                 <div class="modal-content">

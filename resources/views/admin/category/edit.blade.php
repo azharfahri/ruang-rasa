@@ -7,7 +7,7 @@
     <div class="card-body">
         <h4 class="mb-4">Edit Category</h4>
 
-        <form action="{{ route('category.update',$category) }}" method="POST">
+        <form action="{{ route('category.update',$category) }}" method="POST" class="confirm-submit" data-type="update">
             @csrf
             @method('PUT')
 

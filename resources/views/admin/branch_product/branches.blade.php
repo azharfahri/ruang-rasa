@@ -4,12 +4,6 @@
     <div class="card">
         <div class="card-body">
 
-            @if (session('success'))
-                <div class="alert alert-success mb-3">
-                    {{ session('success') }}
-                </div>
-            @endif
-
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <h4 class="mb-0">Penyimpanan Per Cabang</h4>

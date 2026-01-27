@@ -12,20 +12,6 @@
                 <a href="{{ route('products.create') }}" class="btn btn-primary">+ Tambah Produk</a>
             </div>
 
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
             <div class="row mb-3">
                 <div class="col-md-4">
                     <input type="text" id="searchInput" class="form-control" placeholder="Cari produk...">
@@ -40,7 +26,7 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle" id="productTable">
                     <thead class="table-light">
                         <tr>
                             <th width="60">No</th>
@@ -51,11 +37,11 @@
                             <th width="220">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="productTableBody">
                         @foreach ($products as $product)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $product->name }}</td>
+                                <td class="product-name">{{ $product->name }}</td>
                                 <td>{{ $product->category->name ?? '-' }}</td>
                                 <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
                                 <td>
@@ -69,16 +55,13 @@
                                     <a href="{{ route('product.variant-types.index', $product) }}"
                                         class="btn btn-sm btn-info">Varian</a>
 
-                                    <a href="{{ route('products.edit', $product) }}"
-                                        class="btn btn-sm btn-warning">Edit</a>
+                                    <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-warning">Edit</a>
 
                                     <form action="{{ route('products.destroy', $product) }}" method="POST"
-                                        class="d-inline">
+                                        class="d-inline confirm-submit" data-type="delete">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn btn-sm btn-danger" onclick="return confirm('Hapus produk?')">
-                                            Hapus
-                                        </button>
+                                        <button type="submit" class="btn btn-sm btn-danger"> Hapus </button>
                                     </form>
                                 </td>
                             </tr>

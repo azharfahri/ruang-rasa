@@ -8,7 +8,7 @@
 
 <div class="card">
     <div class="card-body">
-        <form action="{{ route('branch-products.update', $branchProduct) }}" method="POST">
+        <form action="{{ route('branch-products.update', $branchProduct) }}" method="POST" class="confirm-submit" data-type="update">
             @csrf
             @method('PUT')
 
@@ -50,7 +50,7 @@
                 </select>
             </div>
 
-            <button class="btn btn-primary">Update</button>
+            <button class="btn btn-primary" type="submit">Update</button>
         </form>
     </div>
 </div>

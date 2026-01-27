@@ -20,7 +20,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('variant-types.options.store', $variantType) }}">
+        <form method="POST" action="{{ route('variant-types.options.store', $variantType) }}" class="confirm-submit" data-type="save">
             @csrf
 
             <div class="mb-3">
@@ -48,7 +48,7 @@
             </div>
 
             <div class="text-end">
-                <button class="btn btn-primary">
+                <button class="btn btn-primary" type="submit">
                     Simpan
                 </button>
             </div>

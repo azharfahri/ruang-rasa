@@ -4,20 +4,6 @@
     <div class="card">
         <div class="card-body">
 
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <h4 class="mb-0">Cabang</h4>
@@ -59,12 +45,11 @@
                                 <td>{{ $branch->open_time }} - {{ $branch->close_time }}</td>
                                 <td>
                                     <a href="{{ route('branches.edit', $branch) }}" class="btn btn-sm btn-warning">Edit</a>
-                                    <form action="{{ route('branches.destroy', $branch) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('branches.destroy', $branch) }}" method="POST"
+                                        class="d-inline confirm-submit" data-type="delete">
                                         @csrf
                                         @method('DELETE')
-                                        <button onclick="return confirm('Hapus cabang?')" class="btn btn-sm btn-danger">
-                                            Hapus
-                                        </button>
+                                        <button type="submit" class="btn btn-sm btn-danger"> Hapus </button>
                                     </form>
                                 </td>
                             </tr>

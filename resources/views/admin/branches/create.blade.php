@@ -8,7 +8,7 @@
         <div class="card-body">
             <h4 class="mb-3">Tambah Cabang</h4>
 
-            <form action="{{ route('branches.store') }}" method="POST">
+            <form action="{{ route('branches.store') }}" method="POST" class="confirm-submit" data-type="save">
                 @csrf
 
                 <div class="mb-3">

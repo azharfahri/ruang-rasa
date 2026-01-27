@@ -60,7 +60,7 @@ class RoleController extends Controller
          try {
             $role->delete();
             return redirect()
-                ->route('role.index')
+                ->route('roles.index')
                 ->with('success', 'Role berhasil dihapus');
         } catch (\Throwable $e) {
             return redirect()

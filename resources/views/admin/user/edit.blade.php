@@ -7,7 +7,7 @@
     <div class="card-body">
         <h4 class="mb-3">Edit User</h4>
 
-        <form action="{{ route('users.update', $user) }}" method="POST">
+        <form action="{{ route('users.update', $user) }}" method="POST" class="confirm-submit" data-type="update">
             @csrf
             @method('PUT')
 
@@ -64,7 +64,7 @@
             </div>
 
             <div class="text-end">
-                <button class="btn btn-primary">Update</button>
+                <button class="btn btn-primary" type="submit">Update</button>
             </div>
         </form>
     </div>

@@ -61,11 +61,30 @@
     <script src="{{ asset('assets/libs/apexcharts/dist/apexcharts.min.js')}}"></script>
     <script src="{{ asset('assets/js/dashboards/dashboard.js')}}"></script>
     <script src="{{ asset('assets/js/apex-chart/apex.bar.init.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/alert.js') }}"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 @stack('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Ambil session success
+        @if(session('success'))
+            showAlert('success', 'Berhasil!', "{!! session('success') !!}");
+        @endif
+
+        // Ambil session error
+        @if(session('error'))
+            showAlert('error', 'Gagal!', "{!! session('error') !!}");
+        @endif
+
+        // Ambil error validasi form
+        @if($errors->any())
+            showAlert('error', 'Validasi Gagal!', "Beberapa kolom wajib diisi dengan benar.");
+        @endif
+    });
+</script>
 </body>
 
 </html>

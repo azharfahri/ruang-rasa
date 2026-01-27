@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Favicon icon-->
-    <link rel="shortcut icon" type="image/png" href="../assets/images/logos/favicon.png" />
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logos/ruangrasa-vertical.png') }}" />
 
     <!-- Core Css -->
     <link rel="stylesheet" href="../assets/css/styles.css" />
@@ -26,13 +26,16 @@
             <div class="position-relative z-index-5">
                 <div class="row">
                     <div class="col-xl-7 col-xxl-8">
-                        <a href="../main/index.html" class="text-nowrap logo-img d-block px-4 py-9 w-100">
-                            <img src="../assets/images/logos/dark-logo.svg" class="dark-logo" alt="Logo-Dark" />
-                            <img src="../assets/images/logos/light-logo.svg" class="light-logo" alt="Logo-light" />
+                        <a href="{{ route('home') }}" class="text-nowrap logo-img d-block px-4 py-9 w-100">
+                            <img src="{{ asset('assets/images/logos/ruangrasa-vertical.png') }}" class="dark-logo"
+                                alt="Logo-Dark" style="height: 60px; width: auto;" />
+                            <img src="{{ asset('assets/images/logos/ruangrasa-vertical.png') }}" class="light-logo"
+                                alt="Logo-light" style="height: 60px; width: auto;" />
                         </a>
+
                         <div class="d-none d-xl-flex align-items-center justify-content-center h-n80">
-                            <img src="assets/images/logos/ruangrasa.png" alt="modernize-img" class="img-fluid"
-                                width="500">
+                            <img src="{{ asset('assets/images/logos/ruangrasa.png') }}" alt="modernize-img"
+                                class="img-fluid" style="max-width: 500px; height: auto;">
                         </div>
                     </div>
                     <div class="col-xl-5 col-xxl-4">

@@ -7,7 +7,7 @@
     <div class="card-body">
         <h4 class="mb-4">Tambah Category</h4>
 
-        <form action="{{ route('category.store') }}" method="POST">
+        <form action="{{ route('category.store') }}" method="POST" class="confirm-submit" data-type="save">
             @csrf
 
             <div class="mb-3">
@@ -33,7 +33,7 @@
             </div>
 
             <div class="text-end">
-                <button class="btn btn-primary">Simpan</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
             </div>
         </form>
     </div>

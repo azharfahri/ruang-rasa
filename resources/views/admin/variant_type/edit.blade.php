@@ -7,17 +7,7 @@
     <div class="card-body">
         <h4 class="mb-3">Edit Variant Type</h4>
 
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form action="{{ route('product.variant-types.update', [$variantType->product, $variantType]) }}" method="POST">
+        <form action="{{ route('product.variant-types.update', [$variantType->product, $variantType]) }}" method="POST" class="confirm-submit" data-type="update">
             @csrf
             @method('PUT')
 
@@ -45,7 +35,7 @@
             </div>
 
             <div class="text-end">
-                <button class="btn btn-primary">Update</button>
+                <button type="submit" class="btn btn-primary">Update</button>
             </div>
         </form>
     </div>

@@ -152,5 +152,4 @@
 
 @push('scripts')
     <script src="{{ asset('assets/js/pages/branch-product.js') }}"></script>
-    <script src="{{ asset('assets/js/pages/alert.js') }}"></script>
 @endpush

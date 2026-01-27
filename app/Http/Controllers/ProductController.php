@@ -33,7 +33,9 @@ class ProductController extends Controller
         ]);
 
         $data['slug'] = Str::slug($data['name']);
-
+        $count = Product::count() + 1;
+        $data['product_code'] = 'PRD-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+        
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');
         }

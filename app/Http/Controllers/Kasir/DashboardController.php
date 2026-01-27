@@ -19,7 +19,7 @@ class DashboardController extends Controller
                 ->count(),
 
             'totalIncome' => Order::where('branch_id', $user->branch_id)
-                ->where('payment_status', 'paid')
+                ->where('payment_status', 'settlement')
                 ->sum('total'),
         ]);
     }

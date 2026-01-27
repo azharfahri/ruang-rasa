@@ -14,14 +14,15 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         Product::create([
-            'name' => 'Americano',
-            'slug' => 'americano',
-            'description' => 'Espresso dengan air mineral',
-            'price' => 15000,
-            'image' => 'americano.jpg',
-            'category_id' => 1,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'product_code' => 'PRD-0001', 
+            'name'         => 'Americano',
+            'slug'         => 'americano',
+            'description'  => 'Espresso dengan air mineral',
+            'price'        => 15000,
+            'image'        => 'americano.jpg',
+            'category_id'  => 1,
+            'created_at'   => now(),
+            'updated_at'   => now(),
         ]);
     }
 }

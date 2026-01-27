@@ -145,10 +145,7 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::delete('orders/{order}/item/{item}', [KasirOrderController::class, 'removeItem'])
         ->name('cashier.orders.item.remove');
 
-    Route::patch(
-        'orders/{order}/items/{item}/variants',
-        [KasirOrderController::class, 'updateItemVariant']
-    )->name('cashier.orders.items.update-variant');
+    Route::patch('/orders/{order}/items/{item}/update-variant', [KasirOrderController::class, 'updateVariant'])->name('cashier.orders.items.update-variant');
 
     Route::post('/cashier/orders/add-item', [KasirOrderController::class, 'addItem'])
         ->name('cashier.orders.addItem');

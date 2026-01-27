@@ -23,6 +23,18 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+
+
+        // Menggunakan contains untuk mengecek nama role di dalam collection roles
+        if ($user->roles->contains('name', 'admin')) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($user->roles->contains('name', 'cashier')) {
+            return redirect()->route('cashier.dashboard');
+        }
+
         return view('home');
     }
 }

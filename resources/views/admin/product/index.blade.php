@@ -30,6 +30,7 @@
                     <thead class="table-light">
                         <tr>
                             <th width="60">No</th>
+                            <th>Kode Product</th>
                             <th>Nama</th>
                             <th>Kategori</th>
                             <th>Harga</th>
@@ -41,6 +42,7 @@
                         @foreach ($products as $product)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
+                                <td>{{ $product->product_code ?? '-' }}</td>
                                 <td class="product-name">{{ $product->name }}</td>
                                 <td>{{ $product->category->name ?? '-' }}</td>
                                 <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>

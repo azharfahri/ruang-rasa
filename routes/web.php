@@ -120,11 +120,24 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::get('/cashier', [KasirDashboardController::class, 'index'])
         ->name('cashier.dashboard');
 
+    Route::get(
+        'inventory',
+        [BranchProductController::class, 'kasirIndex']
+    )->name('cashier.penyimpanan.index');
+
+    Route::put(
+        'inventory/{branchProduct}/stock',
+        [BranchProductController::class, 'adjustStock']
+    )->name('cashier.penyimpanan.stock');
+
     Route::get('/cashier/orders', [KasirOrderController::class, 'index'])
         ->name('cashier.orders.index');
 
-    Route::get('/cashier/orders/create', [KasirOrderController::class, 'create'])
+    Route::get('/cashier/orders/create/{order?}', [KasirOrderController::class, 'create'])
         ->name('cashier.orders.create');
+
+    Route::post('/cashier/orders/add-item/{order?}', [KasirOrderController::class, 'addItem'])
+        ->name('cashier.orders.addItem');
 
     Route::post('orders/{order}/item/{item}/minus', [KasirOrderController::class, 'minusItem'])
         ->name('cashier.orders.item.minus');
@@ -137,11 +150,24 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
         [KasirOrderController::class, 'updateItemVariant']
     )->name('cashier.orders.items.update-variant');
 
-    Route::post('/cashier/orders/{order}/add-item', [KasirOrderController::class, 'addItem'])
+    Route::post('/cashier/orders/add-item', [KasirOrderController::class, 'addItem'])
         ->name('cashier.orders.addItem');
 
     Route::post('/cashier/orders/{order}/pay-cash', [KasirOrderController::class, 'payCash'])
         ->name('cashier.orders.pay.cash');
+
+    Route::patch('cashier/orders/{order}/ready', [KasirOrderController::class, 'markReady'])
+        ->name('cashier.orders.ready');
+
+    Route::patch('cashier/orders/{order}/complete', [KasirOrderController::class, 'markCompleted'])
+        ->name('cashier.orders.complete');
+
+    // Tambahkan ini di dalam group middleware cashier
+    Route::delete('/cashier/orders/{order}', [KasirOrderController::class, 'destroy'])
+        ->name('cashier.orders.destroy');
+
+    Route::get('/cashier/orders/{order}/print', [KasirOrderController::class, 'printReceipt'])
+    ->name('cashier.orders.print');
 
     Route::get('/cashier/orders/history', [KasirOrderController::class, 'history'])
         ->name('cashier.orders.history');

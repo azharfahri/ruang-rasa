@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\Product;
 use App\Models\BranchProduct;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BranchProductController extends Controller
 {
@@ -93,6 +94,40 @@ class BranchProductController extends Controller
             ->route('branch-products.show', $branchProduct->branch_id)
             ->with('success', 'Inventory diupdate');
     }
+    public function kasirIndex()
+    {
+        $branchId = auth()->user()->branch_id;
+
+        $items = BranchProduct::with('product')
+            ->where('branch_id', $branchId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('kasir.penyimpanan.index', compact('items'));
+    }
+
+    public function adjustStock(Request $request, BranchProduct $branchProduct)
+    {
+        abort_if(
+            $branchProduct->branch_id !== auth()->user()->branch_id,
+            403
+        );
+
+        $request->validate([
+            'stock' => 'required|integer|min:0',
+        ]);
+
+        DB::transaction(function () use ($branchProduct, $request) {
+
+            $branchProduct->update([
+                'stock'  => $request->stock,
+                'status' => $request->stock > 0 ? 'available' : 'soldout',
+            ]);
+        });
+
+        return back()->with('success', 'Stok berhasil diperbarui');
+    }
+
 
     public function destroy(BranchProduct $branchProduct)
     {

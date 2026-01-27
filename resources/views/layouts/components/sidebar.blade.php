@@ -34,6 +34,11 @@
                             <i class="ti ti-layout-dashboard"></i>
                             <span>Dashboard</span>
                         </a>
+                        <a class="sidebar-link {{ request()->routeIs('cashier.penyimpanan.*') ? 'active' : '' }}"
+                            href="{{ route('cashier.penyimpanan.index') }}">
+                            <i class="ti ti-layout-dashboard"></i>
+                            <span>Penyimpanan</span>
+                        </a>
                     @endif
                 </li>
 

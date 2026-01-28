@@ -94,14 +94,31 @@ class BranchProductController extends Controller
             ->route('branch-products.show', $branchProduct->branch_id)
             ->with('success', 'Inventory diupdate');
     }
-    public function kasirIndex()
+
+    public function kasirIndex(Request $request)
     {
         $branchId = auth()->user()->branch_id;
+        $search = $request->get('search');
+        $status = $request->get('status');
 
-        $items = BranchProduct::with('product')
-            ->where('branch_id', $branchId)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = BranchProduct::with('product')
+            ->where('branch_id', $branchId);
+
+        // Filter Search (Nama Produk)
+        if ($search) {
+            $query->whereHas('product', function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%");
+            });
+        }
+
+        // Filter Status
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $items = $query->orderBy('stock', 'asc') // Menampilkan stok tersedikit di atas agar terpantau
+            ->paginate(10)
+            ->withQueryString();
 
         return view('kasir.penyimpanan.index', compact('items'));
     }

@@ -294,17 +294,6 @@ class OrderController extends Controller
         return view('kasir.orders.print', compact('order'));
     }
 
-    public function history()
-    {
-        $orders = Order::where('branch_id', auth()->user()->branch_id)
-            ->where('payment_status', 'settlement')
-            ->with(['items.product'])
-            ->latest()
-            ->paginate(10);
-
-        return view('kasir.orders.history', compact('orders'));
-    }
-
     public function destroy(Order $order)
     {
         // Pastikan hanya bisa hapus order yang masih pending

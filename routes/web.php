@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Kasir\DashboardController as KasirDashboardController;
+use App\Http\Controllers\Kasir\HistoryController as KasirHistoryController;
 use App\Http\Controllers\Kasir\OrderController as KasirOrderController;
 
 use App\Http\Controllers\ProductController;
@@ -120,6 +121,8 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::get('/cashier', [KasirDashboardController::class, 'index'])
         ->name('cashier.dashboard');
 
+    Route::get('/cashier/dashboard/data', [KasirDashboardController::class, 'getChartData'])->name('cashier.dashboard.data');
+
     Route::get(
         'inventory',
         [BranchProductController::class, 'kasirIndex']
@@ -166,6 +169,9 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::get('/cashier/orders/{order}/print', [KasirOrderController::class, 'printReceipt'])
     ->name('cashier.orders.print');
 
-    Route::get('/cashier/orders/history', [KasirOrderController::class, 'history'])
-        ->name('cashier.orders.history');
+    Route::get('/cashier/history', [KasirHistoryController::class, 'index'])
+        ->name('cashier.history');
+
+    Route::get('/cashier/history/{order}/detail', [KasirHistoryController::class, 'showDetail'])
+    ->name('cashier.history.detail');
 });

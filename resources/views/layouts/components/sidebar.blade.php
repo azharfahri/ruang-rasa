@@ -55,8 +55,8 @@
                     </li>
 
                     <li class="sidebar-item">
-                        <a class="sidebar-link {{ request()->routeIs('cashier.orders.history') ? 'active' : '' }}"
-                            href="{{ route('cashier.orders.history') }}">
+                        <a class="sidebar-link {{ request()->routeIs('cashier.history') ? 'active' : '' }}"
+                            href="{{ route('cashier.history') }}">
                             <i class="ti ti-history"></i>
                             <span>Riwayat Order</span>
                         </a>

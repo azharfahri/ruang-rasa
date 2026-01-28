@@ -18,36 +18,36 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Order::where('branch_id', auth()->user()->branch_id)
-            ->with(['items.product'])
+            ->with(['items.product', 'items.details.variantOption'])
             ->latest()
             ->get();
 
         return view('kasir.orders.index', compact('orders'));
     }
+
     public function create(Order $order = null)
     {
-        // Jika tidak ada ID di URL, cari order pending terbaru milik kasir ini
+        $branchId = auth()->user()->branch_id;
+
         if (!$order || !$order->exists) {
             $order = Order::where('cashier_id', auth()->id())
+                ->where('branch_id', $branchId)
                 ->where('status', 'pending')
-                ->latest() // Ambil yang paling baru dibuat
+                ->latest()
                 ->first();
         }
 
-        // Jika benar-benar tidak ada order pending, buat object kosong agar view tidak error
         if (!$order) {
             $order = new Order();
             $order->total = 0;
         }
 
-        // Load data produk (kode stock, dll tetap sama)
-        $products = Product::with(['variantTypes.options', 'branchProducts' => function ($q) {
-            $q->where('branch_id', auth()->user()->branch_id)
-                ->where('status', 'available');
+        // Ambil SEMUA produk yang terdaftar di cabang ini (termasuk yang stok 0/soldout)
+        $products = Product::with(['variantTypes.options', 'branchProducts' => function ($q) use ($branchId) {
+            $q->where('branch_id', $branchId);
         }])
-            ->whereHas('branchProducts', function ($q) {
-                $q->where('branch_id', auth()->user()->branch_id)
-                    ->where('status', 'available');
+            ->whereHas('branchProducts', function ($q) use ($branchId) {
+                $q->where('branch_id', $branchId);
             })
             ->get();
 
@@ -62,89 +62,102 @@ class OrderController extends Controller
             'variants'   => 'nullable|array',
         ]);
 
-        $order = DB::transaction(function () use ($request, $order_id) {
-            $branchId = auth()->user()->branch_id;
+        try {
+            $order = DB::transaction(function () use ($request, $order_id) {
+                $branchId = auth()->user()->branch_id;
 
-            // Cari order berdasarkan ID yang dikirim,
-            // ATAU cari order pending milik kasir yang sudah ada
-            $order = $order_id ? Order::find($order_id) : Order::where('cashier_id', auth()->id())
-                ->where('status', 'pending')
-                ->latest()
-                ->first();
+                $branchProduct = BranchProduct::where('branch_id', $branchId)
+                    ->where('product_id', $request->product_id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-            // Jika benar-benar tidak ada order pending sama sekali, baru buat baru
-            if (!$order) {
-                $order = Order::create([
-                    'branch_id'      => $branchId,
-                    'cashier_id'     => auth()->id(),
-                    'status'         => 'pending',
-                    'payment_status' => 'pending',
-                    'order_type'     => 'offline_dinein',
-                    'total'          => 0,
-                ]);
-            }
-
-            // --- SISA KODE (pencarian produk, hitung varian, dll) TETAP SAMA ---
-            // ... (kode existing item, create item, update total tetap sama seperti milikmu)
-
-            $branchProduct = BranchProduct::where('branch_id', $branchId)
-                ->where('product_id', $request->product_id)
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            $basePrice = $branchProduct->price_override ?? $branchProduct->product->price;
-            $variantPrice = 0;
-            $variantIds = [];
-
-            if ($request->variants) {
-                $optionIds = collect($request->variants)->flatten()->toArray();
-                $options = VariantOption::whereIn('id', $optionIds)->get();
-                foreach ($options as $option) {
-                    $variantPrice += $option->price_impact;
-                    $variantIds[] = $option->id;
+                if ($branchProduct->stock < $request->qty) {
+                    throw new \Exception("Stok tidak mencukupi. Sisa: {$branchProduct->stock}");
                 }
-            }
-            sort($variantIds);
-            $finalPrice = $basePrice + $variantPrice;
 
-            $existingItem = $order->items()->where('product_id', $request->product_id)->get()
-                ->first(function ($item) use ($variantIds) {
-                    return $item->details->pluck('variant_option_id')->sort()->values()->toArray() === $variantIds;
-                });
+                // Cari atau Buat Order
+                $order = $order_id
+                    ? Order::where('id', $order_id)->where('branch_id', $branchId)->firstOrFail()
+                    : Order::where('cashier_id', auth()->id())->where('status', 'pending')->latest()->first();
 
-            if ($existingItem) {
-                $newQty = $existingItem->quantity + $request->qty;
-                $existingItem->update([
-                    'quantity' => $newQty,
-                    'subtotal' => $newQty * $existingItem->price,
-                ]);
-            } else {
-                $item = OrderItem::create([
-                    'order_id'   => $order->id,
-                    'product_id' => $request->product_id,
-                    'quantity'   => $request->qty,
-                    'price'      => $finalPrice,
-                    'subtotal'   => $finalPrice * $request->qty,
-                ]);
-
-                foreach ($variantIds as $id) {
-                    $opt = VariantOption::find($id);
-                    $item->details()->create([
-                        'variant_type_id'   => $opt->variant_type_id,
-                        'variant_option_id' => $opt->id,
-                        'price_impact'      => $opt->price_impact,
+                if (!$order) {
+                    $order = Order::create([
+                        'branch_id'      => $branchId,
+                        'cashier_id'     => auth()->id(),
+                        'status'         => 'pending',
+                        'payment_status' => 'pending',
+                        'order_type'     => 'offline_dinein',
+                        'total'          => 0,
                     ]);
                 }
+
+                // Hitung Harga & Cek Item Double (Logika Anda yang sudah ada tetap di sini)
+                $basePrice = $branchProduct->price_override ?? $branchProduct->product->price;
+                $variantPrice = 0;
+                $variantIds = [];
+
+                if ($request->variants) {
+                    $optionIds = collect($request->variants)->flatten()->toArray();
+                    $options = VariantOption::whereIn('id', $optionIds)->get();
+                    foreach ($options as $option) {
+                        $variantPrice += $option->price_impact;
+                        $variantIds[] = $option->id;
+                    }
+                }
+                sort($variantIds);
+                $finalPrice = $basePrice + $variantPrice;
+
+                $existingItem = $order->items()->where('product_id', $request->product_id)->get()
+                    ->first(function ($item) use ($variantIds) {
+                        return $item->details->pluck('variant_option_id')->sort()->values()->toArray() === $variantIds;
+                    });
+
+                if ($existingItem) {
+                    $newQty = $existingItem->quantity + $request->qty;
+                    $existingItem->update([
+                        'quantity' => $newQty,
+                        'subtotal' => $newQty * $existingItem->price,
+                    ]);
+                } else {
+                    $item = OrderItem::create([
+                        'order_id'   => $order->id,
+                        'product_id' => $request->product_id,
+                        'quantity'   => $request->qty,
+                        'price'      => $finalPrice,
+                        'subtotal'   => $finalPrice * $request->qty,
+                    ]);
+
+                    if ($request->variants) {
+                        foreach ($options as $opt) {
+                            $item->details()->create([
+                                'variant_type_id'   => $opt->variant_type_id,
+                                'variant_option_id' => $opt->id,
+                                'price_impact'      => $opt->price_impact,
+                            ]);
+                        }
+                    }
+                }
+
+                $order->update(['total' => $order->items()->sum('subtotal')]);
+                return $order;
+            });
+
+            // --- BAGIAN MODIFIKASI AJAX ---
+            if ($request->ajax()) {
+                // Load ulang relation agar data terbaru muncul di keranjang
+                $order->load(['items.product', 'items.details.variantOption']);
+                return view('kasir.orders.partials.cart', compact('order'))->render();
             }
 
-            $order->update(['total' => $order->items()->sum('subtotal')]);
-            return $order;
-        });
-
-        return redirect()->route('cashier.orders.create', $order->id);
+            return redirect()->route('cashier.orders.create', $order->id)->with('success', 'Item ditambahkan');
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+            return back()->withErrors(['stock' => $e->getMessage()]);
+        }
     }
 
-    // FITUR MINUS ITEM (PENTING!)
     public function minusItem(Order $order, OrderItem $item)
     {
         abort_if($item->order_id !== $order->id, 403);
@@ -160,17 +173,18 @@ class OrderController extends Controller
             $order->update(['total' => $order->items()->sum('subtotal')]);
         });
 
+        if (request()->ajax()) {
+            $order->load(['items.product', 'items.details.variantOption']);
+            return view('kasir.orders.partials.cart', compact('order'))->render();
+        }
         return back();
     }
 
-    // FITUR UPDATE VARIANT (PENTING!)
     public function updateVariant(Request $request, Order $order, OrderItem $item)
     {
         DB::transaction(function () use ($request, $order, $item) {
-            // 1. Hapus detail lama
             $item->details()->delete();
 
-            // 2. Hitung harga baru
             $branchProduct = BranchProduct::where('branch_id', $order->branch_id)
                 ->where('product_id', $item->product_id)
                 ->firstOrFail();
@@ -192,60 +206,84 @@ class OrderController extends Controller
                 }
             }
 
-            // 3. Update harga item
             $newPrice = $basePrice + $variantPrice;
             $item->update([
                 'price' => $newPrice,
                 'subtotal' => $newPrice * $item->quantity
             ]);
 
-            // 4. Update total order
             $order->update(['total' => $order->items()->sum('subtotal')]);
         });
 
-        return back()->with('success', 'Varian berhasil diperbarui');
+        if ($request->ajax()) {
+            $order->load(['items.product', 'items.details.variantOption']);
+            return view('kasir.orders.partials.cart', compact('order'))->render();
+        }
+        return back();
     }
 
-    public function payCash(Order $order)
+    public function payCash(Request $request, Order $order) // Tambahkan Request di sini
     {
+        // Validasi minimal nama customer harus diisi
+        $request->validate([
+            'customer_name' => 'required|string|max:255',
+        ]);
+
         if ($order->total <= 0) return back()->with('error', 'Keranjang kosong');
 
-        DB::transaction(function () use ($order) {
-            foreach ($order->items as $item) {
-                $bp = BranchProduct::where('branch_id', $order->branch_id)
-                    ->where('product_id', $item->product_id)->lockForUpdate()->firstOrFail();
+        try {
+            DB::transaction(function () use ($order, $request) { // Masukkan $request ke dalam closure
+                foreach ($order->items as $item) {
+                    $bp = BranchProduct::where('branch_id', $order->branch_id)
+                        ->where('product_id', $item->product_id)
+                        ->lockForUpdate()
+                        ->firstOrFail();
 
-                if ($bp->stock < $item->quantity) throw ValidationException::withMessages(['stock' => 'Stok tidak cukup']);
+                    if ($bp->stock < $item->quantity) {
+                        throw new \Exception("Stok produk {$item->product->name} tiba-tiba habis!");
+                    }
 
-                $bp->decrement('stock', $item->quantity);
-                if ($bp->stock <= 0) $bp->update(['status' => 'soldout']);
-            }
+                    $bp->decrement('stock', $item->quantity);
+                    if ($bp->stock <= 0) {
+                        $bp->update(['status' => 'soldout']);
+                    }
+                }
 
-            Transaction::create([
-                'order_id' => $order->id,
-                'payment_gateway' => 'cash',
-                'payment_method' => 'cash',
-                'amount' => $order->total,
-                'status' => 'paid',
-            ]);
+                Transaction::create([
+                    'order_id' => $order->id,
+                    'payment_gateway' => 'cash',
+                    'payment_method' => 'cash',
+                    'amount' => $order->total,
+                    'status' => 'paid',
+                ]);
 
-            $order->update(['status' => 'processing', 'payment_status' => 'settlement']);
-        });
+                // Update status, payment_status, dan simpan customer_name
+                $order->update([
+                    'customer_name' => $request->customer_name,
+                    'status' => 'processing',
+                    'payment_status' => 'settlement'
+                ]);
+            });
 
-        return redirect()->route('cashier.orders.index')->with('success', 'Pembayaran berhasil');
+            // Jika ingin langsung cetak struk, bisa ganti redirect ke halaman receipt
+            return redirect()->route('cashier.orders.index')->with('success', 'Pembayaran Berhasil!');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
-    // Fungsi tambahan lainnya (ready, complete, history, printReceipt, destroy) tetap sama seperti sebelumnya...
     public function markReady(Order $order)
     {
         $order->update(['status' => 'ready']);
-        return back();
+        return back()->with('success', 'Pesanan siap diambil');
     }
+
     public function markCompleted(Order $order)
     {
         $order->update(['status' => 'completed']);
-        return back();
+        return back()->with('success', 'Pesanan selesai');
     }
+
     public function printReceipt(Order $order)
     {
         $order->load(['items.product', 'items.details.variantOption']);
@@ -256,14 +294,18 @@ class OrderController extends Controller
     {
         $orders = Order::where('branch_id', auth()->user()->branch_id)
             ->where('payment_status', 'settlement')
+            ->with(['items.product'])
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('kasir.orders.history', compact('orders'));
     }
-    
+
     public function destroy(Order $order)
     {
+        // Pastikan hanya bisa hapus order yang masih pending
+        if ($order->status !== 'pending') return back()->with('error', 'Tidak bisa menghapus order yang sudah dibayar');
+
         DB::transaction(function () use ($order) {
             foreach ($order->items as $item) {
                 $item->details()->delete();
@@ -271,6 +313,7 @@ class OrderController extends Controller
             $order->items()->delete();
             $order->delete();
         });
-        return redirect()->route('cashier.orders.index')->with('success', 'Order dihapus');
+
+        return redirect()->route('cashier.orders.index')->with('success', 'Order berhasil dibatalkan');
     }
 }

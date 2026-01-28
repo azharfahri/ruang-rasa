@@ -23,7 +23,7 @@
                         <td>{{ $item->product->name }}</td>
                         <td>{{ $item->stock }}</td>
                         <td>
-                            <span class="badge bg-{{ $item->isAvailable() ? 'success' : 'secondary' }}">
+                            <span class="badge bg-{{ $item->isAvailable() ? 'success' : 'danger' }}">
                                 {{ ucfirst($item->status) }}
                             </span>
                         </td>

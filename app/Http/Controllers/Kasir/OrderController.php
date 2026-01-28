@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\VariantOption;
 use App\Models\BranchProduct;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -27,6 +28,8 @@ class OrderController extends Controller
 
     public function create(Order $order = null)
     {
+        $categories = Category::all(); // Pastikan model Category sudah ada
+        $products = Product::with(['branchProducts', 'variantTypes.options'])->get();
         $branchId = auth()->user()->branch_id;
 
         if (!$order || !$order->exists) {
@@ -51,7 +54,7 @@ class OrderController extends Controller
             })
             ->get();
 
-        return view('kasir.orders.create', compact('order', 'products'));
+        return view('kasir.orders.create', compact('order', 'products', 'categories'));
     }
 
     public function addItem(Request $request, $order_id = null)
@@ -222,17 +225,19 @@ class OrderController extends Controller
         return back();
     }
 
-    public function payCash(Request $request, Order $order) // Tambahkan Request di sini
+    public function payCash(Request $request, Order $order)
     {
-        // Validasi minimal nama customer harus diisi
+        // 1. Validasi: Nama wajib, dan Uang Tunai tidak boleh kurang dari Total
         $request->validate([
             'customer_name' => 'required|string|max:255',
+            'cash_received' => 'required|numeric|min:' . $order->total,
         ]);
 
         if ($order->total <= 0) return back()->with('error', 'Keranjang kosong');
 
         try {
-            DB::transaction(function () use ($order, $request) { // Masukkan $request ke dalam closure
+            DB::transaction(function () use ($order, $request) {
+                // 2. Potong Stok (Logika yang sudah kamu punya)
                 foreach ($order->items as $item) {
                     $bp = BranchProduct::where('branch_id', $order->branch_id)
                         ->where('product_id', $item->product_id)
@@ -240,24 +245,23 @@ class OrderController extends Controller
                         ->firstOrFail();
 
                     if ($bp->stock < $item->quantity) {
-                        throw new \Exception("Stok produk {$item->product->name} tiba-tiba habis!");
+                        throw new \Exception("Stok produk {$item->product->name} tidak mencukupi!");
                     }
-
                     $bp->decrement('stock', $item->quantity);
-                    if ($bp->stock <= 0) {
-                        $bp->update(['status' => 'soldout']);
-                    }
                 }
 
+                // 3. Simpan ke Tabel Transactions (Gunakan kolom baru)
                 Transaction::create([
                     'order_id' => $order->id,
                     'payment_gateway' => 'cash',
                     'payment_method' => 'cash',
                     'amount' => $order->total,
+                    'cash_received' => $request->cash_received,
+                    'change_amount' => $request->cash_received - $order->total, // Hitung otomatis
                     'status' => 'paid',
                 ]);
 
-                // Update status, payment_status, dan simpan customer_name
+                // 4. Update Order
                 $order->update([
                     'customer_name' => $request->customer_name,
                     'status' => 'processing',
@@ -265,8 +269,8 @@ class OrderController extends Controller
                 ]);
             });
 
-            // Jika ingin langsung cetak struk, bisa ganti redirect ke halaman receipt
-            return redirect()->route('cashier.orders.index')->with('success', 'Pembayaran Berhasil!');
+            $kembalian = number_format($request->cash_received - $order->total, 0, ',', '.');
+            return redirect()->route('cashier.orders.index')->with('success', "Pembayaran Berhasil! Kembalian: Rp $kembalian");
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }

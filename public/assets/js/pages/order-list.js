@@ -16,62 +16,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function render() {
         if (rows.length === 0) {
-            info.innerText = 'Menampilkan 0 data'
-            if (paginationControls) paginationControls.style.display = 'none'
-            return
+            info.innerText = 'Menampilkan 0 data';
+            if (paginationControls) paginationControls.style.display = 'none';
+            return;
         }
 
-        const keyword = searchInput.value.toLowerCase().trim()
-        const selectedStatus = statusSelect.value.toUpperCase().trim()
-        const limit = parseInt(limitSelect.value)
+        const keyword = searchInput.value.toLowerCase().trim();
+        const selectedStatus = statusSelect.value.toUpperCase().trim();
+        const limit = parseInt(limitSelect.value);
 
         // LOGIKA FILTER GANDA (Search & Status)
         const filtered = rows.filter(r => {
-            // 1. Ambil data untuk pencarian (Didefinisikan di sini agar tidak error)
-            const orderIdText = r.querySelector('.order-id') ? r.querySelector('.order-id').innerText.toLowerCase() : ""
-            const itemsText = r.querySelector('.order-items') ? r.querySelector('.order-items').innerText.toLowerCase() : ""
+            // 1. Ambil teks dari kolom-kolom yang ingin dicari
+            const orderIdText = r.querySelector('.order-id')?.innerText.toLowerCase() || "";
+            const customerName = r.querySelector('.customer-name')?.innerText.toLowerCase() || "";
+            const itemsText = r.querySelector('.order-items')?.innerText.toLowerCase() || "";
 
-            // 2. Ambil status khusus dari kolom ke-4 (Status) agar tidak tertukar dengan badge quantity
-            const statusBadge = r.querySelector('td:nth-child(4) .badge')
-            const statusText = statusBadge ? statusBadge.innerText.toUpperCase().trim() : ""
+            // 2. Ambil status (Kolom ke-5: Index ke-4 jika pakai eq() atau nth-child(5))
+            // Kita gunakan querySelector pada td yang berisi badge status secara spesifik
+            const statusBadge = r.querySelector('td:nth-child(5) .badge');
+            const statusText = statusBadge ? statusBadge.innerText.toUpperCase().trim() : "";
 
-            // 3. Cek kecocokan
-            const matchesSearch = orderIdText.includes(keyword) || itemsText.includes(keyword)
-            const matchesStatus = selectedStatus === "" || statusText === selectedStatus
+            // 3. Cek kecocokan (Keyword mencari di ID, Nama Pelanggan, atau Nama Produk)
+            const matchesSearch = orderIdText.includes(keyword) ||
+                customerName.includes(keyword) ||
+                itemsText.includes(keyword);
 
-            return matchesSearch && matchesStatus
-        })
+            const matchesStatus = selectedStatus === "" || statusText === selectedStatus;
 
-        // Hitung total halaman berdasarkan hasil filter
-        const totalPages = Math.max(1, Math.ceil(filtered.length / limit))
-        if (page > totalPages) page = totalPages
-        if (page < 1) page = 1
+            return matchesSearch && matchesStatus;
+        });
 
-        // Sembunyikan semua baris
-        rows.forEach(r => r.style.display = 'none')
+        // --- LOGIKA PAGINATION ---
+        const totalPages = Math.max(1, Math.ceil(filtered.length / limit));
+        if (page > totalPages) page = totalPages;
+        if (page < 1) page = 1;
 
-        // Tentukan data yang masuk ke halaman sekarang
-        const start = (page - 1) * limit
-        const end = start + limit
-        const paginatedItems = filtered.slice(start, end)
+        // Sembunyikan semua dulu
+        rows.forEach(r => r.style.display = 'none');
 
-        // Tampilkan baris yang lolos filter & masuk halaman
-        paginatedItems.forEach(r => r.style.display = '')
+        const start = (page - 1) * limit;
+        const end = start + limit;
+        const paginatedItems = filtered.slice(start, end);
 
-        // Update Info Tabel
-        info.innerText = `Menampilkan ${paginatedItems.length} dari ${filtered.length} data`
-        pageInfo.innerText = `${page} / ${totalPages}`
+        // Tampilkan yang sesuai halaman
+        paginatedItems.forEach(r => r.style.display = '');
 
-        // Update Button State
-        prevBtn.disabled = page === 1
-        nextBtn.disabled = page === totalPages
+        // Update Info UI
+        info.innerText = `Menampilkan ${paginatedItems.length} dari ${filtered.length} data`;
+        pageInfo.innerText = `${page} / ${totalPages}`;
+        prevBtn.disabled = page === 1;
+        nextBtn.disabled = page === totalPages;
 
-        // Tampilkan/Sembunyikan kontrol navigasi
         if (paginationControls) {
-            paginationControls.style.display = filtered.length > 0 ? 'block' : 'none'
+            paginationControls.style.display = filtered.length > 0 ? 'block' : 'none';
         }
     }
-
     // Event Listeners
     searchInput.addEventListener('input', () => { page = 1; render() })
     statusSelect.addEventListener('change', () => { page = 1; render() })

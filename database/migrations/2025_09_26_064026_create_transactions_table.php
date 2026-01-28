@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('payment_gateway', 50);
             $table->string('payment_method');
             $table->decimal('amount', 12, 2);
+            $table->decimal('cash_received', 15, 2)->nullable();
+            $table->decimal('change_amount', 15, 2)->nullable();
             $table->string('gateway_transaction_id')->nullable()->unique();
             $table->enum('status', ['pending', 'paid', 'failed', 'expired']);
             $table->timestamps();

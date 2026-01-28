@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,15 @@
     <style>
         /* Pengaturan Kertas Thermal */
         @page {
-            size: 58mm auto; /* Menyesuaikan printer thermal standar */
+            size: 58mm auto;
+            /* Menyesuaikan printer thermal standar */
             margin: 0;
         }
 
         body {
             font-family: 'Courier New', Courier, monospace;
-            width: 280px; /* Lebar area cetak */
+            width: 280px;
+            /* Lebar area cetak */
             margin: auto;
             padding: 10px;
             font-size: 12px;
@@ -21,27 +24,65 @@
             line-height: 1.2;
         }
 
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .fw-bold { font-weight: bold; }
+        .text-center {
+            text-align: center;
+        }
 
-        .header { margin-bottom: 10px; }
-        .line { border-top: 1px dashed #000; margin: 5px 0; }
-        .flex { display: flex; justify-content: space-between; align-items: flex-start; }
+        .text-right {
+            text-align: right;
+        }
 
-        .item-row { margin-bottom: 8px; }
-        .variant-list { margin-left: 10px; font-size: 11px; }
+        .fw-bold {
+            font-weight: bold;
+        }
 
-        .total-section { margin-top: 5px; }
-        .footer { margin-top: 15px; font-size: 11px; }
+        .header {
+            margin-bottom: 10px;
+        }
+
+        .line {
+            border-top: 1px dashed #000;
+            margin: 5px 0;
+        }
+
+        .flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .item-row {
+            margin-bottom: 8px;
+        }
+
+        .variant-list {
+            margin-left: 10px;
+            font-size: 11px;
+        }
+
+        .total-section {
+            margin-top: 5px;
+        }
+
+        .footer {
+            margin-top: 15px;
+            font-size: 11px;
+        }
 
         /* Tombol Navigasi Saat Preview Browser */
         @media print {
-            .no-print { display: none; }
-            body { padding: 5px; margin: 0; }
+            .no-print {
+                display: none;
+            }
+
+            body {
+                padding: 5px;
+                margin: 0;
+            }
         }
     </style>
 </head>
+
 <body onload="window.print()">
 
     <div class="no-print" style="text-align: center; padding: 10px; background: #eee; margin-bottom: 10px;">
@@ -65,12 +106,12 @@
         <span>Kasir: {{ $order->cashier->name ?? auth()->user()->name }}</span>
     </div>
     <div class="flex">
-        <span>Pelanggan: {{ $order->customer_name ?? "Guest"}}</span>
+        <span>Pelanggan: {{ $order->customer_name ?? 'Guest' }}</span>
     </div>
 
     <div class="line"></div>
 
-    @foreach($order->items as $item)
+    @foreach ($order->items as $item)
         <div class="item-row">
             <div class="fw-bold">{{ strtoupper($item->product->name) }}</div>
             <div class="flex">
@@ -79,12 +120,12 @@
             </div>
 
             {{-- Detail Varian Produk --}}
-            @if($item->details && $item->details->count() > 0)
+            @if ($item->details && $item->details->count() > 0)
                 <div class="variant-list">
-                    @foreach($item->details as $detail)
+                    @foreach ($item->details as $detail)
                         <div class="flex text-muted">
                             <span>- {{ $detail->variantOption->option_name }}</span>
-                            @if($detail->price_impact > 0)
+                            @if ($detail->price_impact > 0)
                                 <span>+{{ number_format($detail->price_impact, 0, ',', '.') }}</span>
                             @endif
                         </div>
@@ -102,27 +143,34 @@
             <span>Rp {{ number_format($order->total, 0, ',', '.') }}</span>
         </div>
 
-        {{-- Logika Relasi Transaksi Tunggal (Berdasarkan Skema Kamu) --}}
-        @if($order->transaction)
+        @php
+            // Ambil transaksi terakhir untuk order ini
+            $transaction = $order->transaction; // Pastikan relasi di model Order bernama 'transaction' (HasOne)
+        @endphp
+
+        @if ($transaction)
             <div class="flex">
                 <span>METODE</span>
-                <span>{{ strtoupper($order->transaction->payment_method) }}</span>
+                <span>{{ strtoupper($transaction->payment_method) }}</span>
             </div>
+
+            {{-- Menggunakan kolom cash_received yang baru kita buat --}}
             <div class="flex">
-                <span>BAYAR</span>
-                <span>Rp {{ number_format($order->transaction->amount, 0, ',', '.') }}</span>
+                <span>BAYAR (TUNAI)</span>
+                <span>Rp {{ number_format($transaction->cash_received ?? $transaction->amount, 0, ',', '.') }}</span>
             </div>
-            {{-- Menghitung Kembalian Jika Ada Data --}}
-            @if($order->transaction->amount > $order->total)
-            <div class="flex">
-                <span>KEMBALI</span>
-                <span>Rp {{ number_format($order->transaction->amount - $order->total, 0, ',', '.') }}</span>
-            </div>
+
+            {{-- Menggunakan kolom change_amount yang baru kita buat --}}
+            @if (($transaction->change_amount ?? 0) > 0)
+                <div class="flex">
+                    <span>KEMBALIAN</span>
+                    <span>Rp {{ number_format($transaction->change_amount, 0, ',', '.') }}</span>
+                </div>
             @endif
         @else
             <div class="flex">
-                <span>METODE</span>
-                <span>CASH</span>
+                <span>STATUS</span>
+                <span class="fw-bold">BELUM BAYAR</span>
             </div>
         @endif
     </div>
@@ -138,4 +186,5 @@
     </div>
 
 </body>
+
 </html>

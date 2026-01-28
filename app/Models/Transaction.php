@@ -15,13 +15,10 @@ class Transaction extends Model
         'payment_gateway',
         'payment_method',
         'amount',
+        'cash_received',
+        'change_amount',
         'status',
         'gateway_transaction_id',
-        'gateway_details',
-    ];
-
-    protected $casts = [
-        'gateway_details' => 'array',
     ];
 
     public function order(): BelongsTo

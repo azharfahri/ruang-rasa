@@ -11,6 +11,9 @@ use App\Models\VariantOption;
 use App\Models\BranchProduct;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Midtrans\Config;
+use Midtrans\Snap;
+use Midtrans\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -275,6 +278,145 @@ class OrderController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
+
+    public function payMidtrans(Request $request, Order $order)
+    {
+        $request->validate([
+            'customer_name' => 'required|string|max:100',
+        ]);
+
+        if ($order->total <= 0) {
+            return response()->json([
+                'message' => 'Keranjang masih kosong'
+            ], 422);
+        }
+
+        // CONFIG MIDTRANS (WAJIB)
+        Config::$serverKey = config('midtrans.serverKey');
+        Config::$isProduction = config('midtrans.isProduction');
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+
+        $orderId = 'ORD-' . $order->id . '-' . time();
+
+        $enabledPayments = [
+            'gopay',
+            'shopeepay',
+            'dana',
+            'ovo',
+            'bank_transfer',
+        ];
+
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $orderId,
+                'gross_amount' => (int) $order->total,
+            ],
+            'customer_details' => [
+                'first_name' => $request->customer_name,
+            ],
+            'enabled_payments' => $enabledPayments,
+            'bank_transfer' => [
+                'bank' => ['bca', 'bni', 'bri', 'mandiri']
+            ],
+        ];
+
+
+
+        try {
+            $snapToken = Snap::getSnapToken($params);
+
+            // simpan referensi ke order (OPSIONAL TAPI RAPI)
+            $order->update([
+                'status' => 'pending',
+                'payment_type' => 'midtrans',
+                'payment_ref' => $orderId,
+                'customer_name' => $request->customer_name,
+            ]);
+
+            return response()->json([
+                'snap_token' => $snapToken
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal membuat Snap Token',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+    public function midtransNotification(Request $request)
+    {
+        Config::$serverKey = config('midtrans.serverKey');
+        Config::$isProduction = config('midtrans.isProduction');
+
+        $notif = new Notification();
+
+        $transactionStatus = $notif->transaction_status;
+        $paymentType = $notif->payment_type;
+        $orderId = $notif->order_id;
+
+        // ORD-{order_id}-{timestamp}
+        $orderIdExploded = explode('-', $orderId);
+        $order = Order::find($orderIdExploded[1]);
+
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        // cuma proses sekali
+        if ($order->payment_status === 'settlement') {
+            return response()->json(['message' => 'Already processed']);
+        }
+
+        if (in_array($transactionStatus, ['settlement', 'capture'])) {
+            DB::transaction(function () use ($order, $paymentType) {
+
+                // 1️⃣ POTONG STOK (SAMA KAYAK CASH)
+                foreach ($order->items as $item) {
+                    $bp = BranchProduct::where('branch_id', $order->branch_id)
+                        ->where('product_id', $item->product_id)
+                        ->lockForUpdate()
+                        ->firstOrFail();
+
+                    if ($bp->stock < $item->quantity) {
+                        throw new \Exception("Stok {$item->product->name} tidak cukup");
+                    }
+
+                    $bp->decrement('stock', $item->quantity);
+                }
+
+                // 2️⃣ TRANSACTION (CEGAH DOUBLE)
+                Transaction::firstOrCreate([
+                    'order_id' => $order->id,
+                    'payment_gateway' => 'midtrans',
+                ], [
+                    'payment_method' => $paymentType,
+                    'amount' => $order->total,
+                    'status' => 'paid'
+                ]);
+
+                // 3️⃣ UPDATE ORDER
+                $order->update([
+                    'status' => 'processing',
+                    'payment_status' => 'settlement'
+                ]);
+            });
+        }
+
+        if (in_array($transactionStatus, ['expire', 'cancel', 'deny'])) {
+            $order->update([
+                'payment_status' => 'failed'
+            ]);
+        }
+
+        return response()->json(['message' => 'OK']);
+    }
+
+
 
     public function markReady(Order $order)
     {

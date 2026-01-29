@@ -166,12 +166,29 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::delete('/cashier/orders/{order}', [KasirOrderController::class, 'destroy'])
         ->name('cashier.orders.destroy');
 
+    // routes/web.php
+
+    // 1. Route untuk ambil Snap Token
+    Route::post(
+        '/cashier/orders/{order}/pay/midtrans',
+        [KasirOrderController::class, 'payMidtrans']
+    )->name('cashier.orders.pay.midtrans');
+
+    // 2. Route untuk Polling (Pastikan nama method di controller adalah checkMidtrans)
+    // Route::post(
+    //     '/cashier/orders/{order}/check-midtrans',
+    //     [KasirOrderController::class, 'checkMidtrans']
+    // )->name('cashier.orders.checkMidtrans');
+
+    // 3. Route untuk Webhook (Opsional untuk jaga-jaga)
+    Route::post('/midtrans/notification', [KasirOrderController::class, 'midtransNotification']);
+
     Route::get('/cashier/orders/{order}/print', [KasirOrderController::class, 'printReceipt'])
-    ->name('cashier.orders.print');
+        ->name('cashier.orders.print');
 
     Route::get('/cashier/history', [KasirHistoryController::class, 'index'])
         ->name('cashier.history');
 
     Route::get('/cashier/history/{order}/detail', [KasirHistoryController::class, 'showDetail'])
-    ->name('cashier.history.detail');
+        ->name('cashier.history.detail');
 });

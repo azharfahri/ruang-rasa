@@ -1,7 +1,7 @@
 <div class="card shadow-sm">
     <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
         <span><i class="bi bi-cart3 me-2"></i>Keranjang</span>
-        @if($order->exists)
+        @if ($order->exists)
             <span class="badge bg-primary">Order #{{ $order->id }}</span>
         @endif
     </div>
@@ -20,17 +20,16 @@
                                     <li class="text-muted">
                                         <i class="bi bi-check2"></i> {{ $detail->variantOption->option_name }}
                                         @if ($detail->price_impact > 0)
-                                            <span class="text-success">(+{{ number_format($detail->price_impact, 0, ',', '.') }})</span>
+                                            <span
+                                                class="text-success">(+{{ number_format($detail->price_impact, 0, ',', '.') }})</span>
                                         @endif
                                     </li>
                                 @endforeach
                             </ul>
 
                             {{-- BUTTON EDIT VARIANT --}}
-                            <button class="btn btn-link btn-sm p-0 text-decoration-none"
-                                    style="font-size: 0.7rem;"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editVariantModal-{{ $item->id }}">
+                            <button class="btn btn-link btn-sm p-0 text-decoration-none" style="font-size: 0.7rem;"
+                                data-bs-toggle="modal" data-bs-target="#editVariantModal-{{ $item->id }}">
                                 <i class="bi bi-pencil-square"></i> Edit Varian
                             </button>
                         @endif
@@ -46,7 +45,8 @@
                         {{ $item->quantity }} x Rp {{ number_format($item->price, 0, ',', '.') }}
                     </small>
 
-                    <form method="POST" action="{{ route('cashier.orders.item.minus', [$order, $item]) }}" class="ajax-cart-form">
+                    <form method="POST" action="{{ route('cashier.orders.item.minus', [$order, $item]) }}"
+                        class="ajax-cart-form">
                         @csrf
                         <button type="submit" class="btn btn-outline-danger btn-sm px-2 py-0" title="Kurangi Qty">
                             <i class="bi bi-dash">-</i>
@@ -75,14 +75,13 @@
                                             $checked = $item->details->where('variant_option_id', $option->id)->count();
                                         @endphp
                                         <div class="form-check">
-                                            <input class="form-check-input"
-                                                   type="{{ $type->input_type }}"
-                                                   name="variants[{{ $type->id }}][]"
-                                                   value="{{ $option->id }}"
-                                                   id="editOpt{{ $item->id }}{{ $option->id }}"
-                                                   {{ $checked ? 'checked' : '' }}
-                                                   {{ $type->input_type == 'radio' ? 'required' : '' }}>
-                                            <label class="form-check-label small" for="editOpt{{ $item->id }}{{ $option->id }}">
+                                            <input class="form-check-input" type="{{ $type->input_type }}"
+                                                name="variants[{{ $type->id }}][]" value="{{ $option->id }}"
+                                                id="editOpt{{ $item->id }}{{ $option->id }}"
+                                                {{ $checked ? 'checked' : '' }}
+                                                {{ $type->input_type == 'radio' ? 'required' : '' }}>
+                                            <label class="form-check-label small"
+                                                for="editOpt{{ $item->id }}{{ $option->id }}">
                                                 {{ $option->option_name }}
                                                 (+Rp {{ number_format($option->price_impact, 0, ',', '.') }})
                                             </label>
@@ -114,22 +113,26 @@
 
         @if ($order->exists && $order->items->count() > 0)
             <hr>
-            {{-- FORM PEMBAYARAN --}}
-            <form action="{{ route('cashier.orders.pay.cash', $order->id) }}" method="POST" id="formBayar">
+
+            {{-- NAMA CUSTOMER (dipakai cash & midtrans) --}}
+            <div class="mb-2">
+                <label class="form-label small fw-bold">Nama Customer</label>
+                <input type="text" name="customer_name" id="customer_name" class="form-control form-control-sm">
+
+            </div>
+
+            {{-- ================= CASH ================= --}}
+            <form action="{{ route('cashier.orders.pay.cash', $order->id) }}" method="POST" id="formCash">
                 @csrf
-                <div class="mb-2">
-                    <label class="form-label small fw-bold">Nama Customer</label>
-                    <input type="text" name="customer_name" class="form-control form-control-sm"
-                           required placeholder="Input nama..." autocomplete="off">
-                </div>
+                <input type="hidden" name="customer_name" id="cash_customer_name">
 
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Uang Tunai Diterima</label>
                     <div class="input-group">
                         <span class="input-group-text bg-success text-white">Rp</span>
                         <input type="number" name="cash_received" id="cash_received"
-                               class="form-control form-control-lg fw-bold border-success text-success"
-                               placeholder="0" required min="{{ $order->total }}">
+                            class="form-control form-control-lg fw-bold border-success text-success" placeholder="0"
+                            required min="{{ $order->total }}">
                     </div>
                     <div id="money-error" class="text-danger small mt-1 d-none">
                         <i class="bi bi-exclamation-circle"></i> Uang tidak mencukupi!
@@ -143,14 +146,18 @@
                     </div>
                 </div>
 
-                <button type="submit" id="btn-bayar" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm">
-                    PROSES BAYAR & SELESAI
+                <button type="submit" id="btn-bayar" class="btn btn-success btn-lg w-100 fw-bold mb-2">
+                    💵 BAYAR CASH
                 </button>
             </form>
-        @else
-            <button class="btn btn-secondary w-100 py-2" disabled>
-                <i class="bi bi-lock me-2"></i>Selesaikan Pesanan
+
+            {{-- ================= MIDTRANS ================= --}}
+            
+            <button type="button" id="btn-midtrans" class="btn btn-primary btn-lg w-100 fw-bold"
+                data-url="{{ route('cashier.orders.pay.midtrans', $order->id) }}">
+                💳 BAYAR NON-TUNAI (QRIS / E-Wallet)
             </button>
         @endif
+
     </div>
 </div>

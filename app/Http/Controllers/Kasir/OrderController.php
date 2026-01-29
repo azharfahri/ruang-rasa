@@ -327,7 +327,6 @@ class OrderController extends Controller
         try {
             $snapToken = Snap::getSnapToken($params);
 
-            // simpan referensi ke order (OPSIONAL TAPI RAPI)
             $order->update([
                 'status' => 'pending',
                 'payment_type' => 'midtrans',
@@ -335,17 +334,61 @@ class OrderController extends Controller
                 'customer_name' => $request->customer_name,
             ]);
 
+            // PERBAIKAN: Kirim order_id agar dibaca Javascript
             return response()->json([
-                'snap_token' => $snapToken
+                'snap_token' => $snapToken,
+                'order_id'   => $order->id
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Gagal membuat Snap Token',
-                'error' => $e->getMessage()
-            ], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
+    // Tambahkan di dalam class OrderController
+
+    public function paymentSuccess(Request $request, Order $order)
+    {
+        // Cek agar tidak double process
+        if ($order->status === 'processing') {
+            return response()->json(['status' => 'already_processed']);
+        }
+
+        try {
+            DB::transaction(function () use ($order) {
+                // 1. Potong Stok
+                foreach ($order->items as $item) {
+                    $bp = BranchProduct::where('branch_id', $order->branch_id)
+                        ->where('product_id', $item->product_id)
+                        ->lockForUpdate()
+                        ->firstOrFail();
+
+                    if ($bp->stock < $item->quantity) {
+                        throw new \Exception("Stok {$item->product->name} tidak cukup");
+                    }
+                    $bp->decrement('stock', $item->quantity);
+                }
+
+                // 2. Simpan Transaksi
+                Transaction::create([
+                    'order_id' => $order->id,
+                    'payment_gateway' => 'midtrans',
+                    'payment_method' => 'midtrans',
+                    'amount' => $order->total,
+                    'status' => 'paid',
+                ]);
+
+                // 3. Update Order
+                $order->update([
+                    'status' => 'processing',
+                    'payment_status' => 'settlement'
+                ]);
+            });
+
+            return response()->json(['status' => 'success']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
 
 
     public function midtransNotification(Request $request)

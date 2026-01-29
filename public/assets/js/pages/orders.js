@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const cat = item.dataset.category;
             item.style.display =
                 name.includes(search) &&
-                (category === 'all' || cat === category)
+                    (category === 'all' || cat === category)
                     ? 'block'
                     : 'none';
         });
@@ -144,23 +144,40 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     window.snap.pay(data.snap_token, {
-                        onSuccess: function () {
+                        onSuccess: function (result) {
                             Swal.fire({
-                                icon: 'success',
-                                title: 'Pembayaran Berhasil 🎉',
-                                text: 'Pesanan sedang diproses'
-                            }).then(() => {
-                                window.location.href = '/cashier/orders';
+                                title: 'Menyimpan Pesanan...',
+                                allowOutsideClick: false,
+                                didOpen: () => { Swal.showLoading(); }
                             });
+
+                            // Menggunakan template literal untuk memasukkan data.order_id
+                            fetch(`/cashier/orders/${data.order_id}/payment-success`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                },
+                                body: JSON.stringify({ result: result })
+                            })
+                                .then(response => {
+                                    if (!response.ok) throw new Error('Server Error');
+                                    return response.json();
+                                })
+                                .then(res => {
+                                    window.location.href = '/cashier/orders'; // Redirect ke daftar pesanan
+                                })
+                                .catch(error => {
+                                    console.error(error);
+                                    Swal.fire('Error', 'Pembayaran sukses, tapi gagal update database. Jangan tutup halaman dan lapor admin.', 'error');
+                                });
                         },
-                        onPending: function () {
-                            Swal.fire(
-                                'Menunggu Pembayaran',
-                                'Silakan selesaikan pembayaran',
-                                'info'
-                            );
+
+                        // ... onPending dan onError biarkan seperti sebelumnya ...
+                        onPending: function (result) {
+                            Swal.fire('Menunggu Pembayaran', 'Silakan selesaikan pembayaran', 'info');
                         },
-                        onError: function () {
+                        onError: function (result) {
                             Swal.fire('Gagal', 'Pembayaran gagal', 'error');
                         }
                     });
@@ -170,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .finally(() => {
                     btnMidtrans.disabled = false;
-                    btnMidtrans.innerHTML = '💳 BAYAR NON-TUNAI';
+                    btnMidtrans.innerHTML = 'BAYAR NON-TUNAI';
                 });
         });
     }

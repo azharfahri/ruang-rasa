@@ -174,12 +174,14 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
         [KasirOrderController::class, 'payMidtrans']
     )->name('cashier.orders.pay.midtrans');
 
-    // 2. Route untuk Polling (Pastikan nama method di controller adalah checkMidtrans)
-    // Route::post(
-    //     '/cashier/orders/{order}/check-midtrans',
-    //     [KasirOrderController::class, 'checkMidtrans']
-    // )->name('cashier.orders.checkMidtrans');
 
+    // Pastikan ini ada di dalam group middleware auth/kasir yang sesuai
+    // web.php
+
+    // Tambahkan /cashier di depan agar sesuai dengan pemanggilan JS
+    Route::post('/cashier/orders/{order}/payment-success', [KasirOrderController::class, 'paymentSuccess'])
+        ->name('cashier.orders.payment_success');
+        
     // 3. Route untuk Webhook (Opsional untuk jaga-jaga)
     Route::post('/midtrans/notification', [KasirOrderController::class, 'midtransNotification']);
 

@@ -14,7 +14,7 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <input type="text" id="productSearch" class="form-control"
-                        placeholder="Cari menu... (Tekan '/' untuk fokus)">
+                        placeholder="Cari menu...">
                 </div>
                 <div class="col-md-6">
                     <select id="categoryFilter" class="form-select">

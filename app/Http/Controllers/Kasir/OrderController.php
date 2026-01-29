@@ -307,12 +307,23 @@ class OrderController extends Controller
             'bank_transfer',
         ];
 
+        $item_details = [];
+        foreach ($order->items as $item) {
+            $item_details[] = [
+                'id'       => $item->product_id,
+                'price'    => (int) $item->price,
+                'quantity' => (int) $item->quantity,
+                'name'     => substr($item->product->name, 0, 50),
+            ];
+        }
+
 
         $params = [
             'transaction_details' => [
                 'order_id' => $orderId,
                 'gross_amount' => (int) $order->total,
             ],
+            'item_details' => $item_details,
             'customer_details' => [
                 'first_name' => $request->customer_name,
             ],
@@ -344,17 +355,28 @@ class OrderController extends Controller
         }
     }
 
-    // Tambahkan di dalam class OrderController
-
     public function paymentSuccess(Request $request, Order $order)
     {
-        // Cek agar tidak double process
-        if ($order->status === 'processing') {
+        if ($order->status === 'processing' || $order->payment_status === 'settlement') {
             return response()->json(['status' => 'already_processed']);
         }
 
         try {
-            DB::transaction(function () use ($order) {
+            $result = $request->input('result');
+
+            // Logika penentuan label Payment Method dinamis
+            $method = 'Midtrans';
+            if (isset($result['payment_type'])) {
+                if ($result['payment_type'] == 'bank_transfer' && isset($result['va_numbers'][0]['bank'])) {
+                    $method = strtoupper($result['va_numbers'][0]['bank']); // Contoh: BCA
+                } elseif ($result['payment_type'] == 'cstore') {
+                    $method = ucfirst($result['store'] ?? 'Retail'); // Indomaret/Alfamart
+                } else {
+                    $method = ucfirst(str_replace('_', ' ', $result['payment_type'])); // Gopay, Qris, dll
+                }
+            }
+
+            DB::transaction(function () use ($order, $method, $result) {
                 // 1. Potong Stok
                 foreach ($order->items as $item) {
                     $bp = BranchProduct::where('branch_id', $order->branch_id)
@@ -368,18 +390,21 @@ class OrderController extends Controller
                     $bp->decrement('stock', $item->quantity);
                 }
 
-                // 2. Simpan Transaksi
+                // 2. Simpan ke Tabel Transactions (Sesuai database kamu)
                 Transaction::create([
-                    'order_id' => $order->id,
-                    'payment_gateway' => 'midtrans',
-                    'payment_method' => 'midtrans',
-                    'amount' => $order->total,
-                    'status' => 'paid',
+                    'order_id'               => $order->id,
+                    'payment_gateway'        => 'Midtrans',
+                    'payment_method'         => $method,
+                    'amount'                 => $order->total,
+                    'cash_received'          => $order->total, // Non-tunai dianggap lunas
+                    'change_amount'          => 0,
+                    'gateway_transaction_id' => $result['transaction_id'] ?? null, // Simpan ID dari Midtrans
+                    'status'                 => 'paid',
                 ]);
 
                 // 3. Update Order
                 $order->update([
-                    'status' => 'processing',
+                    'status'         => 'processing',
                     'payment_status' => 'settlement'
                 ]);
             });
@@ -390,73 +415,65 @@ class OrderController extends Controller
         }
     }
 
-
     public function midtransNotification(Request $request)
     {
         Config::$serverKey = config('midtrans.serverKey');
         Config::$isProduction = config('midtrans.isProduction');
 
-        $notif = new Notification();
+        try {
+            $notif = new Notification();
+            $transactionStatus = $notif->transaction_status;
+            $orderIdFull = $notif->order_id; // ORD-ID-TIME
+            $orderIdParts = explode('-', $orderIdFull);
+            $order = Order::find($orderIdParts[1]);
 
-        $transactionStatus = $notif->transaction_status;
-        $paymentType = $notif->payment_type;
-        $orderId = $notif->order_id;
+            if (!$order) return response()->json(['message' => 'Order not found'], 404);
+            if ($order->payment_status === 'settlement') return response()->json(['message' => 'Lunas']);
 
-        // ORD-{order_id}-{timestamp}
-        $orderIdExploded = explode('-', $orderId);
-        $order = Order::find($orderIdExploded[1]);
+            if (in_array($transactionStatus, ['settlement', 'capture'])) {
 
-        if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
-        }
-
-        // cuma proses sekali
-        if ($order->payment_status === 'settlement') {
-            return response()->json(['message' => 'Already processed']);
-        }
-
-        if (in_array($transactionStatus, ['settlement', 'capture'])) {
-            DB::transaction(function () use ($order, $paymentType) {
-
-                // 1️⃣ POTONG STOK (SAMA KAYAK CASH)
-                foreach ($order->items as $item) {
-                    $bp = BranchProduct::where('branch_id', $order->branch_id)
-                        ->where('product_id', $item->product_id)
-                        ->lockForUpdate()
-                        ->firstOrFail();
-
-                    if ($bp->stock < $item->quantity) {
-                        throw new \Exception("Stok {$item->product->name} tidak cukup");
-                    }
-
-                    $bp->decrement('stock', $item->quantity);
+                // Penentuan method untuk Webhook
+                $method = ucfirst(str_replace('_', ' ', $notif->payment_type));
+                if ($notif->payment_type == 'bank_transfer' && isset($notif->va_numbers[0]->bank)) {
+                    $method = strtoupper($notif->va_numbers[0]->bank);
                 }
 
-                // 2️⃣ TRANSACTION (CEGAH DOUBLE)
-                Transaction::firstOrCreate([
-                    'order_id' => $order->id,
-                    'payment_gateway' => 'midtrans',
-                ], [
-                    'payment_method' => $paymentType,
-                    'amount' => $order->total,
-                    'status' => 'paid'
-                ]);
+                DB::transaction(function () use ($order, $method, $notif) {
+                    // Potong Stok
+                    foreach ($order->items as $item) {
+                        $bp = BranchProduct::where('branch_id', $order->branch_id)
+                            ->where('product_id', $item->product_id)
+                            ->lockForUpdate()->first();
+                        if ($bp && $bp->stock >= $item->quantity) {
+                            $bp->decrement('stock', $item->quantity);
+                        }
+                    }
 
-                // 3️⃣ UPDATE ORDER
-                $order->update([
-                    'status' => 'processing',
-                    'payment_status' => 'settlement'
-                ]);
-            });
+                    // Simpan Transaksi (Gunakan updateOrCreate untuk cegah duplikasi dengan paymentSuccess)
+                    Transaction::updateOrCreate(
+                        ['order_id' => $order->id],
+                        [
+                            'payment_gateway'        => 'Midtrans',
+                            'payment_method'         => $method,
+                            'amount'                 => $order->total,
+                            'cash_received'          => $order->total,
+                            'change_amount'          => 0,
+                            'gateway_transaction_id' => $notif->transaction_id,
+                            'status'                 => 'paid',
+                        ]
+                    );
+
+                    $order->update([
+                        'status' => 'processing',
+                        'payment_status' => 'settlement'
+                    ]);
+                });
+            }
+
+            return response()->json(['message' => 'OK']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        if (in_array($transactionStatus, ['expire', 'cancel', 'deny'])) {
-            $order->update([
-                'payment_status' => 'failed'
-            ]);
-        }
-
-        return response()->json(['message' => 'OK']);
     }
 
 

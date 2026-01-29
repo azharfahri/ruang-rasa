@@ -109,88 +109,94 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 
-    /* =====================================================
-     * 4. MIDTRANS PAYMENT (BANK + E-WALLET)
+ /* =====================================================
+     * 4. MIDTRANS PAYMENT (BANK + E-WALLET) - UPDATED
      * ===================================================== */
-    const btnMidtrans = document.getElementById('btn-midtrans');
-    const customerInput = document.getElementById('customer_name');
+    document.addEventListener('click', function (e) {
+        // Cek apakah yang diklik adalah tombol midtrans
+        const btnMidtrans = e.target.closest('#btn-midtrans');
+        if (!btnMidtrans) return;
 
-    if (btnMidtrans) {
-        btnMidtrans.addEventListener('click', function () {
-            const name = customerInput.value.trim();
-            const url = this.dataset.url;
+        const customerInput = document.getElementById('customer_name');
+        const name = customerInput?.value.trim();
+        const url = btnMidtrans.dataset.url;
 
-            if (!name) {
-                Swal.fire('Oops', 'Nama customer wajib diisi', 'warning');
+        if (!name) {
+            Swal.fire('Oops', 'Nama customer wajib diisi', 'warning');
+            return;
+        }
+
+        btnMidtrans.disabled = true;
+        const originalText = btnMidtrans.innerHTML;
+        btnMidtrans.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ customer_name: name })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.snap_token) {
+                Swal.fire('Gagal', 'Snap token tidak ditemukan', 'error');
+                btnMidtrans.disabled = false;
+                btnMidtrans.innerHTML = originalText;
                 return;
             }
 
-            btnMidtrans.disabled = true;
-            btnMidtrans.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
-
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ customer_name: name })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.snap_token) {
-                        Swal.fire('Gagal', 'Snap token tidak ditemukan', 'error');
-                        return;
-                    }
-
-                    window.snap.pay(data.snap_token, {
-                        onSuccess: function (result) {
-                            Swal.fire({
-                                title: 'Menyimpan Pesanan...',
-                                allowOutsideClick: false,
-                                didOpen: () => { Swal.showLoading(); }
-                            });
-
-                            // Menggunakan template literal untuk memasukkan data.order_id
-                            fetch(`/cashier/orders/${data.order_id}/payment-success`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                                },
-                                body: JSON.stringify({ result: result })
-                            })
-                                .then(response => {
-                                    if (!response.ok) throw new Error('Server Error');
-                                    return response.json();
-                                })
-                                .then(res => {
-                                    window.location.href = '/cashier/orders'; // Redirect ke daftar pesanan
-                                })
-                                .catch(error => {
-                                    console.error(error);
-                                    Swal.fire('Error', 'Pembayaran sukses, tapi gagal update database. Jangan tutup halaman dan lapor admin.', 'error');
-                                });
-                        },
-
-                        // ... onPending dan onError biarkan seperti sebelumnya ...
-                        onPending: function (result) {
-                            Swal.fire('Menunggu Pembayaran', 'Silakan selesaikan pembayaran', 'info');
-                        },
-                        onError: function (result) {
-                            Swal.fire('Gagal', 'Pembayaran gagal', 'error');
-                        }
+            window.snap.pay(data.snap_token, {
+                onSuccess: function (result) {
+                    Swal.fire({
+                        title: 'Menyimpan Pesanan...',
+                        text: 'Jangan tutup atau refresh halaman ini.',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
                     });
-                })
-                .catch(() => {
-                    Swal.fire('Error', 'Tidak bisa terhubung ke server', 'error');
-                })
-                .finally(() => {
+
+                    fetch(`/cashier/orders/${data.order_id}/payment-success`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ result: result })
+                    })
+                    .then(async response => {
+                        const isJson = response.headers.get('content-type')?.includes('application/json');
+                        const errorData = isJson ? await response.json() : null;
+                        if (!response.ok) throw new Error(errorData?.message || 'Server Error');
+                        return errorData;
+                    })
+                    .then(() => {
+                        window.location.href = '/cashier/orders';
+                    })
+                    .catch(error => {
+                        console.error('Update Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal Update Database',
+                            text: error.message || 'Pembayaran sukses tapi gagal perbarui status.',
+                            confirmButtonText: 'Selesai'
+                        }).then(() => { window.location.href = '/cashier/orders'; });
+                    });
+                },
+                onPending: () => Swal.fire('Menunggu', 'Silakan selesaikan pembayaran', 'info'),
+                onError: () => Swal.fire('Gagal', 'Pembayaran gagal', 'error'),
+                onClose: () => {
                     btnMidtrans.disabled = false;
-                    btnMidtrans.innerHTML = 'BAYAR NON-TUNAI';
-                });
+                    btnMidtrans.innerHTML = originalText;
+                }
+            });
+        })
+        .catch(() => {
+            Swal.fire('Error', 'Tidak bisa terhubung ke server', 'error');
+            btnMidtrans.disabled = false;
+            btnMidtrans.innerHTML = originalText;
         });
-    }
+    });
 
     /* =====================================================
      * 5. SYNC NAMA CUSTOMER CASH & NON-CASH

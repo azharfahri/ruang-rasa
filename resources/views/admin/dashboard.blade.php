@@ -83,7 +83,7 @@
                         Monitoring data utama aplikasi Ruang Rasa
                     </p>
 
-                    <ul class="list-group list-group-flush">
+                    <ul class="list-group ">
                         <li class="list-group-item d-flex justify-content-between">
                             <span>Total User</span>
                             <strong>{{ $totalUsers }}</strong>

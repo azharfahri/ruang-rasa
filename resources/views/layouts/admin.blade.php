@@ -24,7 +24,7 @@
 <body>
     <!-- Preloader -->
     <div class="preloader">
-        <img src="{{ asset('assets/images/logos/ruangrasa.png') }}" alt="loader" class="lds-ripple img-fluid" style="width: 15%"/>
+        <img src="{{ asset('assets/images/logos/ruangrasa.png') }}" alt="loader" class="lds-ripple img-fluid" style="width: 5%"/>
     </div>
     <div id="main-wrapper">
         <!-- Sidebar Start -->

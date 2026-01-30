@@ -14,7 +14,6 @@ class HistoryController extends Controller
             ->where('payment_status', 'settlement')
             ->with(['items.product']);
 
-        // Filter berdasarkan Search (ID atau Nama Pelanggan)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -23,12 +22,10 @@ class HistoryController extends Controller
             });
         }
 
-        // Filter berdasarkan Status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Tentukan Limit (Default 10)
         $limit = $request->get('limit', 10);
 
         $orders = $query->latest()->paginate($limit)->withQueryString();
@@ -38,7 +35,6 @@ class HistoryController extends Controller
 
     public function showDetail(Order $order)
     {
-        // Pastikan order milik cabang kasir tersebut
         if ($order->branch_id !== auth()->user()->branch_id) return response('Unauthorized', 403);
 
         return view('kasir.orders.partials.detail-modal', compact('order'));

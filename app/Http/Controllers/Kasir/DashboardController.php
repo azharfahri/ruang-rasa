@@ -13,36 +13,29 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Set locale ke Indonesia agar nama hari otomatis Indo
         Carbon::setLocale('id');
 
         $user = auth()->user();
         $branchId = $user->branch_id;
         $filter = $request->get('filter', 'day');
 
-        // --- Statistik Box ---
         $totalOrders = Order::where('branch_id', $branchId)->count();
         $todayOrders = Order::where('branch_id', $branchId)->whereDate('created_at', today())->count();
         $totalIncome = Order::where('branch_id', $branchId)->where('payment_status', 'settlement')->sum('total');
-        $todayIncome = Order::where('branch_id', $branchId)->whereDate('created_at', today())
-            ->where('payment_status', 'settlement')->sum('total');
+        $todayIncome = Order::where('branch_id', $branchId)->whereDate('created_at', today())->where('payment_status', 'settlement')->sum('total');
 
-        // --- 2. Logika Grafik Penjualan Default (Sesuai permintaan: Minggu Ini) ---
         $salesLabels = [];
         $salesValues = [];
 
-        // Ambil awal minggu ini (Senin)
         $startOfWeek = now()->startOfWeek();
         for ($i = 0; $i < 7; $i++) {
             $date = $startOfWeek->copy()->addDays($i);
-            // Menggunakan translatedFormat('l') agar jadi "Senin", "Selasa", dst
             $salesLabels[] = $date->translatedFormat('l');
             $salesValues[] = Order::where('branch_id', $branchId)
                 ->whereDate('created_at', $date->format('Y-m-d'))
                 ->where('payment_status', 'settlement')->sum('total');
         }
 
-        // --- 3. Statistik Status Pesanan Default (Hari Ini) ---
         $queryStatus = Order::where('branch_id', $branchId)->whereDate('created_at', today());
 
         $statusStats = [
@@ -52,7 +45,6 @@ class DashboardController extends Controller
             (clone $queryStatus)->where('status', 'ready')->count(),
         ];
 
-        // --- 4. Top 5 Produk ---
         $topProducts = OrderItem::whereHas('order', function ($q) use ($branchId) {
             $q->where('branch_id', $branchId)->where('payment_status', 'settlement');
         })

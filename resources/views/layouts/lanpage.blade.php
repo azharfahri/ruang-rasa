@@ -8,7 +8,7 @@
 
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logos/ruangrasa.png') }}" />
 
-    <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }} "/>
+    <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }} " />
 
     <link rel="stylesheet" href="{{ asset('assets/libs/owl.carousel/dist/assets/owl.carousel.min.css') }}" />
 
@@ -20,28 +20,41 @@
            ======================================== */
         :root {
             /* Elements */
-            --bg-primary: #004643;      /* Background */
-            --text-headline: #fffffe;   /* Headline */
-            --text-paragraph: #abd1c6;  /* Paragraph */
-            --btn-primary: #f9bc60;     /* Button */
-            --btn-text: #001e1d;        /* Button text */
+            --bg-primary: #004643;
+            /* Background */
+            --text-headline: #fffffe;
+            /* Headline */
+            --text-paragraph: #abd1c6;
+            /* Paragraph */
+            --btn-primary: #f9bc60;
+            /* Button */
+            --btn-text: #001e1d;
+            /* Button text */
 
             /* Illustration */
-            --stroke: #001e1d;          /* Stroke */
-            --main: #e8e4e6;            /* Main */
-            --highlight: #f9bc60;       /* Highlight */
-            --secondary: #abd1c6;       /* Secondary */
-            --tertiary: #e16162;        /* Tertiary (accent) */
+            --stroke: #001e1d;
+            /* Stroke */
+            --main: #e8e4e6;
+            /* Main */
+            --highlight: #f9bc60;
+            /* Highlight */
+            --secondary: #abd1c6;
+            /* Secondary */
+            --tertiary: #e16162;
+            /* Tertiary (accent) */
 
             /* Supporting Colors */
-            --card-bg: #00332f;         /* Card background */
+            --card-bg: #00332f;
+            /* Card background */
             --border-color: rgba(171, 209, 198, 0.1);
         }
 
         /* ========================================
            BACKGROUND & BASE COLORS
            ======================================== */
-        body, .main-wrapper, .offcanvas-body {
+        body,
+        .main-wrapper,
+        .offcanvas-body {
             background-color: var(--bg-primary) !important;
             color: var(--text-paragraph) !important;
         }
@@ -49,11 +62,20 @@
         /* ========================================
            TYPOGRAPHY
            ======================================== */
-        h1, h2, h3, h4, h5, h6, .fw-bold, .fw-bolder {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        .fw-bold,
+        .fw-bolder {
             color: var(--text-headline) !important;
         }
 
-        p, span, li {
+        p,
+        span,
+        li {
             color: var(--text-paragraph);
         }
 
@@ -69,7 +91,8 @@
         /* ========================================
            BUTTONS
            ======================================== */
-        .btn-primary, .top-btn {
+        .btn-primary,
+        .top-btn {
             background-color: var(--btn-primary) !important;
             border-color: var(--btn-primary) !important;
             color: var(--btn-text) !important;
@@ -77,7 +100,9 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .btn-primary:hover, .btn-primary:focus, .top-btn:hover {
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .top-btn:hover {
             background-color: #e0a855 !important;
             border-color: #e0a855 !important;
             color: var(--btn-text) !important;
@@ -95,7 +120,8 @@
             transition: all 0.3s ease;
         }
 
-        .btn-outline-light:hover, .btn-outline-light:focus {
+        .btn-outline-light:hover,
+        .btn-outline-light:focus {
             background-color: var(--text-headline);
             border-color: var(--text-headline);
             color: var(--bg-primary);
@@ -215,9 +241,8 @@
            ======================================== */
         .hero-gradient {
             background: linear-gradient(to bottom,
-                rgba(0, 70, 67, 0.8),
-                rgba(0, 30, 29, 0.9)
-            );
+                    rgba(0, 70, 67, 0.8),
+                    rgba(0, 30, 29, 0.9));
         }
 
         /* ========================================
@@ -278,14 +303,129 @@
         /* ========================================
            PRELOADER
            ======================================== */
+
         .preloader {
+            position: fixed;
+            inset: 0;
             background-color: var(--bg-primary);
+            background:
+                radial-gradient(circle at top, rgba(255, 214, 170, 0.08), transparent 60%),
+                radial-gradient(circle at bottom, rgba(111, 78, 55, 0.25), transparent 70%),
+                linear-gradient(180deg, #1e1b18, #15120f);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: #f5e6d3;
+            font-family: 'Poppins', sans-serif;
         }
+
+
+        .coffee-cup {
+            position: relative;
+            width: 120px;
+            height: 100px;
+        }
+
+        .cup {
+            width: 120px;
+            height: 80px;
+            border: 4px solid #f5e6d3;
+            border-radius: 0 0 20px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cup::after {
+            content: '';
+            position: absolute;
+            right: -30px;
+            top: 20px;
+            width: 30px;
+            height: 40px;
+            border: 4px solid #f5e6d3;
+            border-left: none;
+            border-radius: 0 20px 20px 0;
+        }
+
+        .coffee {
+            position: absolute;
+            bottom: -100%;
+            width: 100%;
+            height: 100%;
+            background: #6f4e37;
+            animation: fillCoffee 2.5s infinite;
+        }
+
+        @keyframes fillCoffee {
+            0% {
+                bottom: -100%;
+            }
+
+            50% {
+                bottom: 0;
+            }
+
+            100% {
+                bottom: 0;
+            }
+        }
+
+        .smoke {
+            position: absolute;
+            top: -20px;
+            width: 20px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(245, 230, 211, 0.4);
+            animation: smoke 2s infinite ease-in-out;
+        }
+
+        .smoke1 {
+            left: 20px;
+            animation-delay: 0s;
+        }
+
+        .smoke2 {
+            left: 50px;
+            animation-delay: .5s;
+        }
+
+        .smoke3 {
+            left: 80px;
+            animation-delay: 1s;
+        }
+
+        @keyframes smoke {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-40px) scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-size: 14px;
+            letter-spacing: 1px;
+            opacity: .8;
+        }
+
 
         /* ========================================
            NAVBAR & SIDEBAR
            ======================================== */
-        .navbar, .offcanvas {
+        .navbar,
+        .offcanvas {
             background-color: var(--bg-primary) !important;
         }
 
@@ -351,13 +491,15 @@
         /* ========================================
            FORMS & INPUTS
            ======================================== */
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             color: var(--text-paragraph);
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus,
+        .form-select:focus {
             background-color: var(--card-bg);
             border-color: var(--highlight);
             color: var(--text-paragraph);
@@ -404,7 +546,11 @@
             scroll-behavior: smooth;
         }
 
-        .btn, .card, .nav-link, .accordion-button, a {
+        .btn,
+        .card,
+        .nav-link,
+        .accordion-button,
+        a {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -431,6 +577,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -505,6 +652,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -519,6 +667,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -530,24 +679,33 @@
 <body>
 
     <div class="preloader">
-        <img src="../assets/images/logos/favicon.png" alt="loader" class="lds-ripple img-fluid" />
+        <div class="coffee-cup">
+            <div class="cup">
+                <div class="coffee"></div>
+            </div>
+            <div class="smoke smoke1"></div>
+            <div class="smoke smoke2"></div>
+            <div class="smoke smoke3"></div>
+        </div>
+        <p class="loading-text">Tunggu Sebentar</p>
     </div>
+
 
     @include('layouts.landing-page.navbar')
 
     @include('layouts.landing-page.sidebar')
 
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-0">
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body pt-0">
                     <iframe width="100%" height="500"
-                        src="https://www.youtube.com/embed/W_ADbeKyP4c?si=-63qC3_L1fI5wEsO"
-                        title="YouTube video player" frameborder="0"
+                        src="https://www.youtube.com/embed/W_ADbeKyP4c?si=-63qC3_L1fI5wEsO" title="YouTube video player"
+                        frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </div>
@@ -566,15 +724,15 @@
 
     @include('layouts.landing-page.footer')
 
-    <script src="{{ asset('assets/js/vendor.min.js')}}"></script>
-    <script src="{{ asset('assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js')}}"></script>
-    <script src="{{ asset('assets/libs/simplebar/dist/simplebar.min.js')}}"></script>
-    <script src="{{ asset('assets/js/theme/app.init.js')}}"></script>
-    <script src="{{ asset('assets/js/theme/theme.js')}}"></script>
-    <script src="{{ asset('assets/js/theme/app.min.js')}}"></script>
+    <script src="{{ asset('assets/js/vendor.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/simplebar/dist/simplebar.min.js') }}"></script>
+    <script src="{{ asset('assets/js/theme/app.init.js') }}"></script>
+    <script src="{{ asset('assets/js/theme/theme.js') }}"></script>
+    <script src="{{ asset('assets/js/theme/app.min.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-    <script src="{{ asset('assets/libs/owl.carousel/dist/owl.carousel.min.js')}}"></script>
+    <script src="{{ asset('assets/libs/owl.carousel/dist/owl.carousel.min.js') }}"></script>
     <script src="{{ asset('assets/js/frontend-landingpage/homepage.js') }}"></script>
 
     <script>

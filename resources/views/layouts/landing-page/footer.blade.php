@@ -48,7 +48,7 @@
                             <span class="fs-4 text-body fw-bold text-primary">Jam Operasional:</span>
                         </li>
                         <li>
-                            <span class="fs-4 text-body">Setiap Hari: 10.00 - 22.00</span>
+                            <span class="fs-4 text-body">Setiap Hari: 08.00 - 23.00</span>
                         </li>
                         <li>
                             <a href="./tentang-kami.html" class="fs-4 text-body link-primary">Cerita Kami</a>
@@ -59,13 +59,13 @@
                 <div class="col-md-3 col-6">
                     <h3 class="fs-4 fw-semibold mb-7">Ikuti Rasa</h3>
                     <div class="d-flex gap-9">
-                        <a href="https://facebook.com/ruangrasa" target="_blank" data-bs-toggle="tooltip" data-bs-title="Facebook">
+                        <a href="https://facebook.com/caferuangrasacoffe" target="_blank" data-bs-toggle="tooltip" data-bs-title="Facebook">
                             <img src="../assets/images/frontend-pages/icon-facebook.svg" alt="facebook">
                         </a>
-                        <a href="https://twitter.com/ruangrasa" target="_blank" data-bs-toggle="tooltip" data-bs-title="Twitter">
+                        <a href="https://twitter.com//caferuangrasacoffe" target="_blank" data-bs-toggle="tooltip" data-bs-title="Twitter">
                             <img src="../assets/images/frontend-pages/icon-twitter.svg" alt="twitter">
                         </a>
-                        <a href="https://instagram.com/ruangrasa" target="_blank" data-bs-toggle="tooltip" data-bs-title="Instagram">
+                        <a href="https://instagram.com/ruangrasacoffe" target="_blank" data-bs-toggle="tooltip" data-bs-title="Instagram">
                             <img src="../assets/images/frontend-pages/icon-instagram.svg" alt="instagram">
                         </a>
                     </div>
@@ -79,7 +79,7 @@
         <div class="d-flex justify-content-between py-7 flex-md-nowrap flex-wrap gap-sm-0 gap-3">
             <div class="d-flex gap-3 align-items-center">
                 <img src="{{ asset('assets/images/logos/ruangrasa.png') }}" alt="icon" width="75">
-                <p class="fs-4 mb-0">&copy; 2024 Ruang Rasa. Menemani setiap cerita dalam rasa. </p>
+                <p class="fs-4 mb-0">&copy; 2026 Ruang Rasa. Menemani setiap cerita dalam rasa. </p>
             </div>
             <div>
                 <p class="mb-0 text-muted small">Crafted with ❤️ for Foodies.</p>

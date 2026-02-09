@@ -6,7 +6,7 @@
         style="min-height: 100vh; margin-top: -90px; padding-top: 90px;">
         <!-- Background Image + Overlay -->
         <div class="position-absolute top-0 start-0 w-100 h-100 bg-image"
-            style="background-image: url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=2400');
+            style="background-image: url({{ asset('assets/images/backgrounds/lanpag.jpg') }});
                     background-size: cover;
                     background-position: center;">
             <div class="position-absolute top-0 start-0 w-100 h-100 hero-gradient"></div>
@@ -32,12 +32,12 @@
                         <a href="#menu-kami" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-lg">
                             Lihat Menu Kami
                         </a>
-                        <a href="#reservasi" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill shadow-lg">
+                        {{-- <a href="#reservasi" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill shadow-lg">
                             Reservasi Meja
-                        </a>
+                        </a> --}}
                     </div>
 
-                    <!-- Social Proof & Icons -->
+                    {{-- <!-- Social Proof & Icons -->
                     <div class="d-flex justify-content-center align-items-center gap-4 gap-lg-5 flex-wrap mt-5 pt-3">
                         <!-- Customer Avatars -->
                         <div class="d-flex align-items-center gap-3">
@@ -70,7 +70,7 @@
                                 <p class="small mb-0">Pengiriman Cepat</p>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
@@ -173,7 +173,7 @@
                 <div class="tab-pane fade show active" id="dine-in" role="tabpanel">
                     <div class="row align-items-center g-4 g-lg-5">
                         <div class="col-lg-6">
-                            <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=1200"
+                            <img src="{{ asset('assets/images/backgrounds/lanpag.jpg') }}"
                                 class="rounded-4 shadow-lg w-100" alt="Suasana Dine In"
                                 style="max-height: 500px; object-fit: cover;">
                         </div>
@@ -213,9 +213,6 @@
                                 </div>
                             </div>
 
-                            <a href="#reservasi" class="btn btn-primary btn-lg px-5 py-3 mt-4 rounded-pill shadow-lg">
-                                Reservasi Sekarang
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -250,7 +247,7 @@
         <div class="container">
             <h2 class="display-5 fw-bold mb-3 text-dark">Siap Merasakan Pengalaman Baru?</h2>
             <p class="fs-5 mb-4 text-dark" style="max-width: 600px; margin: 0 auto;">
-                Kunjungi Ruang Rasa hari ini atau pesan via GoFood/GrabFood
+                Kunjungi Ruang Rasa hari ini atau pesan via aplikasi Ruang Rasa Mobile
             </p>
             <a href="#menu-kami" class="btn btn-dark btn-lg px-5 py-4 rounded-pill shadow-lg" style="font-weight: 600;">
                 Jelajahi Menu

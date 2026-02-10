@@ -121,8 +121,10 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group shadow-sm">
-                                            <a href="{{ route('cashier.orders.print', $order->id) }}" target="_blank"
-                                                class="btn btn-sm btn-outline-primary" title="Cetak Struk">
+                                            <a href="{{ auth()->user()->hasRole('admincabang')
+                                                ? route('admincabang.orders.print', $order)
+                                                : route('cashier.orders.print', $order) }}"
+                                                target="_blank" class="btn btn-sm btn-outline-primary" title="Cetak Struk">
                                                 <i class="fa fa-print"></i>
                                             </a>
                                             <button type="button" class="btn btn-sm btn-outline-secondary btn-detail"
@@ -161,26 +163,29 @@
         </div>
     </div>
     <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-light">
-                <h6 class="modal-title fw-bold">Detail Pesanan <span id="modalOrderId"></span></h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0" id="modalContent">
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2 small text-muted">Mengambil data...</p>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light">
+                    <h6 class="modal-title fw-bold">Detail Pesanan <span id="modalOrderId"></span></h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </div>
-            <div class="modal-footer bg-light border-0">
-                <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Tutup</button>
+                <div class="modal-body p-0" id="modalContent">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 small text-muted">Mengambil data...</p>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Tutup</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 @endsection
 
 @push('scripts')
+    <script>
+        const rolePrefix = "{{ auth()->user()->hasRole('admincabang') ? 'admincabang' : 'cashier' }}";
+    </script>
     <script src="{{ asset('assets/js/pages/order-history.js') }}"></script>
 @endpush

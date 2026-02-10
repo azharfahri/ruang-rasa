@@ -114,17 +114,18 @@
         @if ($order->exists && $order->items->count() > 0)
             <hr>
 
-            {{-- NAMA CUSTOMER (dipakai cash & midtrans) --}}
+            {{-- NAMA CUSTOMER (SATU, DIPAKAI SEMUA) --}}
             <div class="mb-2">
                 <label class="form-label small fw-bold">Nama Customer</label>
-                <input type="text" name="customer_name" id="customer_name" class="form-control form-control-sm">
-
+                <input type="text" id="customer_name" name="customer_name" class="form-control form-control-sm"
+                    required>
             </div>
 
             {{-- ================= CASH ================= --}}
             <form action="{{ route('cashier.orders.pay.cash', $order->id) }}" method="POST" id="formCash">
                 @csrf
-                <input type="hidden" name="customer_name" id="cash_customer_name">
+                 <input type="hidden" name="customer_name" id="cash_customer_name">
+
 
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Uang Tunai Diterima</label>
@@ -152,7 +153,7 @@
             </form>
 
             {{-- ================= MIDTRANS ================= --}}
-            
+
             <button type="button" id="btn-midtrans" class="btn btn-primary btn-lg w-100 fw-bold"
                 data-url="{{ route('cashier.orders.pay.midtrans', $order->id) }}">
                 💳 BAYAR NON-TUNAI (QRIS / E-Wallet)

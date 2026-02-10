@@ -28,6 +28,17 @@
                             <i class="ti ti-layout-dashboard"></i>
                             <span>Dashboard</span>
                         </a>
+                    @elseif(auth()->user()->hasRole('admincabang'))
+                        <a class="sidebar-link {{ request()->routeIs('admincabang.dashboard') ? 'active' : '' }}"
+                            href="{{ route('admincabang.dashboard') }}">
+                            <i class="ti ti-layout-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a class="sidebar-link {{ request()->routeIs('admincabang.penyimpanan.*') ? 'active' : '' }}"
+                            href="{{ route('admincabang.penyimpanan.index') }}">
+                            <i class="ti ti-layout-dashboard"></i>
+                            <span>Penyimpanan</span>
+                        </a>
                     @elseif(auth()->user()->hasRole('cashier'))
                         <a class="sidebar-link {{ request()->routeIs('cashier.dashboard') ? 'active' : '' }}"
                             href="{{ route('cashier.dashboard') }}">
@@ -57,6 +68,24 @@
                     <li class="sidebar-item">
                         <a class="sidebar-link {{ request()->routeIs('cashier.history') ? 'active' : '' }}"
                             href="{{ route('cashier.history') }}">
+                            <i class="ti ti-history"></i>
+                            <span>Riwayat Order</span>
+                        </a>
+                    </li>
+                @elseif (auth()->user()->hasRole('admincabang'))
+                    <li class="nav-small-cap">TRANSAKSI</li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link {{ request()->routeIs('admincabang.orders.*') ? 'active' : '' }}"
+                            href="{{ route('admincabang.orders.index') }}">
+                            <i class="ti ti-receipt"></i>
+                            <span>Order</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link {{ request()->routeIs('admincabang.history') ? 'active' : '' }}"
+                            href="{{ route('admincabang.history') }}">
                             <i class="ti ti-history"></i>
                             <span>Riwayat Order</span>
                         </a>

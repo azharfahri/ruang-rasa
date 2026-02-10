@@ -9,7 +9,9 @@
                     <h4 class="mb-0">Order</h4>
                     <small class="text-muted">Total data: {{ count($orders) }}</small>
                 </div>
-                <a href="{{ route('cashier.orders.create') }}" class="btn btn-primary">+ Order Baru</a>
+                @if (auth()->user()->hasRole('cashier'))
+                    <a href="{{ route('cashier.orders.create') }}" class="btn btn-primary">+ Order Baru</a>
+                @endif
             </div>
 
             <div class="row mb-3 mt-4">
@@ -43,7 +45,7 @@
                     <thead class="table-light">
                         <tr>
                             <th width="120">Order</th>
-                            <th>Nama Pelanggan</th> 
+                            <th>Nama Pelanggan</th>
                             <th>Item</th>
                             <th>Total</th>
                             <th>Status</th>
@@ -89,37 +91,42 @@
 
                                 <td>
                                     <div class="d-flex gap-1">
-                                        @if ($order->status === 'pending')
-                                            <a href="{{ route('cashier.orders.create', $order->id) }}"
-                                                class="btn btn-sm btn-primary flex-grow-1">Lanjutkan</a>
-                                            <form method="POST" action="{{ route('cashier.orders.destroy', $order) }}"
-                                                class="d-inline confirm-submit" data-type="delete">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    <i class="bi bi-trash"></i> Hapus
-                                                </button>
-                                            </form>
-                                        @endif
+                                        @if (auth()->user()->hasRole('cashier'))
+                                            @if ($order->status === 'pending')
+                                                <a href="{{ route('cashier.orders.create', $order->id) }}"
+                                                    class="btn btn-sm btn-primary flex-grow-1">Lanjutkan</a>
+                                                <form method="POST" action="{{ route('cashier.orders.destroy', $order) }}"
+                                                    class="d-inline confirm-submit" data-type="delete">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="bi bi-trash"></i> Hapus
+                                                    </button>
+                                                </form>
+                                            @endif
 
-                                        @if ($order->status === 'processing')
-                                            <form method="POST" action="{{ route('cashier.orders.ready', $order) }}"
-                                                class="w-100">
-                                                @csrf @method('PATCH')
-                                                <button class="btn btn-sm btn-info w-100 text-white">Tandai READY</button>
-                                            </form>
-                                        @endif
+                                            @if ($order->status === 'processing')
+                                                <form method="POST" action="{{ route('cashier.orders.ready', $order) }}"
+                                                    class="w-100">
+                                                    @csrf @method('PATCH')
+                                                    <button class="btn btn-sm btn-info w-100 text-white">Tandai
+                                                        READY</button>
+                                                </form>
+                                            @endif
 
-                                        @if ($order->status === 'ready')
-                                            <form method="POST" action="{{ route('cashier.orders.complete', $order) }}"
-                                                class="w-100">
-                                                @csrf @method('PATCH')
-                                                <button class="btn btn-sm btn-success w-100 text-white">Selesaikan</button>
-                                            </form>
+                                            @if ($order->status === 'ready')
+                                                <form method="POST"
+                                                    action="{{ route('cashier.orders.complete', $order) }}" class="w-100">
+                                                    @csrf @method('PATCH')
+                                                    <button
+                                                        class="btn btn-sm btn-success w-100 text-white">Selesaikan</button>
+                                                </form>
+                                            @endif
                                         @endif
-
                                         @if ($order->payment_status === 'settlement')
-                                            <a href="{{ route('cashier.orders.print', $order) }}" target="_blank"
-                                                class="btn btn-sm btn-outline-secondary">
+                                            <a href="{{ auth()->user()->hasRole('admincabang')
+                                                ? route('admincabang.orders.print', $order)
+                                                : route('cashier.orders.print', $order) }}"
+                                                target="_blank" class="btn btn-sm btn-outline-secondary">
                                                 <i class="bi bi-printer"></i> Struk
                                             </a>
                                         @endif

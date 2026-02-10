@@ -78,6 +78,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     });
 });
 
+
+
 /*
 |--------------------------------------------------------------------------
 | KASIR ROUTES (KASIR ONLY)
@@ -88,8 +90,8 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::get('/cashier', [KasirDashboardController::class, 'index'])->name('cashier.dashboard');
     Route::get('/cashier/dashboard/data', [KasirDashboardController::class, 'getChartData'])->name('cashier.dashboard.data');
 
-    Route::get('inventory',[BranchProductController::class, 'kasirIndex'])->name('cashier.penyimpanan.index');
-    Route::put('inventory/{branchProduct}/stock',[BranchProductController::class, 'adjustStock'])->name('cashier.penyimpanan.stock');
+    Route::get('inventory', [BranchProductController::class, 'kasirIndex'])->name('cashier.penyimpanan.index');
+    Route::put('inventory/{branchProduct}/stock', [BranchProductController::class, 'adjustStock'])->name('cashier.penyimpanan.stock');
 
     Route::get('/cashier/orders', [KasirOrderController::class, 'index'])->name('cashier.orders.index');
     Route::get('/cashier/orders/create/{order?}', [KasirOrderController::class, 'create'])->name('cashier.orders.create');
@@ -103,11 +105,25 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::patch('cashier/orders/{order}/complete', [KasirOrderController::class, 'markCompleted'])->name('cashier.orders.complete');
     Route::delete('/cashier/orders/{order}', [KasirOrderController::class, 'destroy'])->name('cashier.orders.destroy');
 
-    Route::post('/cashier/orders/{order}/pay/midtrans',[KasirOrderController::class, 'payMidtrans'])->name('cashier.orders.pay.midtrans');
+    Route::post('/cashier/orders/{order}/pay/midtrans', [KasirOrderController::class, 'payMidtrans'])->name('cashier.orders.pay.midtrans');
     Route::post('/cashier/orders/{order}/payment-success', [KasirOrderController::class, 'paymentSuccess'])->name('cashier.orders.payment_success');
     Route::post('/midtrans/notification', [KasirOrderController::class, 'midtransNotification']);
 
     Route::get('/cashier/orders/{order}/print', [KasirOrderController::class, 'printReceipt'])->name('cashier.orders.print');
     Route::get('/cashier/history', [KasirHistoryController::class, 'index'])->name('cashier.history');
     Route::get('/cashier/history/{order}/detail', [KasirHistoryController::class, 'showDetail'])->name('cashier.history.detail');
+});
+
+Route::middleware(['auth', 'role:admincabang'])->group(function () {
+    Route::get('/admincabang', [KasirDashboardController::class, 'index'])->name('admincabang.dashboard');
+    Route::get('/admincabang/dashboard/data', [KasirDashboardController::class, 'getChartData'])->name('admincabang.dashboard.data');
+
+    Route::get('/admincabang/inventory', [BranchProductController::class, 'kasirIndex'])->name('admincabang.penyimpanan.index');
+    Route::put('/admincabang/inventory/{branchProduct}/stock', [BranchProductController::class, 'adjustStock'])->name('admincabang.penyimpanan.stock');
+
+    Route::get('/admincabang/orders', [KasirOrderController::class, 'index'])->name('admincabang.orders.index');
+
+    Route::get('/admincabang/orders/{order}/print', [KasirOrderController::class, 'printReceipt'])->name('admincabang.orders.print');
+    Route::get('/admincabang/history', [KasirHistoryController::class, 'index'])->name('admincabang.history');
+    Route::get('/admincabang/history/{order}/detail', [KasirHistoryController::class, 'showDetail'])->name('admincabang.history.detail');
 });

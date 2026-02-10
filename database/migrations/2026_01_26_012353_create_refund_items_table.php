@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('refund_id')->constrained('refunds')->cascadeOnDelete();
             $table->foreignId('order_item_id')->constrained('order_items')->cascadeOnDelete();
+            $table->enum('type', ['return', 'exchange'])->default('return');
+            $table->foreignId('exchange_product_id')->nullable()->constrained('products');
             $table->integer('qty');
-            $table->decimal('amount', 12, 2);
+            $table->decimal('amount', 12, 2)->default(0);
             $table->timestamps();
         });
     }

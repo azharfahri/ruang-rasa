@@ -13,8 +13,8 @@ class UserController extends Controller
 {
     public function index()
     {
-        // $users = User::with(['roles', 'branch'])->get();
-        // return view('admin.user.index', compact('users'));
+        $users = User::with(['roles', 'branch'])->get();
+        return view('admin.user.index', compact('users'));
 
         $users = User::with(['roles', 'branch'])
             ->whereHas('roles', function ($query) {

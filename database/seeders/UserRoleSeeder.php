@@ -15,12 +15,15 @@ class UserRoleSeeder extends Seeder
     public function run(): void
     {
         $admin = User::where('email', 'admin@ruangrasa.com')->first();
-        $kasir = User::where('email', 'kasir@ruangrasa.com')->first();
+        $admincabang = User::where('email', 'admincibaduyut@ruangrasa.com')->first();
+        $kasir = User::where('email', 'kasircibaduyut@ruangrasa.com')->first();
 
         $roleAdmin  = Role::where('name', 'admin')->first();
+        $roleAdminCabang  = Role::where('name', 'admincabang')->first();
         $roleKasir  = Role::where('name', 'cashier')->first();
 
         $admin->roles()->attach($roleAdmin->id);
+        $admincabang->roles()->attach($roleAdminCabang->id);
         $kasir->roles()->attach($roleKasir->id);
     }
 }

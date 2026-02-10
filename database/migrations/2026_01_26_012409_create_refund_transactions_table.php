@@ -14,13 +14,12 @@ return new class extends Migration
         Schema::create('refund_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('refund_id')->constrained('refunds')->cascadeOnDelete();
-            $table->string('payment_method'); // cash, qris, ewallet, dll
-            $table->decimal('amount', 12, 2);
-            $table->enum('status', [
-                'pending',
-                'refunded',
-                'failed'
-            ])->default('pending');
+            $table->string('payment_method')->default('cash');
+            $table->decimal('amount', 12, 2)->default(0);
+            $table->enum('status', ['pending','refunded','failed'])->default('pending');
+            $table->timestamp('refunded_at')->nullable();
+            $table->foreignId('processed_by')->nullable()->constrained('users');
+
             $table->timestamps();
         });
     }

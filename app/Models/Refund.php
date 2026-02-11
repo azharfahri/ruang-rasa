@@ -11,15 +11,21 @@ class Refund extends Model
 
     protected $fillable = [
         'order_id',
-        'user_id',
-        'total_amount',
+        'cashier_id',
         'reason',
+        'total_refund',
         'status'
     ];
+
 
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function cashier()
+    {
+        return $this->belongsTo(User::class, 'cashier_id');
     }
 
     public function items()
@@ -27,8 +33,8 @@ class Refund extends Model
         return $this->hasMany(RefundItem::class);
     }
 
-    public function transaction()
+    public function transactions()
     {
-        return $this->hasOne(RefundTransaction::class);
+        return $this->hasMany(RefundTransaction::class);
     }
 }

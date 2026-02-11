@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Kasir\DashboardController as KasirDashboardController;
 use App\Http\Controllers\Kasir\HistoryController as KasirHistoryController;
 use App\Http\Controllers\Kasir\OrderController as KasirOrderController;
+use App\Http\Controllers\Kasir\RefundController as KasirRefundController;
 
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\VariantTypeController;
@@ -122,6 +123,9 @@ Route::middleware(['auth', 'role:admincabang'])->group(function () {
     Route::put('/admincabang/inventory/{branchProduct}/stock', [BranchProductController::class, 'adjustStock'])->name('admincabang.penyimpanan.stock');
 
     Route::get('/admincabang/orders', [KasirOrderController::class, 'index'])->name('admincabang.orders.index');
+    Route::get('/orders/{order}/refund', [KasirRefundController::class, 'create'])->name('admincabang.refund.create');
+    Route::post('/orders/{order}/refund', [KasirRefundController::class, 'store'])->name('admincabang.refund.store');
+
 
     Route::get('/admincabang/orders/{order}/print', [KasirOrderController::class, 'printReceipt'])->name('admincabang.orders.print');
     Route::get('/admincabang/history', [KasirHistoryController::class, 'index'])->name('admincabang.history');

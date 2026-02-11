@@ -122,6 +122,16 @@
                                                 </form>
                                             @endif
                                         @endif
+                                        @if (auth()->user()->hasRole('admincabang') &&
+                                                $order->payment_status === 'settlement' &&
+                                                now()->diffInMinutes($order->created_at) <= 10)
+                                            <a href="{{ route('admincabang.refund.create', $order) }}"
+                                                class="btn btn-sm btn-warning">
+                                                <i class="bi bi-arrow-counterclockwise"></i> Refund
+                                            </a>
+                                        @endif
+
+
                                         @if ($order->payment_status === 'settlement')
                                             <a href="{{ auth()->user()->hasRole('admincabang')
                                                 ? route('admincabang.orders.print', $order)

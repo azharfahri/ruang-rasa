@@ -42,7 +42,7 @@ class User extends Authenticatable
         );
     }
 
-    // helper biar cakep
+    // helper
     public function hasRole(string $role): bool
     {
         return $this->roles()->where('name', $role)->exists();

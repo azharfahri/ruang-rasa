@@ -11,18 +11,30 @@ class RefundItem extends Model
 
     protected $fillable = [
         'refund_id',
-        'order_item_detail_id',
+        'order_item_id',
+        'type',
+        'exchange_product_id',
         'qty',
         'amount'
     ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+    ];
+
 
     public function refund()
     {
         return $this->belongsTo(Refund::class);
     }
 
-    public function orderItemDetail()
+    public function orderItem()
     {
-        return $this->belongsTo(OrderItemDetail::class);
+        return $this->belongsTo(OrderItem::class);
+    }
+
+    public function exchangeProduct()
+    {
+        return $this->belongsTo(Product::class, 'exchange_product_id');
     }
 }

@@ -14,15 +14,23 @@ class RefundTransaction extends Model
         'payment_method',
         'amount',
         'status',
-        'gateway_response'
+        'refunded_at',
+        'processed_by',
     ];
 
     protected $casts = [
-        'gateway_response' => 'array',
+        'amount' => 'decimal:2',
+        'refunded_at' => 'datetime',
     ];
+
 
     public function refund()
     {
         return $this->belongsTo(Refund::class);
+    }
+
+    public function processedBy()
+    {
+        return $this->belongsTo(User::class, 'processed_by');
     }
 }

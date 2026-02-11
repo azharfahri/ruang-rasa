@@ -22,8 +22,12 @@ class RefundController extends Controller
         if (now()->diffInMinutes($order->created_at) > 10) {
             return back()->with('error', 'Waktu refund sudah lewat 10 menit.');
         }
+        $branchProducts = BranchProduct::with('product')
+            ->where('branch_id', $order->branch_id)
+            ->get();
 
-        return view('admincabang.refunds.create', compact('order'));
+        // Kirim variabel branchProducts ke view
+        return view('admincabang.refunds.create', compact('order', 'branchProducts'));
     }
 
 
@@ -47,76 +51,79 @@ class RefundController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $order) {
+            $totalRefundValue = 0;
 
-            $totalRefund = 0;
-
-            // 1️⃣ Buat refund utama dulu (total nanti diupdate)
             $refund = Refund::create([
-                'order_id'    => $order->id,
-                'cashier_id'  => auth()->id(),
-                'reason'      => $request->reason,
+                'order_id'   => $order->id,
+                'cashier_id' => auth()->id(),
+                'reason'     => $request->reason,
                 'total_refund' => 0,
-                'status'      => 'approved',
+                'status'     => 'approved',
             ]);
 
-            foreach ($request->items as $itemId => $qty) {
-
+            foreach ($request->items as $itemId => $data) {
+                $qty = $data['qty'] ?? 0;
                 if ($qty <= 0) continue;
 
-                $orderItem = $order->items()->where('id', $itemId)->first();
-                if (!$orderItem) continue;
+                $orderItem = $order->items()->findOrFail($itemId);
+                $type = $data['type'] ?? 'return';
 
-                if ($qty > $orderItem->quantity) {
-                    throw new \Exception("Qty refund melebihi jumlah pembelian.");
+                // Hitung nilai nominal item yang bermasalah
+                $subtotal = ($orderItem->price) * $qty;
+
+                // 1. Balikin stok item yang salah/rusak ke branch (Return to Stock)
+                $originalProduct = BranchProduct::where('branch_id', $order->branch_id)
+                    ->where('product_id', $orderItem->product_id)->first();
+                if ($originalProduct) $originalProduct->increment('stock', $qty);
+
+                // 2. Jika Exchange, potong stok produk pengganti
+                if ($type === 'exchange' && !empty($data['exchange_product_id'])) {
+                    $exchangeProduct = BranchProduct::where('branch_id', $order->branch_id)
+                        ->where('product_id', $data['exchange_product_id'])->first();
+
+                    if (!$exchangeProduct || $exchangeProduct->stock < $qty) {
+                        throw new \Exception("Stok produk pengganti tidak cukup.");
+                    }
+                    $exchangeProduct->decrement('stock', $qty);
                 }
 
-                $subtotal = ($orderItem->subtotal / $orderItem->quantity) * $qty;
-                $totalRefund += $subtotal;
-
-                // balikin stok
-                $branchProduct = BranchProduct::where('branch_id', $order->branch_id)
-                    ->where('product_id', $orderItem->product_id)
-                    ->first();
-
-                if ($branchProduct) {
-                    $branchProduct->increment('stock', $qty);
-                }
-
-                // simpan refund item
+                // 3. Simpan Detail Item Refund
                 RefundItem::create([
                     'refund_id' => $refund->id,
                     'order_item_id' => $orderItem->id,
-                    'type' => 'return',
+                    'type' => $type,
                     'qty' => $qty,
-                    'amount' => $subtotal,
+                    'amount' => ($type === 'return') ? $subtotal : 0, // Nilai uang kembali 0 jika tukar barang
+                    'exchange_product_id' => ($type === 'exchange') ? $data['exchange_product_id'] : null,
+                ]);
+
+                if ($type === 'return') {
+                    $totalRefundValue += $subtotal;
+                }
+            }
+
+            // Update total uang yang benar-benar keluar dari laci kasir
+            $refund->update(['total_refund' => $totalRefundValue]);
+
+            // Simpan transaksi kas keluar hanya jika ada uang yang kembali
+            if ($totalRefundValue > 0) {
+                RefundTransaction::create([
+                    'refund_id' => $refund->id,
+                    'payment_method' => optional($order->transaction)->payment_method ?? 'cash',
+                    'amount' => $totalRefundValue,
+                    'status' => 'refunded',
+                    'refunded_at' => now(),
+                    'processed_by' => auth()->id(),
                 ]);
             }
 
-            // update total refund
-            $refund->update([
-                'total_refund' => $totalRefund
+            // Update payment_status order agar tombol refund hilang
+            $order->update([
+                'status' => 'cancelled',
+                'payment_status' => 'refund'
             ]);
-            $paymentMethod = optional($order->transaction)->payment_method ?? 'cash';
-
-            RefundTransaction::create([
-                'refund_id'     => $refund->id,
-                'payment_method' => $paymentMethod,
-                'amount'        => $order->total,
-                'status'        => 'refunded',
-                'refunded_at'   => now(),
-                'processed_by'  => auth()->id(),
-            ]);
-
-
-            // kalau full refund, update status order
-            if ($totalRefund >= $order->total) {
-                $order->update([
-                    'status' => 'cancelled'
-                ]);
-            }
         });
 
-        return redirect()->route('admincabang.orders.index')
-            ->with('success', 'Refund berhasil diproses.');
+        return redirect()->route('admincabang.orders.index')->with('success', 'Refund/Tukar barang berhasil.');
     }
 }

@@ -83,12 +83,30 @@
                                 </td>
 
                                 <td>
-                                    <span
-                                        class="badge bg-{{ $order->status === 'processing' ? 'warning' : ($order->status === 'ready' ? 'info' : ($order->status === 'completed' ? 'success' : 'secondary')) }}">
-                                        {{ strtoupper($order->status) }}
-                                    </span>
-                                </td>
+                                    @if (auth()->user()->hasRole('admincabang'))
+                                        {{-- Tampilan Status untuk Admin Cabang (Payment Status) --}}
+                                        @php
+                                            $paymentBadgeColor =
+                                                [
+                                                    'pending' => 'warning',
+                                                    'settlement' => 'success',
+                                                    'expire' => 'danger',
+                                                    'cancel' => 'secondary',
+                                                    'failure' => 'danger',
+                                                    'refund' => 'info',
+                                                ][$order->payment_status] ?? 'secondary';
+                                        @endphp
 
+                                        <span class="badge bg-{{ $paymentBadgeColor }}">
+                                            {{ strtoupper($order->payment_status) }}
+                                        </span>
+                                    @else
+                                        {{-- Tampilan Status untuk Kasir (Order Status) --}}
+                                        <span class="badge bg-{{ $order->status === 'processing' ? 'warning' : ($order->status === 'ready' ? 'info' : ($order->status === 'completed' ? 'success' : ($order->status === 'cancelled' ? 'danger' : 'secondary'))) }}">
+                                            {{ strtoupper($order->status) }}
+                                        </span>
+                                    @endif
+                                </td>
                                 <td>
                                     <div class="d-flex gap-1">
                                         @if (auth()->user()->hasRole('cashier'))
@@ -124,11 +142,14 @@
                                         @endif
                                         @if (auth()->user()->hasRole('admincabang') &&
                                                 $order->payment_status === 'settlement' &&
-                                                now()->diffInMinutes($order->created_at) <= 10)
+                                                $order->created_at->gt(now()->subMinutes(10)))
                                             <a href="{{ route('admincabang.refund.create', $order) }}"
                                                 class="btn btn-sm btn-warning">
                                                 <i class="bi bi-arrow-counterclockwise"></i> Refund
                                             </a>
+                                            <small class="text-muted d-block">
+                                                Batas refund: {{ $order->created_at->addMinutes(10)->format('H:i') }}
+                                            </small>
                                         @endif
 
 

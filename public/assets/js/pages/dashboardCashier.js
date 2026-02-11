@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', function () {
             height: 320
         },
         series: window.dashboardData.statusStats,
-        labels: ['Selesai', 'Proses', 'Pending', 'Siap Diambil'],
-        colors: ['#13de1d', '#ffae1f', '#fa896b', '#13deb9'],
+        labels: ['Selesai', 'Proses', 'Pending', 'Siap Diambil', 'Batal'],
+        colors: ['#13de1d', '#ffae1f', '#fa896b', '#13deb9', '#ff0000'],
         legend: { position: 'bottom' },
         plotOptions: {
             pie: {
@@ -73,9 +73,9 @@ document.addEventListener('DOMContentLoaded', function () {
             // Efek Loading Sederhana
             cardBody.style.opacity = '0.5';
             this.disabled = true;
-
             // Memanggil endpoint API yang kita buat di controller
-            fetch(`/cashier/dashboard/data?type=${type}&filter=${filterValue}`)
+            const rolePrefix = window.location.pathname.split('/')[1];
+            fetch(`/${rolePrefix}/dashboard/data?type=${type}&filter=${filterValue}`)
                 .then(response => response.json())
                 .then(data => {
                     if (type === 'sales') {

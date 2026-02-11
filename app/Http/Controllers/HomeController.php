@@ -31,6 +31,10 @@ class HomeController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
+        if ($user->roles->contains('name', 'admincabang')) {
+            return redirect()->route('admincabang.dashboard');
+        }
+
         if ($user->roles->contains('name', 'cashier')) {
             return redirect()->route('cashier.dashboard');
         }

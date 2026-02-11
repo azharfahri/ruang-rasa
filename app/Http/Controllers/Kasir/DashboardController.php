@@ -43,6 +43,7 @@ class DashboardController extends Controller
             (clone $queryStatus)->where('status', 'processing')->count(),
             (clone $queryStatus)->where('status', 'pending')->count(),
             (clone $queryStatus)->where('status', 'ready')->count(),
+            (clone $queryStatus)->where('status', 'cancelled')->count(),
         ];
 
         $topProducts = OrderItem::whereHas('order', function ($q) use ($branchId) {
@@ -56,8 +57,14 @@ class DashboardController extends Controller
             ->get();
 
         return view('kasir.dashboard', compact(
-            'totalOrders', 'todayOrders', 'totalIncome', 'todayIncome',
-            'salesLabels', 'salesValues', 'statusStats', 'topProducts'
+            'totalOrders',
+            'todayOrders',
+            'totalIncome',
+            'todayIncome',
+            'salesLabels',
+            'salesValues',
+            'statusStats',
+            'topProducts'
         ));
     }
 
@@ -92,17 +99,19 @@ class DashboardController extends Controller
                         ->where('payment_status', 'settlement')->sum('total');
                 }
             } elseif ($filter == 'year') {
-                $years = Order::where('branch_id', $branchId)
-                    ->selectRaw('YEAR(created_at) as year')
-                    ->distinct()
-                    ->orderBy('year', 'asc')
-                    ->pluck('year');
+                // Ambil tahun saat ini
+                $currentYear = now()->year;
 
-                foreach ($years as $year) {
-                    $labels[] = $year;
+                // Kita buat rentang 3 tahun terakhir (misal: 2024, 2025, 2026)
+                // agar grafik punya titik pembanding dan membentuk garis
+                for ($i = 2; $i >= 0; $i--) {
+                    $year = $currentYear - $i;
+                    $labels[] = (string)$year;
+
                     $values[] = Order::where('branch_id', $branchId)
                         ->whereYear('created_at', $year)
-                        ->where('payment_status', 'settlement')->sum('total');
+                        ->where('payment_status', 'settlement')
+                        ->sum('total');
                 }
             }
             return response()->json(['labels' => $labels, 'values' => $values]);
@@ -120,6 +129,7 @@ class DashboardController extends Controller
                 (clone $query)->where('status', 'processing')->count(),
                 (clone $query)->where('status', 'pending')->count(),
                 (clone $query)->where('status', 'ready')->count(),
+                (clone $query)->where('status', 'cancelled')->count(),
             ];
             return response()->json(['stats' => $stats]);
         }

@@ -9,7 +9,8 @@
         :root {
             /* Default setting untuk 58mm */
             --ticket-width: 58mm;
-            --print-width: 48mm; /* Area cetak bersih (dikurangi margin printer) */
+            --print-width: 48mm;
+            /* Area cetak bersih (dikurangi margin printer) */
             --font-main: 11px;
             --font-header: 14px;
         }
@@ -47,12 +48,14 @@
                 padding-top: 50px;
                 width: 100%;
             }
+
             .receipt-content {
                 background: white;
                 width: var(--print-width);
                 padding: 15px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             }
+
             .no-print {
                 position: fixed;
                 top: 0;
@@ -69,31 +72,81 @@
 
         /* Reset untuk Printer */
         @media print {
-            .no-print { display: none; }
-            body { background: none; width: var(--print-width); }
-            .receipt-content { width: 100%; }
+            .no-print {
+                display: none;
+            }
+
+            body {
+                background: none;
+                width: var(--print-width);
+            }
+
+            .receipt-content {
+                width: 100%;
+            }
         }
 
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .fw-bold { font-weight: bold; }
-        .header { margin-bottom: 10px; }
-        .line { border-top: 1px dashed #000; margin: 5px 0; }
-        .flex { display: flex; justify-content: space-between; align-items: flex-start; }
-        .item-row { margin-bottom: 8px; }
-        .variant-list { margin-left: 10px; font-size: 0.9em; font-style: italic; }
-        .total-section { margin-top: 5px; }
-        .footer { margin-top: 15px; font-size: 0.9em; }
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .fw-bold {
+            font-weight: bold;
+        }
+
+        .header {
+            margin-bottom: 10px;
+        }
+
+        .line {
+            border-top: 1px dashed #000;
+            margin: 5px 0;
+        }
+
+        .flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .item-row {
+            margin-bottom: 8px;
+        }
+
+        .variant-list {
+            margin-left: 10px;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
+        .total-section {
+            margin-top: 5px;
+        }
+
+        .footer {
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 
 <body>
 
     <div class="no-print">
-        <button onclick="changeSize('58')" style="padding: 8px; border-radius: 4px; border: none; background: #666; color: white; cursor: pointer;">Mode 58mm</button>
-        <button onclick="changeSize('80')" style="padding: 8px; border-radius: 4px; border: none; background: #666; color: white; cursor: pointer;">Mode 80mm</button>
-        <button onclick="window.print()" style="padding: 8px 15px; border-radius: 4px; border: none; background: #28a745; color: white; cursor: pointer; font-weight: bold;">PRINT</button>
-        <button onclick="window.close()" style="padding: 8px 15px; border-radius: 4px; border: none; background: #dc3545; color: white; cursor: pointer;">TUTUP</button>
+        <button onclick="changeSize('58')"
+            style="padding: 8px; border-radius: 4px; border: none; background: #666; color: white; cursor: pointer;">Mode
+            58mm</button>
+        <button onclick="changeSize('80')"
+            style="padding: 8px; border-radius: 4px; border: none; background: #666; color: white; cursor: pointer;">Mode
+            80mm</button>
+        <button onclick="window.print()"
+            style="padding: 8px 15px; border-radius: 4px; border: none; background: #28a745; color: white; cursor: pointer; font-weight: bold;">PRINT</button>
+        <button onclick="window.close()"
+            style="padding: 8px 15px; border-radius: 4px; border: none; background: #dc3545; color: white; cursor: pointer;">TUTUP</button>
     </div>
 
     <div class="receipt-content">
@@ -119,7 +172,10 @@
         <div class="line"></div>
 
         @foreach ($order->items as $item)
-            <div class="item-row">
+            @php
+                $isRefunded = $item->refundItems->isNotEmpty();
+            @endphp
+            <div class="item-row" style="{{ $isRefunded ? 'text-decoration: line-through; opacity:0.6;' : '' }}">
                 <div class="fw-bold">{{ strtoupper($item->product->name) }}</div>
                 <div class="flex">
                     <span>{{ $item->quantity }} x {{ number_format($item->price, 0, ',', '.') }}</span>
@@ -158,7 +214,8 @@
                 </div>
                 <div class="flex">
                     <span>BAYAR</span>
-                    <span>Rp {{ number_format($transaction->cash_received ?? $transaction->amount, 0, ',', '.') }}</span>
+                    <span>Rp
+                        {{ number_format($transaction->cash_received ?? $transaction->amount, 0, ',', '.') }}</span>
                 </div>
                 @if (($transaction->change_amount ?? 0) > 0)
                     <div class="flex">

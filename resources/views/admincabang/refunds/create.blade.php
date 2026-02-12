@@ -22,39 +22,65 @@
                     <h6>Pilih Item Yang Direfund</h6>
 
                     @foreach ($order->items as $item)
-                        <div class="mb-3 border-bottom pb-3">
-                            <div class="d-flex justify-content-between">
-                                <span><strong>{{ $item->product->name }}</strong> (x{{ $item->quantity }})</span>
-                                <span>Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
-                            </div>
+                        @php
+                            $totalRefunded = $item->refundItems->sum('qty');
+                            $remainingQty = $item->quantity - $totalRefunded;
+                        @endphp
 
-                            <div class="row mt-2">
-                                <div class="col-md-3">
-                                    <label class="small">Qty Refund</label>
-                                    <input type="number" name="items[{{ $item->id }}][qty]" class="form-control"
-                                        min="0" max="{{ $item->quantity }}" placeholder="0">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="small">Tipe Refund</label>
-                                    <select name="items[{{ $item->id }}][type]" class="form-select select-type">
-                                        <option value="return">Kembali Uang</option>
-                                        <option value="exchange">Tukar Barang</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-5 d-none exchange-container">
-                                    <label class="small">Produk Pengganti</label>
-                                    <select name="items[{{ $item->id }}][exchange_product_id]" class="form-select">
-                                        <option value="">-- Pilih Produk --</option>
-                                        @foreach ($branchProducts as $bp)
-                                            <option value="{{ $bp->product->id }}">{{ $bp->product->name }} (Stok:
-                                                {{ $bp->stock }})</option>
-                                        @endforeach
-                                    </select>
+                        @if ($remainingQty > 0)
+                            <div class="card mb-3 border-light shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">{{ $item->product->name }}</h6>
+
+                                            {{-- MENAMPILKAN DETAIL DARI TABEL order_item_details --}}
+                                            <div class="mb-2">
+                                                @foreach ($item->details as $detail)
+                                                    {{-- Di dalam loop foreach($item->details as $detail) --}}
+                                                    <span
+                                                        class="badge rounded-pill bg-secondary-subtle text-secondary border px-2 py-1 me-1">
+                                                        <i class="bi bi-dot"></i>
+                                                        {{ $detail->variantOption->option_name }}
+
+                                                        @if ($detail->price_impact > 0)
+                                                            <span
+                                                                class="fw-bold">(+{{ number_format($detail->price_impact, 0, ',', '.') }})</span>
+                                                        @endif
+                                                    </span>
+                                                @endforeach
+                                            </div>
+
+                                            <span class="badge bg-info-subtle text-info">Sisa beli:
+                                                {{ $remainingQty }}</span>
+                                        </div>
+                                        <div class="text-end text-primary fw-bold">
+                                            Rp {{ number_format($item->price, 0, ',', '.') }}
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-3">
+
+                                    {{-- Form Input Qty & Type tetap sama seperti sebelumnya --}}
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label class="small fw-bold">Qty Refund</label>
+                                            <input type="number" name="items[{{ $item->id }}][qty]"
+                                                class="form-control" min="0" max="{{ $remainingQty }}"
+                                                value="0">
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label class="small fw-bold">Tipe Refund</label>
+                                            <select name="items[{{ $item->id }}][type]" class="form-select">
+                                                <option value="return">Kembali Uang</option>
+                                                <option value="exchange">Tukar Barang</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @endif
                     @endforeach
-
 
 
                 </div>

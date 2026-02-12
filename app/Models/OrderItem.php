@@ -34,4 +34,10 @@ class OrderItem extends Model
     {
         return $this->hasMany(OrderItemDetail::class);
     }
+
+    public function refundItems()
+    {
+        // Pastikan nama modelnya sesuai, biasanya RefundItem
+        return $this->hasMany(RefundItem::class, 'order_item_id');
+    }
 }

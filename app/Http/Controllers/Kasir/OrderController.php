@@ -495,7 +495,7 @@ class OrderController extends Controller
 
     public function printReceipt(Order $order)
     {
-        $order->load(['items.product', 'items.details.variantOption']);
+        $order->load(['items.product', 'items.refundItems', 'items.details.variantOption']);
         return view('kasir.orders.print', compact('order'));
     }
 

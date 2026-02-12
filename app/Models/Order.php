@@ -52,4 +52,10 @@ class Order extends Model
     {
         return $this->hasOne(Transaction::class);
     }
+
+    public function refunds()
+    {
+        // Relasi satu Order bisa memiliki banyak catatan Refund (karena bisa partial)
+        return $this->hasMany(Refund::class, 'order_id');
+    }
 }

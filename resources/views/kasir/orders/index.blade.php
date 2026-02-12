@@ -54,109 +54,136 @@
                     </thead>
                     <tbody>
                         @forelse($orders as $order)
-                            <tr>
-                                {{-- ID untuk Search --}}
+                            <tr class="align-middle">
+                                {{-- ID & Waktu: Dibuat lebih compact --}}
                                 <td>
-                                    <div class="fw-semibold order-id">#{{ $order->id }}</div>
-                                    <small class="text-muted">{{ $order->created_at->format('H:i') }}</small>
+                                    <div class="fw-bold text-dark mb-0">#{{ $order->id }}</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">
+                                        <i class="bi bi-clock small"></i> {{ $order->created_at->format('H:i') }}
+                                    </div>
                                 </td>
 
-                                {{-- Nama Pelanggan --}}
-                                <td class="customer-name">
-                                    <div class="fw-bold">{{ $order->customer_name ?? 'Guest' }}</div>
-                                    <small
-                                        class="text-muted">{{ ucfirst(str_replace('_', ' ', $order->order_type)) }}</small>
+                                {{-- Nama Pelanggan: Fokus pada nama, tipe order diperhalus --}}
+                                <td>
+                                    <div class="fw-bold text-capitalize">{{ $order->customer_name ?? 'Guest' }}</div>
+                                    <span class="badge rounded-pill bg-light text-secondary border-0 p-0"
+                                        style="font-size: 0.7rem;">
+                                        {{ ucfirst(str_replace('_', ' ', $order->order_type)) }}
+                                    </span>
                                 </td>
 
-                                {{-- Item untuk Search --}}
+                                {{-- Order Items: Penataan item agar tidak berantakan --}}
+                                {{-- KOLOM ITEM --}}
                                 <td class="order-items">
                                     @foreach ($order->items as $item)
-                                        <div class="small">
-                                            <span class="badge bg-light text-dark border">{{ $item->quantity }}x</span>
-                                            {{ $item->product->name }}
+                                        @php
+                                            $refundedQty = $item->refundItems->sum('qty');
+                                            $isFullyRefunded = $refundedQty >= $item->quantity;
+                                        @endphp
+                                        <div class="d-flex align-items-center mb-1 gap-2">
+                                            {{-- Badge Qty: Tidak ikut dicoret --}}
+                                            <span
+                                                class="badge {{ $isFullyRefunded ? 'bg-secondary-subtle text-muted' : 'bg-primary-subtle text-primary' }} rounded-2"
+                                                style="width: 28px;">
+                                                {{ $item->quantity }}x
+                                            </span>
+
+                                            {{-- Nama Produk: HANYA bagian ini yang dicoret jika refund --}}
+                                            <div class="{{ $isFullyRefunded ? 'text-decoration-line-through text-muted' : 'text-dark' }}"
+                                                style="font-size: 0.875rem;">
+                                                <span class="fw-medium">{{ $item->product->name }}</span>
+                                                @if ($item->details->count() > 0)
+                                                    <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                                        {{ $item->details->map(fn($d) => $d->variantOption->option_name)->join(', ') }}
+                                                    </small>
+                                                @endif
+                                            </div>
+
+                                            {{-- Label Refund --}}
+                                            @if ($refundedQty > 0)
+                                                <span
+                                                    class="badge bg-danger-subtle text-danger border border-danger-subtle ms-auto"
+                                                    style="font-size: 0.65rem;">
+                                                    REFUND: {{ $refundedQty }}
+                                                </span>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </td>
 
-                                <td class="fw-bold">
-                                    Rp {{ number_format($order->total, 0, ',', '.') }}
+                                {{-- KOLOM TOTAL --}}
+                                <td class="text-nowrap align-middle">
+                                    <div class="fw-bold text-dark">Rp {{ number_format($order->total, 0, ',', '.') }}</div>
                                 </td>
 
-                                <td>
-                                    @if (auth()->user()->hasRole('admincabang'))
-                                        {{-- Tampilan Status untuk Admin Cabang (Payment Status) --}}
+                                {{-- KOLOM STATUS: Sekarang dijamin tidak akan ikut dicoret --}}
+                                <td class="align-middle">
+                                    <div class="d-flex flex-column justify-content-center align-items-center h-100 gap-1">
                                         @php
-                                            $paymentBadgeColor =
-                                                [
-                                                    'pending' => 'warning',
-                                                    'settlement' => 'success',
-                                                    'expire' => 'danger',
-                                                    'cancel' => 'secondary',
-                                                    'failure' => 'danger',
-                                                    'refund' => 'info',
-                                                ][$order->payment_status] ?? 'secondary';
+                                            $hasRefund = $order->refunds()->exists();
                                         @endphp
 
-                                        <span class="badge bg-{{ $paymentBadgeColor }}">
-                                            {{ strtoupper($order->payment_status) }}
-                                        </span>
-                                    @else
-                                        {{-- Tampilan Status untuk Kasir (Order Status) --}}
-                                        <span class="badge bg-{{ $order->status === 'processing' ? 'warning' : ($order->status === 'ready' ? 'info' : ($order->status === 'completed' ? 'success' : ($order->status === 'cancelled' ? 'danger' : 'secondary'))) }}">
-                                            {{ strtoupper($order->status) }}
-                                        </span>
-                                    @endif
+                                        @if ($hasRefund)
+                                            <span class="badge bg-info w-100" style="font-size: 0.7rem; padding: 5px 0;">
+                                                PARTIAL REFUND
+                                            </span>
+                                        @else
+                                            @php
+                                                $paymentBadgeColor =
+                                                    [
+                                                        'pending' => 'warning',
+                                                        'settlement' => 'success',
+                                                        'expire' => 'danger',
+                                                        'cancel' => 'secondary',
+                                                        'failure' => 'danger',
+                                                        'refund' => 'primary',
+                                                    ][$order->payment_status] ?? 'secondary';
+                                            @endphp
+
+                                            <span class="badge bg-{{ $paymentBadgeColor }} w-100"
+                                                style="font-size: 0.7rem; padding: 5px 0;">
+                                                {{ strtoupper($order->payment_status) }}
+                                            </span>
+                                        @endif
+
+                                    </div>
                                 </td>
+
+                                {{-- Aksi: Tombol dirapikan ukurannya --}}
                                 <td>
-                                    <div class="d-flex gap-1">
+                                    <div class="d-flex flex-column gap-1">
                                         @if (auth()->user()->hasRole('cashier'))
                                             @if ($order->status === 'pending')
                                                 <a href="{{ route('cashier.orders.create', $order->id) }}"
-                                                    class="btn btn-sm btn-primary flex-grow-1">Lanjutkan</a>
-                                                <form method="POST" action="{{ route('cashier.orders.destroy', $order) }}"
-                                                    class="d-inline confirm-submit" data-type="delete">
-                                                    @csrf @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger">
-                                                        <i class="bi bi-trash"></i> Hapus
-                                                    </button>
-                                                </form>
-                                            @endif
-
-                                            @if ($order->status === 'processing')
-                                                <form method="POST" action="{{ route('cashier.orders.ready', $order) }}"
-                                                    class="w-100">
+                                                    class="btn btn-sm btn-primary shadow-sm">Lanjutkan</a>
+                                            @elseif ($order->status === 'processing')
+                                                <form method="POST" action="{{ route('cashier.orders.ready', $order) }}">
                                                     @csrf @method('PATCH')
-                                                    <button class="btn btn-sm btn-info w-100 text-white">Tandai
-                                                        READY</button>
+                                                    <button class="btn btn-sm btn-info text-white w-100">READY</button>
                                                 </form>
-                                            @endif
-
-                                            @if ($order->status === 'ready')
+                                            @elseif ($order->status === 'ready')
                                                 <form method="POST"
-                                                    action="{{ route('cashier.orders.complete', $order) }}" class="w-100">
+                                                    action="{{ route('cashier.orders.complete', $order) }}">
                                                     @csrf @method('PATCH')
-                                                    <button
-                                                        class="btn btn-sm btn-success w-100 text-white">Selesaikan</button>
+                                                    <button class="btn btn-sm btn-success w-100">SELESAI</button>
                                                 </form>
                                             @endif
                                         @endif
+
                                         @if (auth()->user()->hasRole('admincabang') &&
                                                 $order->payment_status === 'settlement' &&
                                                 $order->created_at->gt(now()->subMinutes(10)))
                                             <a href="{{ route('admincabang.refund.create', $order) }}"
-                                                class="btn btn-sm btn-warning">
+                                                class="btn btn-sm btn-warning fw-bold">
                                                 <i class="bi bi-arrow-counterclockwise"></i> Refund
                                             </a>
-                                            <small class="text-muted d-block">
-                                                Batas refund: {{ $order->created_at->addMinutes(10)->format('H:i') }}
-                                            </small>
+                                            <div class="text-center" style="font-size: 0.65rem; color: #dc3545;">
+                                                {{ $order->created_at->addMinutes(10)->format('H:i') }}
+                                            </div>
                                         @endif
 
-
                                         @if ($order->payment_status === 'settlement')
-                                            <a href="{{ auth()->user()->hasRole('admincabang')
-                                                ? route('admincabang.orders.print', $order)
-                                                : route('cashier.orders.print', $order) }}"
+                                            <a href="{{ auth()->user()->hasRole('admincabang') ? route('admincabang.orders.print', $order) : route('cashier.orders.print', $order) }}"
                                                 target="_blank" class="btn btn-sm btn-outline-secondary">
                                                 <i class="bi bi-printer"></i> Struk
                                             </a>
@@ -165,8 +192,12 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr class="empty-row">
-                                <td colspan="6" class="text-center py-4 text-muted">Belum ada order</td>
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" width="50"
+                                        class="opacity-25 mb-2">
+                                    <p class="text-muted small">Belum ada order hari ini</p>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>

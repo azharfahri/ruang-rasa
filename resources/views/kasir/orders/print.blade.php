@@ -198,11 +198,39 @@
         @endforeach
 
         <div class="line"></div>
+        @php
+            $subtotal = $order->items->sum('subtotal');
+
+            $refundTotal = $order->items
+                ->flatMap(function ($item) {
+                    return $item->refundItems;
+                })
+                ->filter(function ($refundItem) {
+                    return $refundItem->refund && $refundItem->refund->status === 'approved';
+                })
+                ->sum('amount');
+
+            $finalTotal = $subtotal - $refundTotal;
+        @endphp
+
+
 
         <div class="total-section">
+            @if ($refundTotal > 0)
+                <div class="flex">
+                    <span>SUBTOTAL</span>
+                    <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                </div>
+
+                <div class="flex">
+                    <span>REFUND</span>
+                    <span>-Rp {{ number_format($refundTotal, 0, ',', '.') }}</span>
+                </div>
+            @endif
+
             <div class="flex fw-bold" style="font-size: 1.2em;">
                 <span>TOTAL</span>
-                <span>Rp {{ number_format($order->total, 0, ',', '.') }}</span>
+                <span>Rp {{ number_format($finalTotal, 0, ',', '.') }}</span>
             </div>
 
             @php $transaction = $order->transaction; @endphp
@@ -250,9 +278,6 @@
                 document.body.classList.remove('size-80');
             }
         }
-
-        // Auto print (optional)
-        // window.onload = function() { window.print(); }
     </script>
 </body>
 

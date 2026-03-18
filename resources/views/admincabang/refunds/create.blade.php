@@ -2,6 +2,21 @@
 
 @section('content')
     <div class="container">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li style="font-size: 0.85rem;">{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <h4 class="mb-3">Refund Order #{{ $order->id }}</h4>
 
@@ -73,7 +88,7 @@
                                             <label class="small fw-bold">Tipe Refund</label>
                                             <select name="items[{{ $item->id }}][type]" class="form-select">
                                                 <option value="return">Kembali Uang</option>
-                                                <option value="exchange">Tukar Barang</option>
+                                                <option value="exchange">Tukar Barang Baru</option>
                                             </select>
                                         </div>
                                     </div>

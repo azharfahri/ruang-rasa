@@ -77,21 +77,34 @@
                                 <td class="order-items">
                                     @foreach ($order->items as $item)
                                         @php
-                                            $refundedQty = $item->refundItems->sum('qty');
-                                            $isFullyRefunded = $refundedQty >= $item->quantity;
+                                            $returnQty = $item->refundItems->where('type', 'return')->sum('qty');
+                                            $exchangeQty = $item->refundItems->where('type', 'exchange')->sum('qty');
+
+                                            $isFullyRefunded = $returnQty >= $item->quantity;
+                                            $isFullyExchanged = $exchangeQty >= $item->quantity;
+
+                                            $textClass = 'text-dark';
+
+                                            if ($isFullyRefunded) {
+                                                $textClass = 'text-decoration-line-through text-muted';
+                                            } elseif ($isFullyExchanged) {
+                                                $textClass = 'text-warning';
+                                            }
                                         @endphp
+
                                         <div class="d-flex align-items-center mb-1 gap-2">
-                                            {{-- Badge Qty: Tidak ikut dicoret --}}
+
+                                            {{-- Badge Qty --}}
                                             <span
                                                 class="badge {{ $isFullyRefunded ? 'bg-secondary-subtle text-muted' : 'bg-primary-subtle text-primary' }} rounded-2"
                                                 style="width: 28px;">
                                                 {{ $item->quantity }}x
                                             </span>
 
-                                            {{-- Nama Produk: HANYA bagian ini yang dicoret jika refund --}}
-                                            <div class="{{ $isFullyRefunded ? 'text-decoration-line-through text-muted' : 'text-dark' }}"
-                                                style="font-size: 0.875rem;">
+                                            {{-- Nama Produk --}}
+                                            <div class="{{ $textClass }}" style="font-size: 0.875rem;">
                                                 <span class="fw-medium">{{ $item->product->name }}</span>
+
                                                 @if ($item->details->count() > 0)
                                                     <small class="text-muted d-block" style="font-size: 0.75rem;">
                                                         {{ $item->details->map(fn($d) => $d->variantOption->option_name)->join(', ') }}
@@ -99,14 +112,23 @@
                                                 @endif
                                             </div>
 
-                                            {{-- Label Refund --}}
-                                            @if ($refundedQty > 0)
-                                                <span
-                                                    class="badge bg-danger-subtle text-danger border border-danger-subtle ms-auto"
-                                                    style="font-size: 0.65rem;">
-                                                    REFUND: {{ $refundedQty }}
-                                                </span>
-                                            @endif
+                                            {{-- Badge kanan --}}
+                                            <div class="ms-auto d-flex gap-1">
+                                                @if ($returnQty > 0)
+                                                    <span
+                                                        class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                                        REFUND: {{ $returnQty }}
+                                                    </span>
+                                                @endif
+
+                                                @if ($exchangeQty > 0)
+                                                    <span
+                                                        class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                                                        EXCHANGE: {{ $exchangeQty }}
+                                                    </span>
+                                                @endif
+                                            </div>
+
                                         </div>
                                     @endforeach
                                 </td>

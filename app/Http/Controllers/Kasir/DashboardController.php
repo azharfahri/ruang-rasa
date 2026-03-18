@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Kasir;
 
 use App\Http\Controllers\Controller;
+use App\Models\Refund;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
@@ -21,8 +22,27 @@ class DashboardController extends Controller
 
         $totalOrders = Order::where('branch_id', $branchId)->count();
         $todayOrders = Order::where('branch_id', $branchId)->whereDate('created_at', today())->count();
-        $totalIncome = Order::where('branch_id', $branchId)->where('payment_status', 'settlement')->sum('total');
-        $todayIncome = Order::where('branch_id', $branchId)->whereDate('created_at', today())->where('payment_status', 'settlement')->sum('total');
+        $totalIncome = Order::where('branch_id', $branchId)
+            ->where('payment_status', 'settlement')
+            ->sum('total');
+
+        $totalRefund = Refund::whereHas('order', function ($q) use ($branchId) {
+            $q->where('branch_id', $branchId);
+        })->sum('total_refund');
+
+        $todayIncome = Order::where('branch_id', $branchId)
+            ->whereDate('created_at', today())
+            ->where('payment_status', 'settlement')
+            ->sum('total');
+
+        $todayRefund = Refund::whereHas('order', function ($q) use ($branchId) {
+            $q->where('branch_id', $branchId)
+                ->whereDate('created_at', today());
+        })->sum('total_refund');
+
+        $todayNetIncome = $todayIncome - $todayRefund;
+
+        $netIncome = $totalIncome - $totalRefund;
 
         $salesLabels = [];
         $salesValues = [];

@@ -6,40 +6,49 @@
         @endif
     </div>
 
-    <div class="card-body p-2" style="max-height: 450px; overflow-y: auto;">
+    <div class="card-body p-3" style="max-height: 450px; overflow-y: auto;">
         @forelse($order->items as $item)
-            <div class="border-bottom pb-2 mb-2">
+            <div class="border rounded-3 p-3 mb-3 shadow-sm bg-white">
+
+                {{-- HEADER --}}
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <small class="fw-bold d-block text-dark">{{ $item->product->name }}</small>
+                        <div class="fw-semibold text-dark">
+                            {{ $item->product->name }}
+                        </div>
 
-                        {{-- LIST VARIANT --}}
+                        {{-- VARIANT --}}
                         @if ($item->details->count())
-                            <ul class="ps-3 mb-1" style="list-style-type: none; font-size: 0.75rem;">
+                            <div class="mt-1">
                                 @foreach ($item->details as $detail)
-                                    <li class="text-muted">
-                                        <i class="bi bi-check2"></i> {{ $detail->variantOption->option_name }}
+                                    <div class="text-muted d-flex align-items-center" style="font-size: 0.75rem;">
+                                        <i class="bi bi-dot me-1"></i>
+                                        {{ $detail->variantOption->option_name }}
                                         @if ($detail->price_impact > 0)
-                                            <span
-                                                class="text-success">(+{{ number_format($detail->price_impact, 0, ',', '.') }})</span>
+                                            <span class="text-success ms-1">
+                                                (+{{ number_format($detail->price_impact, 0, ',', '.') }})
+                                            </span>
                                         @endif
-                                    </li>
+                                    </div>
                                 @endforeach
-                            </ul>
+                            </div>
 
-                            {{-- BUTTON EDIT VARIANT --}}
-                            <button class="btn btn-link btn-sm p-0 text-decoration-none" style="font-size: 0.7rem;"
+                            {{-- EDIT BUTTON --}}
+                            <button class="btn btn-sm btn-link text-decoration-none p-0 mt-1" style="font-size: 0.7rem;"
                                 data-bs-toggle="modal" data-bs-target="#editVariantModal-{{ $item->id }}">
                                 <i class="bi bi-pencil-square"></i> Edit Varian
                             </button>
                         @endif
                     </div>
+
                     <div class="text-end">
-                        <small class="fw-bold d-block">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</small>
+                        <div class="fw-bold text-dark">
+                            Rp {{ number_format($item->subtotal, 0, ',', '.') }}
+                        </div>
                     </div>
                 </div>
 
-                {{-- QTY CONTROL --}}
+                {{-- FOOTER --}}
                 <div class="d-flex justify-content-between align-items-center mt-2">
                     <small class="text-muted">
                         {{ $item->quantity }} x Rp {{ number_format($item->price, 0, ',', '.') }}
@@ -48,55 +57,74 @@
                     <form method="POST" action="{{ route('cashier.orders.item.minus', [$order, $item]) }}"
                         class="ajax-cart-form">
                         @csrf
-                        <button type="submit" class="btn btn-outline-danger btn-sm px-2 py-0" title="Kurangi Qty">
-                            <i class="bi bi-dash">-</i>
+                        <button type="submit"
+                            class="btn btn-sm btn-outline-danger rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 28px; height: 28px;" title="Kurangi Qty">
+                            <i class="bi bi-dash"></i>
                         </button>
                     </form>
                 </div>
             </div>
 
-            {{-- MODAL EDIT VARIAN --}}
-            <div class="modal fade" id="editVariantModal-{{ $item->id }}" tabindex="-1" aria-hidden="true">
+            {{-- MODAL --}}
+            <div class="modal fade" id="editVariantModal-{{ $item->id }}" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <form method="POST" action="{{ route('cashier.orders.items.update-variant', [$order, $item]) }}"
                         class="modal-content ajax-cart-form">
                         @csrf
                         @method('PATCH')
+
                         <div class="modal-header">
-                            <h6 class="modal-title">Edit Varian: {{ $item->product->name }}</h6>
+                            <h6 class="modal-title fw-semibold">
+                                Edit Varian
+                            </h6>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <div class="modal-body text-start">
+
+                        <div class="modal-body">
                             @foreach ($item->product->variantTypes as $type)
                                 <div class="mb-3">
-                                    <label class="fw-bold small d-block mb-1 text-primary">{{ $type->name }}</label>
+                                    <div class="fw-semibold small text-primary mb-2">
+                                        {{ $type->name }}
+                                    </div>
+
                                     @foreach ($type->options as $option)
                                         @php
                                             $checked = $item->details->where('variant_option_id', $option->id)->count();
                                         @endphp
-                                        <div class="form-check">
+
+                                        <div class="form-check mb-1">
                                             <input class="form-check-input" type="{{ $type->input_type }}"
                                                 name="variants[{{ $type->id }}][]" value="{{ $option->id }}"
                                                 id="editOpt{{ $item->id }}{{ $option->id }}"
                                                 {{ $checked ? 'checked' : '' }}
                                                 {{ $type->input_type == 'radio' ? 'required' : '' }}>
-                                            <label class="form-check-label small"
+
+                                            <label class="form-check-label small d-flex justify-content-between w-100"
                                                 for="editOpt{{ $item->id }}{{ $option->id }}">
-                                                {{ $option->option_name }}
-                                                (+Rp {{ number_format($option->price_impact, 0, ',', '.') }})
+                                                <span>{{ $option->option_name }}</span>
+                                                <span class="text-success">
+                                                    +Rp {{ number_format($option->price_impact, 0, ',', '.') }}
+                                                </span>
                                             </label>
                                         </div>
                                     @endforeach
                                 </div>
                             @endforeach
                         </div>
+
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-primary btn-sm">Simpan Perubahan</button>
+                            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
+                                Batal
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                Simpan
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
+
         @empty
             <div class="text-center py-5">
                 <i class="bi bi-cart-x text-muted" style="font-size: 3rem;"></i>
@@ -124,7 +152,7 @@
             {{-- ================= CASH ================= --}}
             <form action="{{ route('cashier.orders.pay.cash', $order->id) }}" method="POST" id="formCash">
                 @csrf
-                 <input type="hidden" name="customer_name" id="cash_customer_name">
+                <input type="hidden" name="customer_name" id="cash_customer_name">
 
 
                 <div class="mb-3">
@@ -148,7 +176,7 @@
                 </div>
 
                 <button type="submit" id="btn-bayar" class="btn btn-success btn-lg w-100 fw-bold mb-2">
-                    💵 BAYAR CASH
+                    BAYAR CASH
                 </button>
             </form>
 
@@ -156,7 +184,7 @@
 
             <button type="button" id="btn-midtrans" class="btn btn-primary btn-lg w-100 fw-bold"
                 data-url="{{ route('cashier.orders.pay.midtrans', $order->id) }}">
-                💳 BAYAR NON-TUNAI (QRIS / E-Wallet)
+                BAYAR NON-TUNAI (QRIS / E-Wallet)
             </button>
         @endif
 

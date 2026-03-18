@@ -31,10 +31,6 @@ class Product extends Model
         return $this->hasMany(VariantType::class);
     }
 
-    public function variantOptions(): HasMany
-    {
-        return $this->hasMany(VariantOption::class);
-    }
 
     public function branchProducts(): HasMany
     {
@@ -46,7 +42,6 @@ class Product extends Model
         static::deleting(function ($product) {
             if (
                 $product->variantTypes()->exists() ||
-                $product->variantOptions()->exists() ||
                 $product->branchProducts()->exists()
             ) {
                 throw new \Exception(

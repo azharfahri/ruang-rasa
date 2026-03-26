@@ -129,9 +129,9 @@
     </div>
 
     <!-- Start Basic Bar Chart -->
-          <div class="card">
+          <div class="card" id="chart-sales-branch">
             <div class="card-body">
-              <h4 class="card-title">Basic Bar Chart</h4>
+              <h4 class="card-title">Data Penjualan Per Cabang</h4>
               <div id="chart-bar-basic"></div>
             </div>
           </div>
@@ -139,3 +139,13 @@
 
 </div>
 @endsection
+@push('scripts')
+<script>
+    window.salesChartData = {
+        labels: @json($labels),
+        data: @json($data)
+    };
+</script>
+
+<script src="{{ asset('assets/js/pages/dashboardAdmin.js') }}"></script>
+@endpush

@@ -27,15 +27,15 @@
                         tenang.
                     </p>
 
-                    <!-- CTA Buttons -->
+                    {{-- <!-- CTA Buttons -->
                     <div class="d-flex justify-content-center gap-3 flex-wrap mb-5">
                         <a href="#menu-kami" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-lg">
                             Lihat Menu Kami
                         </a>
-                        {{-- <a href="#reservasi" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill shadow-lg">
+                        <a href="#reservasi" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill shadow-lg">
                             Reservasi Meja
-                        </a> --}}
-                    </div>
+                        </a>
+                    </div> --}}
 
                     {{-- <!-- Social Proof & Icons -->
                     <div class="d-flex justify-content-center align-items-center gap-4 gap-lg-5 flex-wrap mt-5 pt-3">
@@ -82,51 +82,56 @@
             <!-- Section Header -->
             <div class="row justify-content-center mb-5">
                 <div class="col-lg-8 text-center">
-                    <h2 class="display-5 fw-bold mb-3">Apa yang Membuat Kami Berbeda</h2>
-                    <p class="fs-5">Bahan premium • Resep warisan • Suasana yang bikin betah</p>
+                    <h2 class="display-5 fw-bold mb-3">Kenapa Harus Ngopi di Sini?</h2>
+                    <p class="fs-5">Cepat • Enak • Bikin Nagih</p>
                 </div>
             </div>
 
             <!-- Feature Cards -->
             <div class="row g-4">
-                <!-- Card 1: Chef -->
+                <!-- Card 1: Barista -->
                 <div class="col-md-6 col-lg-4">
                     <div class="card border-0 shadow-lg rounded-4 h-100 overflow-hidden hover-card">
-                        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=800"
-                            class="card-img-top" alt="Cozy Interior" style="height: 220px; object-fit: cover;">
+                        <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&q=80&w=800"
+                            class="card-img-top" alt="Barista Coffee" style="height: 220px; object-fit: cover;">
                         <div class="card-body text-center p-4">
-                            <i class="ti ti-chef-hat fs-1 mb-3 d-block icon-highlight"></i>
-                            <h5 class="fw-bold fs-5 mb-3">Chef Berpengalaman</h5>
-                            <p class="mb-0" style="line-height: 1.6;">Setiap hidangan diolah dengan cinta dan keahlian
-                                profesional.</p>
+                            <i class="ti ti-coffee fs-1 mb-3 d-block icon-highlight"></i>
+                            <h5 class="fw-bold fs-5 mb-3">Barista Handal</h5>
+                            <p class="mb-0" style="line-height: 1.6;">
+                                Diracik langsung sama barista yang ngerti banget soal rasa kopi yang pas di lidah kamu.
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Card 2: Featured Dish -->
+                <!-- Card 2: Signature Menu -->
                 <div class="col-md-6 col-lg-4">
                     <div class="card border-0 shadow-lg rounded-4 h-100 overflow-hidden hover-card"
-                        style="background: linear-gradient(135deg, #f9bc60 0%, #e0a855 100%);">
+                        style="background: linear-gradient(135deg, #c8a97e 0%, #a67c52 100%);">
                         <div class="card-body d-flex flex-column justify-content-center text-center p-4"
-                            style="color: #001e1d;">
-                            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80"
-                                class="rounded-3 shadow mb-4 mx-auto" alt="Featured Dish"
-                                style="max-height: 220px; width: auto; max-width: 100%; border: 4px solid #001e1d;">
-                            <h2 class="fs-4 fw-bold mb-2" style="color: #001e1d;">Menu Spesial Bulan Ini</h2>
-                            <p class="fs-6 mb-0" style="color: #001e1d;">Steak Saus Rendang & Es Kopi Aren Signature</p>
+                            style="color: #fff;">
+                            <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=800&q=80"
+                                class="rounded-3 shadow mb-4 mx-auto" alt="Kopi Susu"
+                                style="max-height: 220px; width: auto; max-width: 100%; border: 4px solid #fff;">
+                            <h2 class="fs-4 fw-bold mb-2">Menu Andalan</h2>
+                            <p class="fs-6 mb-0">
+                                Es Kopi Susu Gula Aren & Creamy Latte favorit semua orang
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Card 3: Quality Ingredients -->
+                <!-- Card 3: Fast & Quality -->
                 <div class="col-md-6 col-lg-4">
                     <div class="card border-0 shadow-lg rounded-4 h-100 overflow-hidden hover-card">
-                        <img src="https://images.unsplash.com/photo-1517248135467-2c7ed3ab7229?auto=format&fit=crop&q=80&w=800"
-                            class="card-img-top" alt="Bahan Berkualitas" style="height: 220px; object-fit: cover;">
+                        <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=800"
+                            class="card-img-top" alt="Coffee Beans" style="height: 220px; object-fit: cover;">
                         <div class="card-body text-center p-4">
-                            <i class="ti ti-medal fs-1 mb-3 d-block icon-highlight"></i>
-                            <h5 class="fw-bold fs-5 mb-3">Bahan Berkualitas</h5>
-                            <p class="mb-0" style="line-height: 1.6;">Segar dari supplier lokal terbaik, halal & terjamin.
+                            <i class="ti ti-bolt fs-1 mb-3 d-block icon-highlight"></i>
+                            <h5 class="fw-bold fs-5 mb-3">Cepat & Berkualitas</h5>
+                            <p class="mb-0" style="line-height: 1.6;">
+                                Dibuat cepat tanpa ngorbanin rasa. Cocok buat kamu yang lagi buru-buru tapi tetap pengen
+                                enak.
                             </p>
                         </div>
                     </div>
@@ -142,57 +147,56 @@
             <ul class="nav nav-tabs nav-justified border-0 mb-5 shadow-sm rounded-pill overflow-hidden" id="servicesTab"
                 role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active py-3 px-4 rounded-pill border-0" id="dine-in-tab" data-bs-toggle="tab"
-                        data-bs-target="#dine-in" type="button" role="tab">
-                        <i class="ti ti-tools-kitchen-2 me-2"></i>
-                        <span class="d-none d-sm-inline">Dine In & Chill</span>
-                        <span class="d-inline d-sm-none">Dine In</span>
+                    <button class="nav-link active py-3 px-4 rounded-pill border-0" id="nongkrong-tab" data-bs-toggle="tab"
+                        data-bs-target="#nongkrong" type="button" role="tab">
+                        <i class="ti ti-coffee me-2"></i>
+                        <span class="d-none d-sm-inline">Ngopi & Chill</span>
+                        <span class="d-inline d-sm-none">Ngopi</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link py-3 px-4 rounded-pill border-0" id="catering-tab" data-bs-toggle="tab"
-                        data-bs-target="#catering" type="button" role="tab">
-                        <i class="ti ti-truck me-2"></i>
-                        <span class="d-none d-sm-inline">Catering Service</span>
-                        <span class="d-inline d-sm-none">Catering</span>
+                    <button class="nav-link py-3 px-4 rounded-pill border-0" id="takeaway-tab" data-bs-toggle="tab"
+                        data-bs-target="#takeaway" type="button" role="tab">
+                        <i class="ti ti-bolt me-2"></i>
+                        <span class="d-none d-sm-inline">Take Away Cepat</span>
+                        <span class="d-inline d-sm-none">Take Away</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link py-3 px-4 rounded-pill border-0" id="event-tab" data-bs-toggle="tab"
-                        data-bs-target="#event" type="button" role="tab">
-                        <i class="ti ti-confetti me-2"></i>
-                        <span class="d-none d-sm-inline">Private Events</span>
-                        <span class="d-inline d-sm-none">Events</span>
+                    <button class="nav-link py-3 px-4 rounded-pill border-0" id="menu-tab" data-bs-toggle="tab"
+                        data-bs-target="#menu" type="button" role="tab">
+                        <i class="ti ti-cup me-2"></i>
+                        <span class="d-none d-sm-inline">Menu Favorit</span>
+                        <span class="d-inline d-sm-none">Menu</span>
                     </button>
                 </li>
             </ul>
 
             <!-- Tabs Content -->
             <div class="tab-content">
-                <!-- Dine In Tab -->
-                <div class="tab-pane fade show active" id="dine-in" role="tabpanel">
+                <!-- Ngopi Tab -->
+                <div class="tab-pane fade show active" id="nongkrong" role="tabpanel">
                     <div class="row align-items-center g-4 g-lg-5">
                         <div class="col-lg-6">
                             <img src="{{ asset('assets/images/backgrounds/lanpag.jpg') }}"
-                                class="rounded-4 shadow-lg w-100" alt="Suasana Dine In"
+                                class="rounded-4 shadow-lg w-100" alt="Ngopi Santai"
                                 style="max-height: 500px; object-fit: cover;">
                         </div>
                         <div class="col-lg-6">
-                            <h2 class="display-6 fw-bold mb-4">Nikmati Suasana Nyaman</h2>
+                            <h2 class="display-6 fw-bold mb-4">Tempat Ngopi Paling Nyaman</h2>
 
-                            <!-- Accordion -->
-                            <div class="accordion accordion-flush" id="dineInAccordion">
+                            <div class="accordion accordion-flush" id="ngopiAccordion">
                                 <div class="accordion-item mb-3 border-0 rounded-3">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed fw-semibold rounded-3 py-3"
-                                            type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne">
-                                            <i class="ti ti-air-conditioning me-2 icon-highlight"></i>
-                                            Area Indoor Ber-AC & Outdoor
+                                            type="button" data-bs-toggle="collapse" data-bs-target="#ngopiOne">
+                                            <i class="ti ti-sofa me-2 icon-highlight"></i>
+                                            Tempat Cozy & Estetik
                                         </button>
                                     </h2>
-                                    <div id="flush-collapseOne" class="accordion-collapse collapse">
+                                    <div id="ngopiOne" class="accordion-collapse collapse">
                                         <div class="accordion-body py-3">
-                                            Pilih spot favoritmu untuk kerja atau kumpul keluarga.
+                                            Cocok buat nongkrong, nugas, atau santai bareng temen.
                                         </div>
                                     </div>
                                 </div>
@@ -200,14 +204,14 @@
                                 <div class="accordion-item mb-3 border-0 rounded-3">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed fw-semibold rounded-3 py-3"
-                                            type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo">
+                                            type="button" data-bs-toggle="collapse" data-bs-target="#ngopiTwo">
                                             <i class="ti ti-wifi me-2 icon-highlight"></i>
-                                            Free Wi-Fi Super Cepat
+                                            Wi-Fi Kenceng & Stopkontak
                                         </button>
                                     </h2>
-                                    <div id="flush-collapseTwo" class="accordion-collapse collapse">
+                                    <div id="ngopiTwo" class="accordion-collapse collapse">
                                         <div class="accordion-body py-3">
-                                            Cocok buat remote work sambil ngopi dan ngobrol.
+                                            Aman buat kerja, scrolling, atau rebahan cantik sambil ngopi 😏
                                         </div>
                                     </div>
                                 </div>
@@ -217,24 +221,24 @@
                     </div>
                 </div>
 
-                <!-- Catering Tab -->
-                <div class="tab-pane fade" id="catering" role="tabpanel">
+                <!-- Take Away Tab -->
+                <div class="tab-pane fade" id="takeaway" role="tabpanel">
                     <div class="text-center py-5">
-                        <i class="ti ti-truck fs-1 mb-4 d-block icon-highlight"></i>
-                        <h3 class="display-6 fw-bold mb-3">Catering Service Kami</h3>
+                        <i class="ti ti-bolt fs-1 mb-4 d-block icon-highlight"></i>
+                        <h3 class="display-6 fw-bold mb-3">Cepat, Praktis, Tetap Enak</h3>
                         <p class="fs-5 mb-0" style="max-width: 700px; margin: 0 auto;">
-                            Siap melayani acara kantor, gathering, hingga intimate wedding dengan rasa premium Ruang Rasa.
+                            Pesan kopi favoritmu tanpa nunggu lama. Tinggal ambil, langsung jalan ☕
                         </p>
                     </div>
                 </div>
 
-                <!-- Event Tab -->
-                <div class="tab-pane fade" id="event" role="tabpanel">
+                <!-- Menu Tab -->
+                <div class="tab-pane fade" id="menu" role="tabpanel">
                     <div class="text-center py-5">
-                        <i class="ti ti-confetti fs-1 mb-4 d-block icon-highlight"></i>
-                        <h3 class="display-6 fw-bold mb-3">Private Events</h3>
+                        <i class="ti ti-cup fs-1 mb-4 d-block icon-highlight"></i>
+                        <h3 class="display-6 fw-bold mb-3">Menu Favorit Kita</h3>
                         <p class="fs-5 mb-0" style="max-width: 700px; margin: 0 auto;">
-                            Ruang privat eksklusif untuk birthday, anniversary, atau meeting spesial.
+                            Dari kopi susu gula aren sampai latte creamy, semua diracik biar kamu balik lagi dan lagi 😋
                         </p>
                     </div>
                 </div>

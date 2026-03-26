@@ -65,7 +65,7 @@
     <script src="{{ asset('assets/libs/owl.carousel/dist/owl.carousel.min.js') }}"></script>
     <script src="{{ asset('assets/libs/apexcharts/dist/apexcharts.min.js') }}"></script>
     <script src="{{ asset('assets/js/dashboards/dashboard.js') }}"></script>
-    <script src="{{ asset('assets/js/apex-chart/apex.bar.init.js') }}"></script>
+    {{-- <script src="{{ asset('assets/js/apex-chart/apex.bar.init.js') }}"></script> --}}
     <script src="{{ asset('assets/js/pages/alert.js') }}"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

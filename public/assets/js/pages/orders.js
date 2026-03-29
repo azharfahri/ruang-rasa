@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const customerInput = document.getElementById('customer_name');
     const cashCustomer = document.getElementById('cash_customer_name');
 
+    if (customerInput && cashCustomer) {
+        cashCustomer.value = customerInput.value;
+    }
+
     /* =====================================================
      * 1. FILTER PRODUK
      * ===================================================== */
@@ -205,12 +209,12 @@ document.addEventListener('DOMContentLoaded', function () {
      * 5. SYNC NAMA CUSTOMER CASH & NON-CASH
      * ===================================================== */
     document.addEventListener('input', function (e) {
-    // Jika yang sedang diketik adalah input nama customer
-    if (e.target.id === 'customer_name') {
-        const cashCustomerHidden = document.getElementById('cash_customer_name');
-        if (cashCustomerHidden) {
-            cashCustomerHidden.value = e.target.value;
+        // Jika yang sedang diketik adalah input nama customer
+        if (e.target.id === 'customer_name') {
+            const cashCustomerHidden = document.getElementById('cash_customer_name');
+            if (cashCustomerHidden) {
+                cashCustomerHidden.value = e.target.value;
+            }
         }
-    }
-});
+    });
 });

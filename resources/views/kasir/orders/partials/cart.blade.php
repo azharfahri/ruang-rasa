@@ -142,12 +142,8 @@
         @if ($order->exists && $order->items->count() > 0)
             <hr>
 
-            {{-- NAMA CUSTOMER (SATU, DIPAKAI SEMUA) --}}
-            <div class="mb-2">
-                <label class="form-label small fw-bold">Nama Customer</label>
-                <input type="text" id="customer_name" name="customer_name" class="form-control form-control-sm"
-                    required>
-            </div>
+            <input type="text" id="customer_name" name="customer_name" class="form-control form-control-sm"
+                value="{{ old('customer_name', $order->customer_name) }}" required>
 
             {{-- ================= CASH ================= --}}
             <form action="{{ route('cashier.orders.pay.cash', $order->id) }}" method="POST" id="formCash">

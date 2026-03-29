@@ -501,17 +501,30 @@ class OrderController extends Controller
 
     public function destroy(Order $order)
     {
-        // Pastikan hanya bisa hapus order yang masih pending
-        if ($order->status !== 'pending') return back()->with('error', 'Tidak bisa menghapus order yang sudah dibayar');
+        if ($order->status !== 'pending') {
+            return back()->with('error', 'Tidak bisa membatalkan order ini 😤');
+        }
 
         DB::transaction(function () use ($order) {
+
+            // 🔥 BALIKIN STOCK
             foreach ($order->items as $item) {
-                $item->details()->delete();
+                $branchProduct = BranchProduct::where('branch_id', $order->branch_id)
+                    ->where('product_id', $item->product_id)
+                    ->first();
+
+                if ($branchProduct) {
+                    $branchProduct->increment('stock', $item->quantity);
+                }
             }
-            $order->items()->delete();
-            $order->delete();
+
+            // 🔥 JANGAN DELETE, tapi update status
+            $order->update([
+                'status' => 'cancelled',
+                'payment_status' => 'cancel'
+            ]);
         });
 
-        return redirect()->route('cashier.orders.index')->with('success', 'Order berhasil dibatalkan');
+        return back()->with('success', 'Order berhasil dibatalkan 💔');
     }
 }

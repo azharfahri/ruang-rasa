@@ -176,8 +176,22 @@
                                     <div class="d-flex flex-column gap-1">
                                         @if (auth()->user()->hasRole('cashier'))
                                             @if ($order->status === 'pending')
-                                                <a href="{{ route('cashier.orders.create', $order->id) }}"
-                                                    class="btn btn-sm btn-primary shadow-sm">Lanjutkan</a>
+                                                <div class="d-flex gap-1">
+                                                    <a href="{{ route('cashier.orders.create', $order->id) }}"
+                                                        class="btn btn-sm btn-primary shadow-sm">
+                                                        Lanjutkan
+                                                    </a>
+
+                                                    <form method="POST"
+                                                        action="{{ route('cashier.orders.destroy', $order) }}">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button onclick="return confirm('Yakin mau batalin order ini? 😏')"
+                                                            class="btn btn-sm btn-danger shadow-sm">
+                                                            Batalin
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             @elseif ($order->status === 'processing')
                                                 <form method="POST" action="{{ route('cashier.orders.ready', $order) }}">
                                                     @csrf @method('PATCH')

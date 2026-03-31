@@ -695,23 +695,6 @@
 
     @include('layouts.landing-page.sidebar')
 
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-0">
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body pt-0">
-                    <iframe width="100%" height="500"
-                        src="https://www.youtube.com/embed/W_ADbeKyP4c?si=-63qC3_L1fI5wEsO" title="YouTube video player"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="main-wrapper overflow-hidden">
         @yield('content')

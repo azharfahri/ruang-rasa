@@ -16,15 +16,18 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BranchProductController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\UserController;
 
 Auth::routes();
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+Route::get('/', [LandingPageController::class, 'index'])->name('welcome');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 

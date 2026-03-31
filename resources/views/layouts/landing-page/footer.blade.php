@@ -1,89 +1,127 @@
-<footer class=" pt-9">
-    <div class="container-fluid">
-        <div class="border-bottom">
+<footer id="kontak" class="pt-9 footer-cafe">
+    <div class="container-fluid px-lg-5">
+        <div class="border-bottom border-white border-opacity-10 pb-5">
             <div class="row mb-sm-12 mb-4">
                 <div class="col-md-3 col-6 mb-4 mb-md-0">
-                    <h3 class="fs-4 fw-semibold mb-7">Menu Kami</h3>
-                    <ul class="d-flex flex-column gap-3 list-unstyled">
+                    <h3 class="fs-5 fw-bold mb-4 text-highlight">Menu Favorit</h3>
+                    <ul class="d-flex flex-column gap-2 list-unstyled">
                         <li>
-                            <a href="./menu-utama.html" class="fs-4 text-body link-primary">Hidangan Utama</a>
+                            <a href="#menu-kami" class="footer-link">Kopi Signature</a>
                         </li>
                         <li>
-                            <a href="./minuman-segar.html" class="fs-4 text-body link-primary">Kopi & Minuman</a>
+                            <a href="#menu-kami" class="footer-link">Minuman Segar</a>
                         </li>
                         <li>
-                            <a href="./snack-dessert.html" class="fs-4 text-body link-primary">Camilan & Dessert</a>
+                            <a href="#menu-kami" class="footer-link">Camilan & Dessert</a>
                         </li>
                         <li>
-                            <a href="./promo-spesial.html" class="fs-4 text-body link-primary text-danger fw-bold">Promo Spesial</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="col-md-3 col-6 mb-4 mb-md-0">
-                    <h3 class="fs-4 fw-semibold mb-7">Layanan</h3>
-                    <ul class="d-flex flex-column gap-3 list-unstyled">
-                        <li>
-                            <a href="./reservasi.html" class="fs-4 text-body link-primary">Reservasi Meja</a>
-                        </li>
-                        <li>
-                            <a href="./catering.html" class="fs-4 text-body link-primary">Catering Event</a>
-                        </li>
-                        <li>
-                            <a href="./private-room.html" class="fs-4 text-body link-primary">Private Room</a>
-                        </li>
-                        <li>
-                            <a href="./delivery.html" class="fs-4 text-body link-primary">Pesan Antar</a>
+                            <a href="#menu-kami" class="footer-link text-warning fw-bold">Promo Member</a>
                         </li>
                     </ul>
                 </div>
 
                 <div class="col-md-3 col-6 mb-4 mb-md-0">
-                    <h3 class="fs-4 fw-semibold mb-7">Ruang Rasa</h3>
-                    <ul class="d-flex flex-column gap-3 list-unstyled">
+                    <h3 class="fs-5 fw-bold mb-4 text-highlight">Layanan</h3>
+                    <ul class="d-flex flex-column gap-2 list-unstyled">
                         <li>
-                            <span class="fs-4 text-body">Jl. Rasa Nikmat No. 123, Bandung</span>
+                            <a href="#layanan" class="footer-link">Pengalaman Dine-In</a>
                         </li>
                         <li>
-                            <span class="fs-4 text-body fw-bold text-primary">Jam Operasional:</span>
+                            <a href="#layanan" class="footer-link">Layanan Take Away</a>
                         </li>
                         <li>
-                            <span class="fs-4 text-body">Setiap Hari: 08.00 - 23.00</span>
+                            <a href="#kenapa-kami" class="footer-link">Kualitas Barista</a>
                         </li>
-                        <li>
-                            <a href="./tentang-kami.html" class="fs-4 text-body link-primary">Cerita Kami</a>
+                    </ul>
+                </div>
+
+                <div class="col-md-3 col-6 mb-4 mb-md-0 text-white">
+                    <h3 class="fs-5 fw-bold mb-4 text-highlight">Ruang Rasa</h3>
+                    <ul class="d-flex flex-column gap-2 list-unstyled">
+                        <li class="opacity-75 small">
+                            <i class="ti ti-map-pin me-2 text-warning"></i>
+                            Jl. Rasa Nikmat No. 123, Bandung
+                        </li>
+                        <li class="mt-2">
+                            <span class="fw-bold text-warning d-block small">Jam Operasional:</span>
+                            <span class="opacity-75 small">Setiap Hari: 08.00 - 23.00</span>
+                        </li>
+                        <li class="mt-2">
+                            <a href="#home" class="footer-link">Kembali ke Atas</a>
                         </li>
                     </ul>
                 </div>
 
                 <div class="col-md-3 col-6">
-                    <h3 class="fs-4 fw-semibold mb-7">Ikuti Rasa</h3>
-                    <div class="d-flex gap-9">
-                        <a href="https://facebook.com/caferuangrasacoffe" target="_blank" data-bs-toggle="tooltip" data-bs-title="Facebook">
-                            <img src="../assets/images/frontend-pages/icon-facebook.svg" alt="facebook">
+                    <h3 class="fs-5 fw-bold mb-4 text-highlight">Ikuti Rasa</h3>
+                    <div class="d-flex gap-3 mb-4">
+                        <a href="https://facebook.com/caferuangrasacoffe" target="_blank" class="social-icon">
+                            <img src="{{ asset('assets/images/frontend-pages/icon-facebook.svg') }}" alt="facebook" width="24">
                         </a>
-                        <a href="https://twitter.com//caferuangrasacoffe" target="_blank" data-bs-toggle="tooltip" data-bs-title="Twitter">
-                            <img src="../assets/images/frontend-pages/icon-twitter.svg" alt="twitter">
-                        </a>
-                        <a href="https://instagram.com/ruangrasacoffe" target="_blank" data-bs-toggle="tooltip" data-bs-title="Instagram">
-                            <img src="../assets/images/frontend-pages/icon-instagram.svg" alt="instagram">
+                        <a href="https://instagram.com/ruangrasacoffe" target="_blank" class="social-icon">
+                            <img src="{{ asset('assets/images/frontend-pages/icon-instagram.svg') }}" alt="instagram" width="24">
                         </a>
                     </div>
-                    <div class="mt-4">
-                        <p class="fs-3 text-muted">Bagikan momenmu dengan hashtag <br><strong>#RuangRasa</strong></p>
+                    <div>
+                        <p class="small opacity-75 text-white">Bagikan momenmu dengan hashtag <br><strong class="text-warning">#RuangRasa</strong></p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="d-flex justify-content-between py-7 flex-md-nowrap flex-wrap gap-sm-0 gap-3">
-            <div class="d-flex gap-3 align-items-center">
-                <img src="{{ asset('assets/images/logos/ruangrasa.png') }}" alt="icon" width="75">
-                <p class="fs-4 mb-0">&copy; 2026 Ruang Rasa. Menemani setiap cerita dalam rasa. </p>
+        <div class="d-flex justify-content-between py-5 flex-md-nowrap flex-wrap gap-3 align-items-center">
+            <div class="d-flex gap-3 align-items-center text-white">
+                <img src="{{ asset('assets/images/logos/ruangrasa-vertical.png') }}" alt="Ruang Rasa" width="50" style="filter: brightness(0) invert(1);">
+                <p class="small mb-0 opacity-75">&copy; 2026 Ruang Rasa. Menemani setiap cerita dalam rasa.</p>
             </div>
             <div>
-                <p class="mb-0 text-muted small">Crafted with ❤️ for Foodies.</p>
+                <p class="mb-0 text-white-50 small">Crafted with ❤️ for Coffee Lovers.</p>
             </div>
         </div>
     </div>
 </footer>
+
+<style>
+    /* Footer Custom Styling */
+    .footer-cafe {
+        background-color: #004643 !important; /* Warna Hijau Gelap Navbar */
+        position: relative;
+        z-index: 10;
+    }
+
+    .text-highlight {
+        color: #f5b041 !important; /* Warna Emas/Kuning */
+    }
+
+    .footer-link {
+        color: rgba(255, 255, 255, 0.75) !important;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .footer-link:hover {
+        color: #f5b041 !important;
+        padding-left: 5px;
+    }
+
+    .social-icon {
+        transition: transform 0.3s ease;
+        display: inline-block;
+    }
+
+    .social-icon:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Penyesuaian garis bawah tipis */
+    .border-white.border-opacity-10 {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    @media (max-width: 575px) {
+        .footer-cafe h3 {
+            font-size: 1.1rem !important;
+        }
+    }
+</style>

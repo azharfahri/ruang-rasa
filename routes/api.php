@@ -24,7 +24,7 @@ Route::get('/branches', [BranchController::class, 'index']);
 // });
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/me', fn (Request $request) => $request->user());
+    Route::get('/profile', fn (Request $request) => $request->user());
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders', [OrderController::class, 'index']);
     Route::post('/orders/{id}/pay', [OrderController::class, 'payMidtrans']);

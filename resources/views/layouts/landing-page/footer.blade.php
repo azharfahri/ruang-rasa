@@ -4,20 +4,13 @@
             <div class="row mb-sm-12 mb-4">
                 <div class="col-md-3 col-6 mb-4 mb-md-0">
                     <h3 class="fs-5 fw-bold mb-4 text-highlight">Menu Favorit</h3>
+                    @foreach($products as $product)
                     <ul class="d-flex flex-column gap-2 list-unstyled">
                         <li>
-                            <a href="#menu-kami" class="footer-link">Kopi Signature</a>
-                        </li>
-                        <li>
-                            <a href="#menu-kami" class="footer-link">Minuman Segar</a>
-                        </li>
-                        <li>
-                            <a href="#menu-kami" class="footer-link">Camilan & Dessert</a>
-                        </li>
-                        <li>
-                            <a href="#menu-kami" class="footer-link text-warning fw-bold">Promo Member</a>
+                            <a href="#menu-kami" class="footer-link">{{ $product->name }}</a>
                         </li>
                     </ul>
+                    @endforeach
                 </div>
 
                 <div class="col-md-3 col-6 mb-4 mb-md-0">
@@ -47,7 +40,7 @@
                             <span class="opacity-75 small">Setiap Hari: 08.00 - 23.00</span>
                         </li>
                         <li class="mt-2">
-                            <a href="#home" class="footer-link">Kembali ke Atas</a>
+                            <a href="#beranda" class="footer-link">Kembali ke Atas</a>
                         </li>
                     </ul>
                 </div>

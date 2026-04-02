@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +29,14 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+        // ambil role customer
+        $role = Role::where('name', 'customer')->first();
+
+        // masukin ke pivot
+        if ($role) {
+            $user->roles()->attach($role->id);
+        }
 
         return response()->json([
             'success' => true,
@@ -64,7 +73,8 @@ class AuthController extends Controller
         ], 200);
     }
 
-    public function index(){
+    public function index()
+    {
         $user = User::all();
 
         $res = [

@@ -186,7 +186,7 @@
                                                         action="{{ route('cashier.orders.destroy', $order) }}">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button onclick="return confirm('Yakin mau batalin order ini? 😏')"
+                                                        <button onclick="return confirm('Yakin mau batalin order ini? ')"
                                                             class="btn btn-sm btn-danger shadow-sm">
                                                             Batalin
                                                         </button>

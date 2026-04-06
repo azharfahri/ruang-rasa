@@ -525,6 +525,6 @@ class OrderController extends Controller
             ]);
         });
 
-        return back()->with('success', 'Order berhasil dibatalkan 💔');
+        return back()->with('success', 'Order berhasil dibatalkan');
     }
 }

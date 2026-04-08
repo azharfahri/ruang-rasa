@@ -33,11 +33,7 @@
                     <ul class="d-flex flex-column gap-2 list-unstyled">
                         <li class="opacity-75 small">
                             <i class="ti ti-map-pin me-2 text-warning"></i>
-                            Jl. Rasa Nikmat No. 123, Bandung
-                        </li>
-                        <li class="mt-2">
-                            <span class="fw-bold text-warning d-block small">Jam Operasional:</span>
-                            <span class="opacity-75 small">Setiap Hari: 08.00 - 23.00</span>
+                            Jalan Raya Cibaduyut, Cibaduyut Wetan, Bojongloa Kidul, Kota Bandung, Jawa Barat, Jawa, 40236, Indonesia
                         </li>
                         <li class="mt-2">
                             <a href="#beranda" class="footer-link">Kembali ke Atas</a>
@@ -51,7 +47,7 @@
                         <a href="https://facebook.com/caferuangrasacoffe" target="_blank" class="social-icon">
                             <img src="{{ asset('assets/images/frontend-pages/icon-facebook.svg') }}" alt="facebook" width="24">
                         </a>
-                        <a href="https://instagram.com/ruangrasacoffe" target="_blank" class="social-icon">
+                        <a href="https://www.instagram.com/fhrazharrr/" target="_blank" class="social-icon">
                             <img src="{{ asset('assets/images/frontend-pages/icon-instagram.svg') }}" alt="instagram" width="24">
                         </a>
                     </div>
@@ -68,7 +64,7 @@
                 <p class="small mb-0 opacity-75">&copy; 2026 Ruang Rasa. Menemani setiap cerita dalam rasa.</p>
             </div>
             <div>
-                <p class="mb-0 text-white-50 small">Crafted with ❤️ for Coffee Lovers.</p>
+                <p class="mb-0 text-white-50 small">Dibuat dengan hati untuk pecinta kopi.</p>
             </div>
         </div>
     </div>

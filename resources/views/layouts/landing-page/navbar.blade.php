@@ -1,7 +1,7 @@
 <header class="header-fp p-0 w-100">
     <nav class="navbar navbar-expand-lg py-3 py-lg-4">
         <div class="custom-container d-flex align-items-center justify-content-between">
-            <a href="{{ route('home') }}" class="text-nowrap logo-img">
+            <a class="text-nowrap logo-img">
                 <img src="{{ asset('assets/images/logos/ruangrasa-vertical.png') }}" class="dark-logo"
                     alt="Ruang Rasa Logo" style="height: 60px; width: auto;" />
             </a>
@@ -75,6 +75,44 @@
     @media (max-width: 991px) {
         body {
             padding-top: 80px;
+        }
+
+        /* Membuat menu dropdown memenuhi lebar layar dengan rapi */
+        .navbar-collapse {
+            background-color: #004643 !important;
+            padding: 1.5rem;
+            border-radius: 0 0 1rem 1rem;
+            margin-top: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+
+            /* Tambahkan ini agar posisi dropdown absolut di bawah header */
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            width: 100%;
+        }
+
+        /* Menyejajarkan teks menu ke tengah agar lebih mobile-friendly */
+        .navbar-nav {
+            align-items: center !important;
+            text-align: center;
+        }
+
+        .nav-item {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .nav-link-custom {
+            font-size: 1.2rem !important;
+            padding: 10px !important;
+        }
+
+        .nav-link-custom.active::after,
+        .nav-link-custom:hover::after {
+            display: none;
+            /* Tetap sembunyikan garis bawah di mobile */
         }
     }
 

@@ -12,36 +12,38 @@
         </div>
 
         <div class="container position-relative"
-            style="z-index: 10; padding-top: 80px; padding-bottom: 80px; min-height: 100vh; display: flex; align-items: center;">
-            <div class="row justify-content-center text-center w-100">
+            style="z-index: 10; padding-top: 60px; padding-bottom: 60px; min-height: 100vh; display: flex; align-items: center;">
+            <div class="row justify-content-center text-center w-100 m-0">
                 <div class="col-lg-10 col-xl-9">
-                    <h1 class="display-3 fw-bold mb-4" style="line-height: 1.2;">
+                    <h1 class="display-3 fs-1 fw-bold mb-3 mb-md-4" style="line-height: 1.2;">
                         Rayakan Kelezatan di <span class="icon-highlight">Ruang Rasa</span>
                     </h1>
 
-                    <p class="fs-4 mb-5 opacity-90" style="max-width: 800px; margin-left: auto; margin-right: auto;">
+                    <p class="fs-5 mb-4 mb-md-5 opacity-90 px-2"
+                        style="max-width: 800px; margin-left: auto; margin-right: auto;">
                         Tempat cerita dimulai — perpaduan autentik Nusantara dan sentuhan modern dalam suasana hangat &
                         tenang.
                     </p>
 
-                    <div class="d-flex justify-content-center mb-5">
-                        <a href="#menu-kami" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-lg border-0">
+                    <div class="d-flex justify-content-center mb-4 mb-md-5">
+                        <a href="#menu-kami"
+                            class="btn btn-primary btn-lg px-4 py-2 px-md-5 py-md-3 rounded-pill shadow-lg border-0">
                             Lihat Menu Kami
                         </a>
                     </div>
 
                     <div
-                        class="d-flex justify-content-center align-items-center gap-4 flex-wrap mt-5 pt-4 border-top border-white border-opacity-25">
-                        <div class="d-flex align-items-center gap-3">
+                        class="d-flex justify-content-center align-items-center flex-column flex-sm-row gap-3 mt-4 pt-4 border-top border-white border-opacity-25">
+                        <div class="d-flex align-items-center gap-2">
                             <div class="d-flex">
                                 <img src="https://images.pexels.com/photos/4920899/pexels-photo-4920899.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop"
-                                    class="rounded-circle border border-2 border-white shadow" width="45" height="45"
+                                    class="rounded-circle border border-2 border-white shadow" width="40" height="40"
                                     alt="User">
                                 <img src="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop"
-                                    class="rounded-circle border border-2 border-white shadow" style="margin-left: -12px;"
-                                    width="45" height="45" alt="User">
+                                    class="rounded-circle border border-2 border-white shadow" style="margin-left: -15px;"
+                                    width="40" height="40" alt="User">
                             </div>
-                            <p class="mb-0 fw-semibold small">Bergabung dengan 10,000+ Pecinta Kopi</p>
+                            <p class="mb-0 fw-medium small opacity-75">Bergabung dengan 10,000+ Pecinta Kopi</p>
                         </div>
                     </div>
                 </div>
@@ -206,36 +208,34 @@
     </section>
 
     <section id="menu-kami" class="py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold text-cafe-primary">Menu Andalan Kami</h2>
-            <p class="text-muted">Cita rasa autentik yang siap menemani ceritamu.</p>
-        </div>
-
-        <div class="row g-4">
-            @foreach($products as $product)
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden hover-card">
-                    <img src="{{ asset('storage/' . $product->image) }}"
-                         class="card-img-top"
-                         alt="{{ $product->name }}"
-                         style="height: 250px; object-fit: cover;">
-
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="fw-bold mb-0">{{ $product->name }}</h5>
-                            <span class="badge bg-cafe-primary rounded-pill">
-                                Rp {{ number_format($product->price, 0, ',', '.') }}
-                            </span>
-                        </div>
-                        <p class="card-text text-muted small mb-0">
-                            {{ Str::limit($product->description, 80) }}
-                        </p>
-                    </div>
-                </div>
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold text-cafe-primary">Menu Andalan Kami</h2>
+                <p class="text-muted">Cita rasa autentik yang siap menemani ceritamu.</p>
             </div>
-            @endforeach
+
+            <div class="row g-4">
+                @foreach ($products as $product)
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden hover-card">
+                            <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top"
+                                alt="{{ $product->name }}" style="height: 250px; object-fit: cover;">
+
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="fw-bold mb-0">{{ $product->name }}</h5>
+                                    <span class="badge bg-cafe-primary rounded-pill">
+                                        Rp {{ number_format($product->price, 0, ',', '.') }}
+                                    </span>
+                                </div>
+                                <p class="card-text text-muted small mb-0">
+                                    {{ Str::limit($product->description, 80) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 @endsection

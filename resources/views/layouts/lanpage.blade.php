@@ -475,10 +475,34 @@
             }
         }
 
-        @media (max-width: 768px) {
-            .custom-container {
-                max-width: 540px;
+        @media (max-width: 767px) {
+            h1.display-3 {
+                font-size: 2.2rem !important;
+                /* Tidak terlalu raksasa di HP */
             }
+
+            .fs-4 {
+                font-size: 1.1rem !important;
+                /* Paragraf lebih nyaman dibaca */
+            }
+
+            .btn-lg {
+                font-size: 1rem;
+                /* Ukuran tombol normal di mobile */
+            }
+
+            /* Mengurangi padding container agar konten tidak terlalu "tenggelam" */
+            .container {
+                padding-top: 40px !important;
+                padding-bottom: 40px !important;
+            }
+        }
+
+        /* Efek highlight yang lebih halus */
+        .icon-highlight {
+            color: #f5b041;
+            /* Warna emas/kuning sesuai brand */
+            display: inline-block;
         }
 
         @media (max-width: 576px) {

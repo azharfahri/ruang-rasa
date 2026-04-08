@@ -15,12 +15,11 @@
             style="z-index: 10; padding-top: 60px; padding-bottom: 60px; min-height: 100vh; display: flex; align-items: center;">
             <div class="row justify-content-center text-center w-100 m-0">
                 <div class="col-lg-10 col-xl-9">
-                    <h1 class="display-3 fs-1 fw-bold mb-3 mb-md-4" style="line-height: 1.2;">
+                    <h1 class="hero-title fw-bold mb-3 mb-md-4">
                         Rayakan Kelezatan di <span class="icon-highlight">Ruang Rasa</span>
                     </h1>
 
-                    <p class="fs-5 mb-4 mb-md-5 opacity-90 px-2"
-                        style="max-width: 800px; margin-left: auto; margin-right: auto;">
+                    <p class="hero-text mb-4 mb-md-5 opacity-90 px-2">
                         Tempat cerita dimulai — perpaduan autentik Nusantara dan sentuhan modern dalam suasana hangat &
                         tenang.
                     </p>

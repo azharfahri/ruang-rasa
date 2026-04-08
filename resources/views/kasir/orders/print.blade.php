@@ -157,6 +157,13 @@
         </div>
 
         <div class="line"></div>
+        @if($order->pickup_code)
+        <div class="text-center" style="margin: 10px 0; padding: 5px; border: 1px dashed #000;">
+            <div style="font-size: 0.8em; letter-spacing: 1px;">KODE PENGAMBILAN</div>
+            <strong style="font-size: 2em; display: block; margin-top: 5px;">{{ $order->pickup_code }}</strong>
+        </div>
+        <div class="line"></div>
+        @endif
 
         <div class="flex">
             <span>No: #{{ $order->id }}</span>

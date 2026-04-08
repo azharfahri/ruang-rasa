@@ -58,6 +58,15 @@
                                 {{-- ID & Waktu: Dibuat lebih compact --}}
                                 <td>
                                     <div class="fw-bold text-dark mb-0">#{{ $order->id }}</div>
+                                    {{-- PICKUP CODE: Muncul dengan gaya Badge Tiket --}}
+                                    @if ($order->pickup_code)
+                                        <div class="my-1">
+                                            <span class="badge border border-warning text-dark fw-bold pickup-code"
+                                                style="background-color: #F9BC60; font-size: 0.75rem; letter-spacing: 0.5px;">
+                                                <i class="bi bi-ticket-perforated"></i> {{ $order->pickup_code }}
+                                            </span>
+                                        </div>
+                                    @endif
                                     <div class="text-muted" style="font-size: 0.75rem;">
                                         <i class="bi bi-clock small"></i> {{ $order->created_at->format('H:i') }}
                                     </div>

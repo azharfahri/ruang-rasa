@@ -31,7 +31,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'processing', 'ready', 'completed', 'cancelled'])->default('pending');
             $table->enum('payment_status', ['pending', 'settlement', 'expire', 'cancel', 'failure', 'refund'])->default('pending');
 
-            $table->string('pickup_code', 255)->nullable()->unique();
+            $table->string('pickup_code', 10)->nullable();
 
             $table->decimal('total', 12, 2);
 

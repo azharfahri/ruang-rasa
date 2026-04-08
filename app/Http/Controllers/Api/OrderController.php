@@ -8,9 +8,12 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\VariantOption;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
+
     public function store(Request $request)
     {
         $request->validate([
@@ -21,80 +24,108 @@ class OrderController extends Controller
             'items.*.details' => 'nullable|array'
         ]);
 
+        try {
+            $order = DB::transaction(function () use ($request) {
+                $user = auth()->user();
+
+                // 1. Generate Pickup Code Unik
+                $pickupCode = 'RR-' . strtoupper(Str::random(3));
+                while (Order::where('pickup_code', $pickupCode)->whereDate('created_at', today())->exists()) {
+                    $pickupCode = 'RR-' . strtoupper(Str::random(3));
+                }
+
+                // 2. Buat Order
+                $order = Order::create([
+                    'user_id' => $user->id,
+                    'customer_name' => $user->name,
+                    'branch_id' => $request->branch_id,
+                    'total' => 0,
+                    'status' => 'pending',
+                    'payment_status' => 'pending',
+                    'pickup_code' => $pickupCode, // <--- Simpan di sini
+                ]);
+
+                $total = 0;
+
+                foreach ($request->items as $item) {
+                    $product = Product::findOrFail($item['product_id']);
+                    $basePrice = $product->price;
+                    $variantPrice = 0;
+
+                    // Handle Variant
+                    if (!empty($item['details'])) {
+                        $optionIds = collect($item['details'])->pluck('variant_option_id')->toArray();
+                        $options = VariantOption::whereIn('id', $optionIds)->get();
+
+                        foreach ($options as $opt) {
+                            $variantPrice += $opt->price_impact;
+                        }
+                    }
+
+                    $finalPrice = $basePrice + $variantPrice;
+                    $subtotal = $finalPrice * $item['qty'];
+
+                    // Create Order Item
+                    $orderItem = OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'quantity' => $item['qty'],
+                        'price' => $finalPrice,
+                        'subtotal' => $subtotal
+                    ]);
+
+                    // Simpan Detail Variant
+                    if (!empty($item['details']) && isset($options)) {
+                        foreach ($options as $opt) {
+                            $orderItem->details()->create([
+                                'variant_type_id' => $opt->variant_type_id,
+                                'variant_option_id' => $opt->id,
+                                'price_impact' => $opt->price_impact,
+                            ]);
+                        }
+                    }
+
+                    $total += $subtotal;
+                }
+
+                $order->update(['total' => $total]);
+                return $order;
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order berhasil',
+                'data' => $order->load(
+                    'items.details.variantOption',
+                    'items.product'
+                )
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat order: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function index()
+    {
+        // Mengambil user yang sedang login
         $user = auth()->user();
 
-        $order = Order::create([
-            'user_id' => $user->id,
-            'customer_name' => $user->name,
-            'branch_id' => $request->branch_id,
-            'total' => 0,
-            'status' => 'pending',
-            'payment_status' => 'pending'
-        ]);
-
-        $total = 0;
-
-        foreach ($request->items as $item) {
-
-            $product = Product::findOrFail($item['product_id']);
-
-            $basePrice = $product->price;
-            $variantPrice = 0;
-            $variantIds = [];
-
-            // 🔥 HANDLE VARIANT (DETAILS)
-            if (!empty($item['details'])) {
-                foreach ($item['details'] as $detail) {
-                    $opt = VariantOption::find($detail['variant_option_id']);
-
-                    if ($opt) {
-                        $variantPrice += $opt->price_impact;
-                        $variantIds[] = $opt->id;
-                    }
-                }
-            }
-
-            sort($variantIds);
-
-            $finalPrice = $basePrice + $variantPrice;
-            $subtotal = $finalPrice * $item['qty'];
-
-            // 🔥 CREATE ORDER ITEM
-            $orderItem = OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $product->id,
-                'quantity' => $item['qty'],
-                'price' => $finalPrice,
-                'subtotal' => $subtotal
-            ]);
-
-            // 🔥 SIMPAN DETAIL VARIANT
-            if (!empty($item['details'])) {
-                foreach ($item['details'] as $detail) {
-                    $opt = VariantOption::find($detail['variant_option_id']);
-
-                    if ($opt) {
-                        $orderItem->details()->create([
-                            'variant_type_id' => $opt->variant_type_id,
-                            'variant_option_id' => $opt->id,
-                            'price_impact' => $opt->price_impact,
-                        ]);
-                    }
-                }
-            }
-
-            $total += $subtotal;
-        }
-
-        $order->update(['total' => $total]);
+        // Mengambil semua order milik user tersebut, urutkan dari yang terbaru
+        $orders = Order::with([
+            'items.product',
+            'items.details.variantOption'
+        ])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json([
             'success' => true,
-            'message' => 'Order berhasil',
-            'data' => $order->load(
-                'items.details.variantOption',
-                'items.product'
-            )
+            'message' => 'Daftar riwayat pesanan berhasil dimuat',
+            'data' => $orders
         ]);
     }
 }

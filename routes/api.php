@@ -30,7 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', fn (Request $request) => $request->user());
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders', [OrderController::class, 'index']);
-    Route::post('/orders/{id}/pay', [OrderController::class, 'payMidtrans']);
-    Route::post('/midtrans/callback', [MidtransController::class, 'callback']);
+    // Route::post('/orders/{id}/pay', [OrderController::class, 'payMidtrans']);
+    // Route::post('/midtrans/callback', [MidtransController::class, 'callback']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });

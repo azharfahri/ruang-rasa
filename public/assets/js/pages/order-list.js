@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filtered = rows.filter(r => {
             // 1. Ambil teks dari kolom-kolom yang ingin dicari
             const orderIdText = r.querySelector('.order-id')?.innerText.toLowerCase() || "";
+            const pickupCodeText = r.querySelector('.pickup-code')?.innerText.toLowerCase() || "";
             const customerName = r.querySelector('.customer-name')?.innerText.toLowerCase() || "";
             const itemsText = r.querySelector('.order-items')?.innerText.toLowerCase() || "";
 
@@ -38,9 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusText = statusBadge ? statusBadge.innerText.toUpperCase().trim() : "";
 
             // 3. Cek kecocokan (Keyword mencari di ID, Nama Pelanggan, atau Nama Produk)
-            const matchesSearch = orderIdText.includes(keyword) ||
+            const matchesSearch =
+                orderIdText.includes(keyword) ||
                 customerName.includes(keyword) ||
-                itemsText.includes(keyword);
+                itemsText.includes(keyword) ||
+                pickupCodeText.includes(keyword);
 
             const matchesStatus = selectedStatus === "" || statusText === selectedStatus;
 

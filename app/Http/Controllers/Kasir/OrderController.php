@@ -18,7 +18,9 @@ use Midtrans\Config;
 use Midtrans\Snap;
 use Midtrans\Notification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+
 
 class OrderController extends Controller
 {
@@ -90,6 +92,13 @@ class OrderController extends Controller
                     : Order::where('cashier_id', auth()->id())->where('status', 'pending')->latest()->first();
 
                 if (!$order) {
+                    // Generate kode unik 5 karakter, misal: RR-A1Z
+                    $pickupCode = 'RR-' . strtoupper(Str::random(3));
+
+                    // Pastikan kodenya belum pernah dipakai hari ini (opsional tapi aman)
+                    while (Order::where('pickup_code', $pickupCode)->whereDate('created_at', today())->exists()) {
+                        $pickupCode = 'RR-' . strtoupper(Str::random(3));
+                    }
                     $order = Order::create([
                         'branch_id'      => $branchId,
                         'cashier_id'     => auth()->id(),
@@ -97,6 +106,7 @@ class OrderController extends Controller
                         'payment_status' => 'pending',
                         'order_type'     => 'offline_dinein',
                         'total'          => 0,
+                        'pickup_code'    => $pickupCode,
                     ]);
                 }
 

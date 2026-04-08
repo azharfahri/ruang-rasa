@@ -70,7 +70,7 @@
                                             </span>
                                         @enderror
                                     </div>
-                                    <div class="d-flex align-items-center justify-content-between mb-4">
+                                    {{-- <div class="d-flex align-items-center justify-content-between mb-4">
                                         <div class="form-check">
                                             <input class="form-check-input primary" name="remember" type="checkbox"
                                                 value="" id="flexCheckChecked">
@@ -78,8 +78,8 @@
                                                 Remeber this Device
                                             </label>
                                         </div>
-                                    </div>
-                                    <div class="row">
+                                    </div> --}}
+                                    {{-- <div class="row">
                                         <div class="col-12 mb-2 mb-sm-0">
                                             <a class="btn text-dark border fw-normal d-flex align-items-center justify-content-center rounded-2 py-8"
                                                 href="/auth/google" role="button">
@@ -88,15 +88,15 @@
                                                 <span class="flex-shrink-0">Masuk Dengan Google</span>
                                             </a>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                     <button type="submit" class="btn btn-primary">
                                         {{ __('Login') }}
                                     </button>
-                                    <div class="d-flex align-items-center justify-content-center">
+                                    {{-- <div class="d-flex align-items-center justify-content-center">
                                         <p class="fs-4 mb-0 fw-medium">Belum Mempunyai Akun?</p>
                                         <a href="{{ route('register') }}"
                                             class="text-primary text-gradient font-weight-bold">Daftar disini</a>
-                                    </div>
+                                    </div> --}}
                                 </form>
                             </div>
                         </div>

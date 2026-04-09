@@ -73,7 +73,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">
-                            Tambah Option – {{ $variantType->name }}
+                            Tambah Opsi – {{ $variantType->name }}
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
@@ -83,7 +83,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="40">#</th>
-                                    <th>Nama Option</th>
+                                    <th>Nama Opsi</th>
                                     <th width="200">Harga Tambahan</th>
                                     <th width="60"></th>
                                 </tr>

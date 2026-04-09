@@ -48,8 +48,19 @@ class OrderController extends Controller
                 $total = 0;
 
                 foreach ($request->items as $item) {
+                    $branchProduct = DB::table('branch_products')
+                        ->where('branch_id', $request->branch_id)
+                        ->where('product_id', $item['product_id'])
+                        ->first();
+
+                    if (!$branchProduct) {
+                        throw new \Exception("Produk tidak tersedia di cabang ini");
+                    }
+
                     $product = Product::findOrFail($item['product_id']);
-                    $basePrice = $product->price;
+
+                    // pake override kalau ada
+                    $basePrice = $branchProduct->price_override ?? $product->price;
                     $variantPrice = 0;
 
                     // Handle Variant

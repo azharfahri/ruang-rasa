@@ -42,7 +42,7 @@ class ProductController extends Controller
                 'name' => $product->name,
                 'slug' => $product->slug,
                 'description' => $product->description,
-                'price' => (int) $product->price,
+                'price' => (int) ($branchProduct->price_override ?? $product->price),
                 'image' => $product->image
                     ? asset('storage/' . $product->image)
                     : null,

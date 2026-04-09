@@ -5,7 +5,7 @@
 
 <div class="card">
     <div class="card-body">
-        <h4 class="mb-3">Edit User</h4>
+        <h4 class="mb-3">Edit Pengguna</h4>
 
         <form action="{{ route('users.update', $user) }}" method="POST" class="confirm-submit" data-type="update">
             @csrf
@@ -35,7 +35,7 @@
             </div>
 
             <div class="mb-3">
-                <label>Role</label>
+                <label>Peran</label>
                 <select name="role_id"
                         class="form-select @error('role_id') is-invalid @enderror">
                     @foreach($roles as $role)
@@ -49,7 +49,7 @@
             </div>
 
             <div class="mb-3">
-                <label>Cabang (wajib untuk kasir)</label>
+                <label>Cabang</label>
                 <select name="branch_id"
                         class="form-select @error('branch_id') is-invalid @enderror">
                     <option value="">-- Pilih Cabang --</option>

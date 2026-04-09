@@ -4,9 +4,9 @@
     <div class="card">
         <div class="card-body">
             <div class="d-flex justify-content-between mb-3">
-                <h4>User</h4>
+                <h4>Pengguna</h4>
                 <a href="{{ route('users.create') }}" class="btn btn-primary">
-                    + Tambah User
+                    + Tambah Pengguna
                 </a>
             </div>
 
@@ -16,7 +16,7 @@
                         <th>No</th>
                         <th>Nama</th>
                         <th>Email</th>
-                        <th>Role</th>
+                        <th>Peran</th>
                         <th>Cabang</th>
                         <th width="160">Aksi</th>
                     </tr>

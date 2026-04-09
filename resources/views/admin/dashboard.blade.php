@@ -5,7 +5,7 @@
 
     <div class="row mb-4">
         <div class="col">
-            <h4 class="fw-semibold">Admin Dashboard</h4>
+            <h4 class="fw-semibold">Dasbor Admin</h4>
             <p class="text-muted">Selamat datang, {{ Auth::user()->name }}</p>
         </div>
     </div>
@@ -85,7 +85,7 @@
 
                     <ul class="list-group ">
                         <li class="list-group-item d-flex justify-content-between">
-                            <span>Total User</span>
+                            <span>Total Pengguna</span>
                             <strong>{{ $totalUsers }}</strong>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
@@ -120,7 +120,7 @@
                     <ul class="text-white fs-3">
                         <li>Manajemen Produk</li>
                         <li>Manajemen Order</li>
-                        <li>Manajemen User & Role</li>
+                        <li>Manajemen Pengguna dan Peran</li>
                         <li>Inventory Cabang</li>
                     </ul>
                 </div>

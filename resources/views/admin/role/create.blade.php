@@ -5,13 +5,13 @@
 
     <div class="card">
         <div class="card-body">
-            <h4 class="mb-3">Tambah Role</h4>
+            <h4 class="mb-3">Tambah Peran</h4>
 
             <form action="{{ route('roles.store') }}" method="POST" class="confirm-submit" data-type="save">
                 @csrf
 
                 <div class="mb-3">
-                    <label>Nama Role</label>
+                    <label>Nama Peran</label>
                     <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                         value="{{ old('name') }}">
                     @error('name')

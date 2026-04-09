@@ -3,7 +3,7 @@
 @section('content')
     <div class="container-fluid p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="h4">Dashboard Kasir</h2>
+            <h2 class="h4">Dasbor Kasir</h2>
             <span class="badge bg-primary px-3 py-2">{{ now()->translatedFormat('d F Y') }}</span>
         </div>
 

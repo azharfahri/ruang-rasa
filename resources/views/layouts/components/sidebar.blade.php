@@ -43,7 +43,7 @@
                         <a class="sidebar-link {{ request()->routeIs('cashier.dashboard') ? 'active' : '' }}"
                             href="{{ route('cashier.dashboard') }}">
                             <i class="ti ti-layout-dashboard"></i>
-                            <span>Dashboard</span>
+                            <span>Dasbor</span>
                         </a>
                         <a class="sidebar-link {{ request()->routeIs('cashier.penyimpanan.*') ? 'active' : '' }}"
                             href="{{ route('cashier.penyimpanan.index') }}">
@@ -61,7 +61,7 @@
                         <a class="sidebar-link {{ request()->routeIs('cashier.orders.*') ? 'active' : '' }}"
                             href="{{ route('cashier.orders.index') }}">
                             <i class="ti ti-receipt"></i>
-                            <span>Order</span>
+                            <span>Pesan</span>
                         </a>
                     </li>
 
@@ -69,7 +69,7 @@
                         <a class="sidebar-link {{ request()->routeIs('cashier.history') ? 'active' : '' }}"
                             href="{{ route('cashier.history') }}">
                             <i class="ti ti-history"></i>
-                            <span>Riwayat Order</span>
+                            <span>Riwayat Pesanan</span>
                         </a>
                     </li>
                 @elseif (auth()->user()->hasRole('admincabang'))
@@ -79,7 +79,7 @@
                         <a class="sidebar-link {{ request()->routeIs('admincabang.orders.*') ? 'active' : '' }}"
                             href="{{ route('admincabang.orders.index') }}">
                             <i class="ti ti-receipt"></i>
-                            <span>Order</span>
+                            <span>Pesan</span>
                         </a>
                     </li>
 
@@ -87,7 +87,7 @@
                         <a class="sidebar-link {{ request()->routeIs('admincabang.history') ? 'active' : '' }}"
                             href="{{ route('admincabang.history') }}">
                             <i class="ti ti-history"></i>
-                            <span>Riwayat Order</span>
+                            <span>Riwayat Pesanan</span>
                         </a>
                     </li>
                 @endif
@@ -99,14 +99,14 @@
                     <li class="sidebar-item">
                         <a class="sidebar-link" href="{{ route('roles.index') }}">
                             <i class="ti ti-shield"></i>
-                            <span>Role</span>
+                            <span>Peran</span>
                         </a>
                     </li>
 
                     <li class="sidebar-item">
                         <a class="sidebar-link" href="{{ route('users.index') }}">
                             <i class="ti ti-user"></i>
-                            <span>User</span>
+                            <span>Pengguna</span>
                         </a>
                     </li>
 

@@ -5,7 +5,7 @@
         <div class="card-body">
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="mb-0">Role</h4>
+                <h4 class="mb-0">Peran</h4>
                 <a href="{{ route('roles.create') }}" class="btn btn-primary">+ Tambah</a>
             </div>
 

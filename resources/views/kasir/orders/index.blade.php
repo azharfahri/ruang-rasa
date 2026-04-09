@@ -44,7 +44,7 @@
                 <table class="table table-hover align-middle" id="orderTable">
                     <thead class="table-light">
                         <tr>
-                            <th width="120">Order</th>
+                            <th width="120">Pesanan</th>
                             <th>Nama Pelanggan</th>
                             <th>Item</th>
                             <th>Total</th>
@@ -191,13 +191,13 @@
                                                         Lanjutkan
                                                     </a>
 
-                                                    <form method="POST"
+                                                    <form method="POST" data-type="delete"
                                                         action="{{ route('cashier.orders.destroy', $order) }}">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button onclick="return confirm('Yakin mau batalin order ini? ')"
+                                                        <button onclick="return confirm('Yakin ingin membatalkan pesanan ini? ')"
                                                             class="btn btn-sm btn-danger shadow-sm">
-                                                            Batalin
+                                                            Batalkan
                                                         </button>
                                                     </form>
                                                 </div>

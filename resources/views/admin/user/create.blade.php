@@ -5,7 +5,7 @@
 
 <div class="card">
     <div class="card-body">
-        <h4 class="mb-3">Tambah User</h4>
+        <h4 class="mb-3">Tambah Pengguna</h4>
 
         <form action="{{ route('users.store') }}" method="POST" class="confirm-submit" data-type="save">
             @csrf
@@ -34,10 +34,10 @@
             </div>
 
             <div class="mb-3">
-                <label>Role</label>
+                <label>Peran</label>
                 <select name="role_id"
                         class="form-select @error('role_id') is-invalid @enderror">
-                    <option value="">-- Pilih Role --</option>
+                    <option value="">-- Pilih Peran --</option>
                     @foreach($roles as $role)
                         <option value="{{ $role->id }}"
                             {{ old('role_id') == $role->id ? 'selected' : '' }}>
@@ -49,7 +49,7 @@
             </div>
 
             <div class="mb-3">
-                <label>Cabang (wajib untuk kasir)</label>
+                <label>Cabang </label>
                 <select name="branch_id"
                         class="form-select @error('branch_id') is-invalid @enderror">
                     <option value="">-- Pilih Cabang --</option>

@@ -5,14 +5,14 @@
 
     <div class="card">
         <div class="card-body">
-            <h4 class="mb-3">Edit Role</h4>
+            <h4 class="mb-3">Edit Peran</h4>
 
             <form action="{{ route('roles.update', $role) }}" method="POST" class="confirm-submit" data-type="update">
                 @csrf
                 @method('PUT')
 
                 <div class="mb-3">
-                    <label>Nama Role</label>
+                    <label>Nama Peran</label>
                     <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                         value="{{ old('name', $role->name) }}">
                     @error('name')

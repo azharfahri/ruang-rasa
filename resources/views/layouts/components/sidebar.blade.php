@@ -26,13 +26,13 @@
                         <a class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
                             href="{{ route('admin.dashboard') }}">
                             <i class="ti ti-layout-dashboard"></i>
-                            <span>Dashboard</span>
+                            <span>Dasbor</span>
                         </a>
                     @elseif(auth()->user()->hasRole('admincabang'))
                         <a class="sidebar-link {{ request()->routeIs('admincabang.dashboard') ? 'active' : '' }}"
                             href="{{ route('admincabang.dashboard') }}">
                             <i class="ti ti-layout-dashboard"></i>
-                            <span>Dashboard</span>
+                            <span>Dasbor</span>
                         </a>
                         <a class="sidebar-link {{ request()->routeIs('admincabang.penyimpanan.*') ? 'active' : '' }}"
                             href="{{ route('admincabang.penyimpanan.index') }}">

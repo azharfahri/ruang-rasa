@@ -51,9 +51,8 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <span
-                                        class="badge bg-{{ $item->status == 'available' ? 'success' : 'danger' }} rounded-pill px-3">
-                                        {{ strtoupper($item->status) }}
+                                    <span class="badge bg-{{ $item->stock > 0 ? 'success' : 'danger' }} rounded-pill px-3">
+                                        {{ $item->stock > 0 ? 'AVAILABLE' : 'OUT OF STOCK' }}
                                     </span>
                                 </td>
                                 <td>

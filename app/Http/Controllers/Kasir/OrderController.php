@@ -517,7 +517,6 @@ class OrderController extends Controller
 
         DB::transaction(function () use ($order) {
 
-            // 🔥 BALIKIN STOCK
             foreach ($order->items as $item) {
                 $branchProduct = BranchProduct::where('branch_id', $order->branch_id)
                     ->where('product_id', $item->product_id)
@@ -528,7 +527,6 @@ class OrderController extends Controller
                 }
             }
 
-            // 🔥 JANGAN DELETE, tapi update status
             $order->update([
                 'status' => 'cancelled',
                 'payment_status' => 'cancel'

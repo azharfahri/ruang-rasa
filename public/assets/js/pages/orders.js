@@ -145,7 +145,15 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             body: JSON.stringify({ customer_name: name })
         })
-            .then(res => res.json())
+            .then(async res => {
+                // Cek apakah response-nya oke (status 200)
+                if (!res.ok) {
+                    const text = await res.text(); // Ambil pesan error asli (HTML/JSON)
+                    console.error("Error dari Server:", text);
+                    throw new Error("Server error saat generate token");
+                }
+                return res.json();
+            })
             .then(data => {
                 if (!data.snap_token) {
                     Swal.fire('Gagal', 'Snap token tidak ditemukan', 'error');

@@ -20,7 +20,7 @@ class RoleMiddleware
             ->exists();
 
         if (! $hasRole) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return abort(403, 'Anda tidak berhak akses halaman ini');
         }
 
         return $next($request);

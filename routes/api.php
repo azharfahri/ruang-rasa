@@ -8,7 +8,6 @@ use App\Http\Controllers\Kasir\OrderController as KasirOrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\BranchController;
 use App\Http\Controllers\Api\CategoryController;
-use App\Http\Controllers\Api\MidtransController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -31,6 +30,8 @@ Route::post('/midtrans/notification', [KasirOrderController::class, 'midtransNot
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', fn (Request $request) => $request->user());
+    Route::post('/update-profile', [AuthController::class, 'updateProfile']);
+    Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders', [OrderController::class, 'index']);
     // Route::post('/orders/{id}/pay', [OrderController::class, 'payMidtrans']);

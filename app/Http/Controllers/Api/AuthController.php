@@ -65,6 +65,55 @@ class AuthController extends Controller
         ], 200);
     }
 
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        if ($request->has('name')) {
+            $user->name = $request->name;
+        }
+
+        if ($request->has('email')) {
+            $user->email = $request->email;
+        }
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Profile berhasil diupdate',
+            'user' => $user
+        ], 200);
+    }
+
+    public function deleteAccount()
+    {
+        $user = Auth::user();
+
+        // hapus token dulu (biar auto logout)
+        $user->tokens()->delete();
+
+        // hapus user
+        $user->delete();
+
+        return response()->json([
+            'message' => 'Akun berhasil dihapus'
+        ], 200);
+    }
+
     public function logout()
     {
         Auth::user()->tokens()->delete();

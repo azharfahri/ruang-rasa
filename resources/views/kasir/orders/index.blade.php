@@ -191,12 +191,16 @@
                                                         Lanjutkan
                                                     </a>
 
-                                                    <form method="POST" data-type="delete"
-                                                        action="{{ route('cashier.orders.destroy', $order) }}">
+                                                    <form method="POST"
+                                                        action="{{ route('cashier.orders.destroy', $order) }}"
+                                                        class="confirm-submit" data-type="delete"
+                                                        data-title="Batalkan Pesanan?"
+                                                        data-text="Pesanan yang dibatalkan tidak bisa dikembalikan!">
+
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button onclick="return confirm('Yakin ingin membatalkan pesanan ini? ')"
-                                                            class="btn btn-sm btn-danger shadow-sm">
+
+                                                        <button type="submit" class="btn btn-sm btn-danger shadow-sm">
                                                             Batalkan
                                                         </button>
                                                     </form>

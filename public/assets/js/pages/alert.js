@@ -34,6 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
             icon: 'warning',
             confirmButtonText: 'Lanjutkan',
             confirmButtonColor: '#3085d6'
+        },
+        cancel: {
+            title: 'Batalkan Pesanan?',
+            text: 'Pesanan akan dibatalkan!',
+            icon: 'warning',
+            confirmButtonText: 'Ya, Batalkan',
+            confirmButtonColor: '#d33'
         }
     };
 

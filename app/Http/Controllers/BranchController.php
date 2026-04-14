@@ -42,7 +42,7 @@ class BranchController extends Controller
     public function update(Request $request, Branch $branch)
     {
         $data = $request->validate([
-            'name'       => 'required|string|max:255|unique:branches,name',
+            'name'       => 'required|string|max:255|unique:branches,name,' . $branch->id,
             'address'    => 'required|string',
             'latitude'   => 'nullable|numeric',
             'longitude'  => 'nullable|numeric',

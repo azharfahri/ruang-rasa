@@ -3,7 +3,11 @@
 @section('content')
     <div class="container-fluid p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
+            @if (auth()->user()->hasRole('admincabang'))
+            <h2 class="h4">Dasbor Admin Cabang</h2>
+            @else
             <h2 class="h4">Dasbor Kasir</h2>
+            @endif
             <span class="badge bg-primary px-3 py-2">{{ now()->translatedFormat('d F Y') }}</span>
         </div>
 
@@ -14,7 +18,7 @@
                         <div class="flex-shrink-0 bg-info p-3 rounded text-white"><i class="fas fa-shopping-cart fa-2x"></i>
                         </div>
                         <div class="ms-3">
-                            <p class="text-muted mb-0 small">Total Order</p>
+                            <p class="text-muted mb-0 small">Total Semua Pesanan</p>
                             <h3 class="fw-bold mb-0 fs-5">{{ number_format($totalOrders) }}</h3>
                         </div>
                     </div>
@@ -26,7 +30,7 @@
                         <div class="flex-shrink-0 bg-success p-3 rounded text-white"><i class="fas fa-calculator fa-2x"></i>
                         </div>
                         <div class="ms-3">
-                            <p class="text-muted mb-0 small">Total Pendapatan</p>
+                            <p class="text-muted mb-0 small">Total Semua Pendapatan</p>
                             <h3 class="fw-bold mb-0 fs-5 text-success">Rp {{ number_format($totalIncome, 0, ',', '.') }}
                             </h3>
                         </div>
@@ -39,7 +43,7 @@
                         <div class="flex-shrink-0 bg-warning p-3 rounded text-white"><i
                                 class="fas fa-calendar-check fa-2x"></i></div>
                         <div class="ms-3">
-                            <p class="text-muted mb-0 small">Order Hari Ini</p>
+                            <p class="text-muted mb-0 small">Pesanan Hari Ini</p>
                             <h3 class="fw-bold mb-0 fs-5">{{ number_format($todayOrders) }}</h3>
                         </div>
                     </div>

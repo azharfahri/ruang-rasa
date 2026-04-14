@@ -18,12 +18,12 @@
             </div>
         @endif
 
-        <h4 class="mb-3">Refund Order #{{ $order->id }}</h4>
+        <h4 class="mb-3">Pengembalian Pesanan #{{ $order->id }}</h4>
 
         <div class="card mb-3">
             <div class="card-body">
                 <p><strong>Customer:</strong> {{ $order->customer_name }}</p>
-                <p><strong>Total Order:</strong> Rp {{ number_format($order->total, 0, ',', '.') }}</p>
+                <p><strong>Total Pesanan:</strong> Rp {{ number_format($order->total, 0, ',', '.') }}</p>
                 <p><strong>Tanggal:</strong> {{ $order->created_at->format('d M Y H:i') }}</p>
             </div>
         </div>
@@ -34,7 +34,7 @@
             <div class="card mb-3">
                 <div class="card-body">
 
-                    <h6>Pilih Item Yang Direfund</h6>
+                    <h6>Pilih Item Yang Dikembalikan</h6>
 
                     @foreach ($order->items as $item)
                         @php
@@ -79,13 +79,13 @@
                                     {{-- Form Input Qty & Type tetap sama seperti sebelumnya --}}
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <label class="small fw-bold">Qty Refund</label>
+                                            <label class="small fw-bold">Jumlah Pengembalian</label>
                                             <input type="number" name="items[{{ $item->id }}][qty]"
                                                 class="form-control" min="0" max="{{ $remainingQty }}"
                                                 value="0">
                                         </div>
                                         <div class="col-md-8">
-                                            <label class="small fw-bold">Tipe Refund</label>
+                                            <label class="small fw-bold">Tipe Pengembalian</label>
                                             <select name="items[{{ $item->id }}][type]" class="form-select">
                                                 <option value="return">Kembali Uang</option>
                                                 <option value="exchange">Tukar Barang Baru</option>
@@ -102,12 +102,12 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Alasan Refund</label>
+                <label class="form-label">Alasan Pengembalian</label>
                 <textarea name="reason" class="form-control" required></textarea>
             </div>
 
             <button class="btn btn-danger">
-                Proses Refund
+                Proses Pengembalian
             </button>
 
             <a href="{{ route('admincabang.orders.index') }}" class="btn btn-secondary">

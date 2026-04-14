@@ -12,7 +12,7 @@
 
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h4 class="mb-1">Inventory Cabang</h4>
+                    <h4 class="mb-1">Penyimpanan Cabang</h4>
                     <small class="text-muted">{{ $branch->name }}</small>
                 </div>
 
@@ -108,7 +108,7 @@
                                     <th width="60">Pilih</th>
                                     <th>Produk</th>
                                     <th width="120">Stok</th>
-                                    <th width="180">Harga Override</th>
+                                    <th width="180">Harga Khusus</th>
                                 </tr>
                             </thead>
                             <tbody>

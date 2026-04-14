@@ -112,8 +112,10 @@ class BranchProductController extends Controller
         }
 
         // Filter Status
-        if ($status) {
-            $query->where('status', $status);
+        if ($status == 'available') {
+            $query->where('stock', '>', 0);
+        } elseif ($status == 'soldout') {
+            $query->where('stock', 0);
         }
 
         $items = $query->orderBy('stock', 'asc') // Menampilkan stok tersedikit di atas agar terpantau

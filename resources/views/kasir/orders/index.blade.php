@@ -6,11 +6,11 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h4 class="mb-0">Order</h4>
+                    <h4 class="mb-0">Pesanan</h4>
                     <small class="text-muted">Total data: {{ count($orders) }}</small>
                 </div>
                 @if (auth()->user()->hasRole('cashier'))
-                    <a href="{{ route('cashier.orders.create') }}" class="btn btn-primary">+ Order Baru</a>
+                    <a href="{{ route('cashier.orders.create') }}" class="btn btn-primary">+ Tambah Pesanan Baru</a>
                 @endif
             </div>
 

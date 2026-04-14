@@ -3,7 +3,7 @@
 @section('content')
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <h4 class="fw-bold mb-4">Inventory Cabang</h4>
+            <h4 class="fw-bold mb-4">Penyimpanan Cabang</h4>
 
             {{-- Filter & Search --}}
             <form action="{{ route('cashier.penyimpanan.index') }}" method="GET" id="filterForm" class="mb-4">
@@ -75,7 +75,7 @@
                             <tr>
                                 <td colspan="5" class="text-center py-5 text-muted">
                                     <i class="bi bi-box-seam d-block fs-1 mb-2"></i>
-                                    Produk tidak ditemukan dalam inventory cabang.
+                                    Produk tidak ditemukan dalam penyimpanan cabang.
                                 </td>
                             </tr>
                         @endforelse

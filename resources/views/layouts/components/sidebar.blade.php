@@ -83,13 +83,6 @@
                         </a>
                     </li>
 
-                    <li class="sidebar-item">
-                        <a class="sidebar-link {{ request()->routeIs('admincabang.history') ? 'active' : '' }}"
-                            href="{{ route('admincabang.history') }}">
-                            <i class="ti ti-history"></i>
-                            <span>Riwayat Pesanan</span>
-                        </a>
-                    </li>
                 @endif
 
                 {{-- ADMIN ONLY --}}

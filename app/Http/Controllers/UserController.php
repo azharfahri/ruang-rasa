@@ -15,7 +15,7 @@ class UserController extends Controller
     {
         $users = User::with(['roles', 'branch'])
             ->whereDoesntHave('roles', function ($query) {
-                $query->where('name', 'customer');
+                $query->whereIn('name', ['customer', 'admin']);
             })
             ->get();
 

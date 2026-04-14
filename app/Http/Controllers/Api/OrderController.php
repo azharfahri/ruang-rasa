@@ -42,7 +42,7 @@ class OrderController extends Controller
                     'total' => 0,
                     'status' => 'pending',
                     'payment_status' => 'pending',
-                    'pickup_code' => $pickupCode, // <--- Simpan di sini
+                    'pickup_code' => $pickupCode, 
                 ]);
 
                 $total = 0;

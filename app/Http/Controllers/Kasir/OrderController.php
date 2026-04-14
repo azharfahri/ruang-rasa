@@ -512,7 +512,7 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         if ($order->status !== 'pending') {
-            return back()->with('error', 'Tidak bisa membatalkan order ini 😤');
+            return back()->with('error', 'Tidak bisa membatalkan order ini ');
         }
 
         DB::transaction(function () use ($order) {

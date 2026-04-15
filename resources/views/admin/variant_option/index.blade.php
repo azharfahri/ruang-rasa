@@ -10,7 +10,7 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h4 class="mb-0">Option Variant</h4>
+                    <h4 class="mb-0">Opsi varian</h4>
                     <small class="text-muted">
                         {{ $variantType->name }} · {{ $variantType->product->name }}
                         · Total data: {{ $options->count() }}
@@ -18,7 +18,7 @@
                 </div>
 
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVariantOptionModal">
-                    + Option
+                    + Opsi
                 </button>
             </div>
 
@@ -54,7 +54,7 @@
                         @empty
                             <tr>
                                 <td colspan="4" class="text-center text-muted py-4">
-                                    Belum ada option
+                                    Belum ada opsi
                                 </td>
                             </tr>
                         @endforelse

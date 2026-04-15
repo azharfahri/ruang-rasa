@@ -1,13 +1,13 @@
 <header class="topbar">
     <div class="with-vertical">
         <nav class="navbar navbar-expand-lg p-0">
-            <ul class="navbar-nav">
+            {{-- <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link sidebartoggler" href="javascript:void(0)">
                         <i class="ti ti-menu-2"></i>
                     </a>
                 </li>
-            </ul>
+            </ul> --}}
 
             <div class="collapse navbar-collapse justify-content-end">
                 <ul class="navbar-nav ms-auto">

@@ -5,7 +5,7 @@
 
 <div class="card">
     <div class="card-body">
-        <h4 class="mb-3">Tambah Variant Type</h4>
+        <h4 class="mb-3">Tambah Tipe Varian</h4>
 
         @if ($errors->any())
             <div class="alert alert-danger">
@@ -21,7 +21,7 @@
             @csrf
 
             <div class="mb-3">
-                <label>Nama Variant</label>
+                <label>Nama Varian</label>
                 <input type="text" name="name"
                        class="form-control @error('name') is-invalid @enderror"
                        value="{{ old('name') }}" required>

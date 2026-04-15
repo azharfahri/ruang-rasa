@@ -8,7 +8,7 @@
 
 <div class="card">
     <div class="card-body">
-        <h4 class="mb-3">Tambah Option ({{ $variantType->name }})</h4>
+        <h4 class="mb-3">Tambah Opsi ({{ $variantType->name }})</h4>
 
         @if ($errors->any())
             <div class="alert alert-danger">
@@ -24,7 +24,7 @@
             @csrf
 
             <div class="mb-3">
-                <label class="form-label">Nama Option</label>
+                <label class="form-label">Nama Opsi</label>
                 <input type="text"
                        name="option_name"
                        class="form-control @error('option_name') is-invalid @enderror"

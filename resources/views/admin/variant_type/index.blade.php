@@ -2,7 +2,7 @@
 
 @section('content')
     <a href="{{ route('products.index') }}" class="btn btn-light mb-3">
-        ← Kembali ke Product
+        ← Kembali ke Produk
     </a>
 
     <div class="card">
@@ -10,14 +10,14 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h4 class="mb-0">Variant Produk</h4>
+                    <h4 class="mb-0">Varian Produk</h4>
                     <small class="text-muted">
                         {{ $product->name }} · Total data: {{ $variantTypes->count() }}
                     </small>
                 </div>
 
                 <a href="{{ route('product.variant-types.create', $product) }}" class="btn btn-primary">
-                    + Variant
+                    + Varian
                 </a>
             </div>
 
@@ -41,7 +41,7 @@
                             <th width="60">No</th>
                             <th>Nama</th>
                             <th>Input</th>
-                            <th>Option</th>
+                            <th>Opsi</th>
                             <th width="160" class="text-end">Aksi</th>
                         </tr>
                     </thead>
@@ -57,7 +57,7 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('variant-types.options.index', $vt) }}" class="btn btn-sm btn-info">
-                                        Option ({{ $vt->options_count }})
+                                        Opsi ({{ $vt->options_count }})
                                     </a>
                                 </td>
                                 <td class="text-end">
@@ -76,7 +76,7 @@
                         @empty
                             <tr>
                                 <td colspan="5" class="text-center text-muted py-4">
-                                    Belum ada variant
+                                    Belum ada varian
                                 </td>
                             </tr>
                         @endforelse

@@ -30,7 +30,7 @@
                     <thead class="table-light">
                         <tr>
                             <th width="60">No</th>
-                            <th>Kode Product</th>
+                            <th>Kode Produk</th>
                             <th>Nama</th>
                             <th>Kategori</th>
                             <th>Harga</th>

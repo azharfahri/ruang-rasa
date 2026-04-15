@@ -10,7 +10,10 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::latest()->get();
+        $roles = Role::where('name', '!=', 'admin')
+            ->latest()
+            ->get();
+
         return view('admin.role.index', compact('roles'));
     }
 
@@ -57,7 +60,7 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
-         try {
+        try {
             $role->delete();
             return redirect()
                 ->route('roles.index')

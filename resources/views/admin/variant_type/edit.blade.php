@@ -5,14 +5,14 @@
 
 <div class="card">
     <div class="card-body">
-        <h4 class="mb-3">Edit Variant Type</h4>
+        <h4 class="mb-3">Edit Tipe Varian</h4>
 
         <form action="{{ route('product.variant-types.update', [$variantType->product, $variantType]) }}" method="POST" class="confirm-submit" data-type="update">
             @csrf
             @method('PUT')
 
             <div class="mb-3">
-                <label>Nama Variant</label>
+                <label>Nama Varian</label>
                 <input type="text" name="name"
                        class="form-control @error('name') is-invalid @enderror"
                        value="{{ old('name', $variantType->name) }}" required>

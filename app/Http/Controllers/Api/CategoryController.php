@@ -10,7 +10,6 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        // Ambil semua kategori
         $categories = Category::select('id', 'name', 'slug')->get();
 
         return response()->json([
@@ -31,7 +30,6 @@ class CategoryController extends Controller
 
             return response()->json(['success' => true, 'data' => $category]);
         } catch (\Exception $e) {
-            // Ini akan nampilin pesan error aslinya di Postman
             return response()->json([
                 'success' => false,
                 'error_message' => $e->getMessage(),

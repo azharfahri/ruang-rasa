@@ -142,7 +142,7 @@
         @if ($order->exists && $order->items->count() > 0)
             <hr>
 
-            <input type="text" id="customer_name" name="customer_name" class="form-control form-control-sm"
+            <input type="text" id="customer_name" name="customer_name" placeholder="Masukan Nama Customer" class="form-control form-control-sm"
                 value="{{ old('customer_name', $order->customer_name) }}" required>
 
             {{-- ================= CASH ================= --}}
